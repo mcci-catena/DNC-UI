@@ -23,13 +23,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.smppandi.DNC"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     }
   }
 }
-
-
-

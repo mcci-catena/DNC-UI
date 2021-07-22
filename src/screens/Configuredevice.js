@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, Alert, Picker ,ScrollView} from 'react-native'
+import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform} from 'react-native'
 import TextInput from '../components/TextInput'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
@@ -9,11 +10,13 @@ import  moment from 'moment'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
+
 const Configuredevice = ({ navigation }) => {
   let [site, setsite] = useState([])
   let [pile, setpile] = useState([])
   let [hwid, sethwid] = useState([])
-  
+  const[lat,setlat]=useState('');
+  const[long,setlong]=useState('');
   let [servername, setServername] = useState({ value: '' })
   let [databasename, setdatabasename] = useState('')
   let [pilename, setpilename] = useState('')
@@ -67,10 +70,10 @@ const Configuredevice = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [time, setTime] = useState(new Date());
   const tablearray=[];
-  
-  const [tableHead, settableHead] =useState(["S.No",'Site', 'Pile', 'Location','Harware id','Install Date','Remove Date'])
+  const [clienttaglist,setclienttaglist]=useState({});
+  const [tableHead, settableHead] =useState([])
   const [tableData, settableData] = useState([]);
-  const [widthArr, setwidthArr] = useState([50, 100, 100, 100, 200, 200, 200]);
+  const [widthArr, setwidthArr] = useState([]);
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -85,8 +88,7 @@ const Configuredevice = ({ navigation }) => {
         console.log('Client');
         setpickerhide(false);
         setShouldShow(false);
-        fetchtabledata(uname.replace(/['"]+/g, ''));
-       // settableValue(uname);
+        
       }
       else{
         console.log('Admin');
@@ -103,6 +105,45 @@ const Configuredevice = ({ navigation }) => {
   }, [])
 
   
+  const [textInput, settextInput] = useState([]);
+  const [inputData, setinputData] = useState([])
+  const[taglength,settaglength]=useState();
+ 
+
+  let textarray = [];
+ const addTextInput = (index) => {
+     
+     
+      
+     textarray.push(<TextInput key={index}  label="Tag"
+     onChangeText={(text) => addValues(text,index)} />);
+     alert(JSON.stringify(textarray))
+     
+     settextInput(textarray);
+  }
+  
+ 
+  const addValues = (text, index) => {
+    let dataArray = inputData;
+    let checkBool = false;
+    if (dataArray.length !== 0){
+      dataArray.forEach(element => {
+        if (element.index === index ){
+          element.text = text;
+          checkBool = true;
+        }
+      });
+    }
+    if (checkBool){
+      setinputData(dataArray);
+  }
+  else {
+    dataArray.push({'text':text,'index':index});
+    setinputData(dataArray);
+  }
+  
+  alert(JSON.stringify(inputData));
+  }
     const dateformatvalue = moment(date).format('MM/DD/YYYY')
     const timevalue = moment(time).format('HH:mm:ss')
     const datestringvalue = dateformatvalue + ',' + timevalue
@@ -134,8 +175,28 @@ const Configuredevice = ({ navigation }) => {
       
     };
     const fetchtabledata = (itemValue) => {
-     
-      const url='https://staging-analytics.weradiate.com/apidbm/listalldev/'+''+itemValue+'';
+       var taglist=[];
+       let tableHead=[];
+       let widthArr=[];
+       taglist=clienttaglist[itemValue];
+       alert(JSON.stringify(taglist));
+       settaglength(taglist.length);
+       tableHead.push("S.NO");
+       widthArr.push(50);
+       for(var i=0;i<taglist.length;i++)
+       {
+            tableHead.push(taglist[i]);
+            widthArr.push(100);
+       }
+       tableHead.push("Hardware id")
+       tableHead.push("Install Date")
+       tableHead.push("Remove Date")
+       widthArr.push(200);
+       widthArr.push(200);
+       widthArr.push(200);
+       settableHead(tableHead);
+       setwidthArr(widthArr);
+      const url='https://staging-iseechange.mcci.mobi/dncserver/listrmdev/'+''+itemValue+'';
       const getMethod={
         method: 'GET',
         headers: {
@@ -158,21 +219,21 @@ const Configuredevice = ({ navigation }) => {
           console.log(JSON.stringify(responseJson))
           for(var i=0;i<responseJson.length;i++)
           {
+              
               let j=i+1;
-              
-              let site=responseJson[i].site;
-              let pile=responseJson[i].pile;
-              
-              let lname=responseJson[i].lname;
-              let devid=responseJson[i].devid;
+              let hwid=responseJson[i].hwid;
               let idate=responseJson[i].idate;
               let rdate=responseJson[i].rdate;
               let array=[];
               array.push(j);
-              array.push(site);
-              array.push(pile);
-              array.push(lname);
-              array.push(devid);
+            
+             for(var l=0;l<taglist.length;l++)
+             {
+                let tag=taglist[l];
+                let data=responseJson[i][""+tag+""]
+                array.push(data);
+             }
+              array.push(hwid);
               array.push(idate);
               array.push(rdate);
              
@@ -185,7 +246,7 @@ const Configuredevice = ({ navigation }) => {
       })
     }
   const fetchClientlist = token => {
-    fetch('https://staging-analytics.weradiate.com/apidbm/client', {
+    fetch('https://staging-iseechange.mcci.mobi/dncserver/client', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -205,13 +266,14 @@ const Configuredevice = ({ navigation }) => {
             alert(JSON.stringify(responseJson['message']))
           }
           clients.push('Select the Clients')
-
+          let taglist={}
           for (var i = 0; i < responseJson.length; i++) {
             const json = responseJson[i].cname
-
+            taglist[json]=responseJson[i].taglist;
             clients.push(json)
           }
-
+          alert(JSON.stringify(taglist));
+          setclienttaglist(taglist);
           setData(clients)
         })
       })
@@ -415,7 +477,7 @@ const Configuredevice = ({ navigation }) => {
     } else {
 
       setIsDialogVisible(false)
-      var url = 'https://staging-analytics.weradiate.com/apidbm/device'
+      var url = 'https://staging-iseechange.mcci.mobi/dncserver/device'
       console.log("new url:"+url);
       const postMethod = {
         method: 'POST',
@@ -426,8 +488,8 @@ const Configuredevice = ({ navigation }) => {
         },
         body: JSON.stringify({
           client: selectedValue,
-          site: siteValue,
-          pile: pileValue,
+          lat: lat,
+          long: long,
           id: deviceValue,
           location: locationValue,
           datetime: datevalue,
@@ -550,11 +612,13 @@ const Configuredevice = ({ navigation }) => {
   }
 
   const fetchDevicelist = selectedValue => {
+    
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listmdev/' +
+      'https://staging-iseechange.mcci.mobi/dncserver/listfrdev/' +
       '' +
       selectedValue +
       ''
+     
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -587,7 +651,7 @@ const Configuredevice = ({ navigation }) => {
 
             devices.push(activehwid['hwid'])
           }
-
+          
           setdevice(devices)
           sethwid(hwids)
         })
@@ -778,6 +842,11 @@ const Configuredevice = ({ navigation }) => {
     
   }
   const addDevice = () => {
+    for(var i=0;i<taglength;i++)
+    {
+      addTextInput(i);
+    }
+    
     setselectedValue('');
     setsiteValue('');
     setpileValue('');
@@ -842,6 +911,7 @@ const pickerenabled=(itemValue) =>
       
     fetchtabledata(itemValue);
     settablehide(true);
+    fetchDevicelist(itemValue)
     }
 }
   return (
@@ -914,7 +984,7 @@ const pickerenabled=(itemValue) =>
         </ScrollView>
         <Portal>
           <Dialog
-            style={{ width: '90%', marginLeft: '5%',backgroundColor: '#F7F6E7' }}
+            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
             visible={isDialogVisible}
             onDismiss={() => setIsDialogVisible(false)}
           >
@@ -933,63 +1003,47 @@ const pickerenabled=(itemValue) =>
                 width:'75%'
               }}
             >
-              <Picker
-                selectedValue={selectedValue}
-                style={{width: '100%'}}
-                onValueChange={itemValue => cliendropdownEnabled(itemValue)}
-              >
-                {data.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
+              
              
-
-              <Picker
-                selectedValue={siteValue}
-                style={{width: '100%'}}
-                onValueChange={itemValue => sitedropdownEnabled(itemValue)}
-              >
-                {site.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-               <Picker
-                selectedValue={pileValue}
-                style={{
-                  width: '100%'
-
-                }}
-                onValueChange={itemValue => piledropdownEnabled(itemValue)}
-              >
-                {pile.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                selectedValue={locationValue}
-                style={{
-                  width: '100%'
-
-                }}
-                onValueChange={itemValue => locationdropdownEnabled(itemValue)}
-              >
-                {location.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
+             <Picker
                 //  enabled={false}
                 selectedValue={deviceValue}
                 style={{
                   width: '100%'
 
                 }}
-                onValueChange={itemValue => decicedropdownEnabled(itemValue)}
+                onValueChange={itemValue => setdeviceValue(itemValue)}
               >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
               </Picker> 
+            
+             
+              <TextInput
+              label="Enter lattitude"
+              returnKeyType="next"
+              value={lat}
+              onChangeText={text => setlat(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+            <TextInput
+              label="Enter longtitude"
+              returnKeyType="next"
+              value={long}
+              onChangeText={text => setlong(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+              {textInput.map((value,key) => {
+          return value
+        })}
+              
             </Dialog.Content>
             <Dialog.Actions>
               <Button

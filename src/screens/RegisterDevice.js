@@ -10,7 +10,6 @@ import {
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
-
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import  moment from 'moment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -25,6 +24,8 @@ const RegisterDevice = ({ navigation }) => {
   let [deviceid, setdeviceid] = useState('')
   let [devid, setdevid] = useState('')
   let [deveui, setdeveui] = useState('')
+  let [measName, setmeasName] = useState('')
+  let [fieldName, setfieldName] = useState('')
   const [idate, setidate] = useState('')
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [data, setData] = useState([])
@@ -40,13 +41,13 @@ const RegisterDevice = ({ navigation }) => {
   const [showAlert, setshowAlert] = useState(false);
   const [edit, setedit] = useState(null);
   const [shouldShow, setShouldShow] = useState(true);
-  
+  const[oldClient,setoldClient]=useState('');
   const [datevalue, onChange] = useState()
   const tablearray=[];
   const clients = [];
-  const [tableHead, settableHead] =useState(["S.No","clents", 'Hardware ID', 'Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
+  const [tableHead, settableHead] =useState(["S.No","clents", 'Hardware ID','Measurement Name','Field Name','Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
   const [tableData, settableData] = useState([]);
-  const [widthArr, setwidthArr] = useState([50,100, 180, 180, 180, 180, 200, 200, 100]);
+  const [widthArr, setwidthArr] = useState([50,100, 180, 180,180,180, 180, 180, 200, 200, 100]);
 
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
@@ -91,7 +92,7 @@ const RegisterDevice = ({ navigation }) => {
   
   
   const fetchtabledata =( token )=> {
-    const url='https://staging-analytics.weradiate.com/apidbm/listadev';
+    const url='https://staging-iseechange.mcci.mobi/dncserver/listardev';
     const getMethod={
       method: 'GET',
       headers: {
@@ -122,10 +123,14 @@ const RegisterDevice = ({ navigation }) => {
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
             array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
@@ -141,7 +146,7 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-analytics.weradiate.com/apidbm/client', {
+    fetch('https://staging-iseechange.mcci.mobi/dncserver/client', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -171,7 +176,7 @@ const RegisterDevice = ({ navigation }) => {
           }
 
           setData(clients)
-          //alert(JSON.stringify(clients));
+          alert(JSON.stringify(clients));
         })
       })
       .catch(error => {
@@ -200,7 +205,7 @@ const RegisterDevice = ({ navigation }) => {
   const Adddevice = () => {
     setIsDialogVisible(false)
 
-    var url = 'https://staging-analytics.weradiate.com/apidbm/mdevice'
+    var url = 'https://staging-iseechange.mcci.mobi/dncserver/regdev'
     console.log(url);
     const putMethod = {
       method: 'POST',
@@ -216,9 +221,11 @@ const RegisterDevice = ({ navigation }) => {
         devID: devid,
         devEUI: deveui,
         datetime: datestringvalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
-    console.log(putMethod);
+    alert(JSON.stringify(putMethod));
     fetch(url, putMethod).then(response => {
       const statusCode = response.status
       response.json().then(responseJson => {
@@ -246,7 +253,7 @@ const RegisterDevice = ({ navigation }) => {
     />
       </View>
     </TouchableOpacity>
-    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[1]+"",hwid:""+cellData[2]+"",idate:""+cellData[6]+""})}>
+    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[1]+"",hwid:""+cellData[2]+"",idate:""+cellData[8]+""})}>
     <View >
     <Image
        source={require('../assets/delete.png')}
@@ -269,14 +276,17 @@ const RegisterDevice = ({ navigation }) => {
     setedit(true);
     setdilogtitle('Edit device');
     setclientName(rowData[1]);
+    setoldClient(rowData[1]);
     setselectedValue(rowData[1]);
     setHardwareid(rowData[2]);
     setoldhwid(rowData[2]);
-    setdeviceid(rowData[3]);
-    setdevid(rowData[4]);
-    setdeveui(rowData[5]);
-    setidate(rowData[6]);
-    var dateutc = Date.parse(rowData[6]);
+    setdeviceid(rowData[5]);
+    setdevid(rowData[6]);
+    setdeveui(rowData[7]);
+    setidate(rowData[8]);
+    setmeasName(rowData[3])
+    setfieldName(rowData[4])
+    var dateutc = Date.parse(rowData[8]);
     // var dateist=new Date(dateutc);
     // dateist.setHours(dateist.getHours() + 5); 
     // dateist.setMinutes(dateist.getMinutes() + 30);
@@ -316,7 +326,7 @@ const RegisterDevice = ({ navigation }) => {
 
   const checkeditable = ( clientName, Hardwareid) => {
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listmdev/' +
+      'https://staging-iseechange.mcci.mobi/dncserver/listfrdev/' +
       '' +
       clientName +
       ''
@@ -382,10 +392,11 @@ const RegisterDevice = ({ navigation }) => {
     }
     else{
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listadev/' +
+      'https://staging-iseechange.mcci.mobi/dncserver/listardev/' +
       '' +
       itemValue +
       ''
+    console.log(url);  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -417,10 +428,14 @@ const RegisterDevice = ({ navigation }) => {
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
             array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
@@ -443,7 +458,7 @@ const RegisterDevice = ({ navigation }) => {
      if(edit)
      {
        console.log("onedit");
-       updateDevice(clientName,Hardwareid);
+       updateDevice(selectedValue,Hardwareid);
      }
      else
      {
@@ -453,14 +468,13 @@ const RegisterDevice = ({ navigation }) => {
      }
    }
   const Deletedevice = ( client, hwid, idate ) => {
-    alert(JSON.stringify(client));
-    alert(JSON.stringify(hwid));
-    alert(JSON.stringify(idate));
+    
+    setshowAlert(false);
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-iseechange.mcci.mobi/dncserver/regdev/' +
       '' +
       client +
       ''
@@ -500,10 +514,13 @@ const RegisterDevice = ({ navigation }) => {
   }
       
   const updateDevice = (client, currenthwid ) => {
+    alert("oldclient"+oldClient);
+    alert("new"+client);
+    setIsDialogVisible(false)
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-iseechange.mcci.mobi/dncserver/regdev/' +
       '' +
-      client +
+      oldClient +
       ''
     
      console.log(url);
@@ -516,12 +533,14 @@ const RegisterDevice = ({ navigation }) => {
       },
       body: JSON.stringify({
         hwid: oldhwid,
-       
+        nclient:client,
         nhwid: currenthwid,
         deviceid: deviceid,
         devID: devid,
         devEUI: deveui,
         datetime: datestringvalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
    console.log(JSON.stringify(putMethod));
@@ -554,7 +573,7 @@ const RegisterDevice = ({ navigation }) => {
      
       <AppBar navigation={navigation} title={"Register Device"}></AppBar>
       
-      <View style={{flexDirection:'row',height:"10%"}}>
+      <View style={{flexDirection:'row'}}>
 	  
       <Button
         mode="contained"
@@ -565,9 +584,9 @@ const RegisterDevice = ({ navigation }) => {
       </Button>
 	  
 	  
-      <Picker
+    <Picker
     selectedValue={selectedValue}
-    
+    style={{width:'35%'}}
     onValueChange={itemValue => clientwisetableData({ itemValue })}
   >
  
@@ -582,7 +601,7 @@ const RegisterDevice = ({ navigation }) => {
  
   </View>
      
-      
+      <View style={{marginTop:'5%'}}> 
       <ScrollView horizontal={true} > 
       <Table borderStyle={{borderColor: 'transparent'}}>
      
@@ -594,7 +613,7 @@ const RegisterDevice = ({ navigation }) => {
               <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === 8 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                    <Cell  key={cellIndex} data={cellIndex === 10 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
                   ))
                 }
               </TableWrapper>
@@ -604,7 +623,7 @@ const RegisterDevice = ({ navigation }) => {
        
         </Table>
         </ScrollView>
-      
+        </View>
         <AwesomeAlert
           show={showAlert}
           showProgress={false}
@@ -622,7 +641,7 @@ const RegisterDevice = ({ navigation }) => {
 />
       <Portal>
         <Dialog
-          style={{ width: '90%', marginLeft: '5%' ,backgroundColor: '#F7F6E7'}}
+          style={{ width: '40%', marginLeft: '30%' ,backgroundColor: '#F7F6E7'}}
           visible={isDialogVisible}
           onDismiss={() => setIsDialogVisible(false)}
         >
@@ -645,7 +664,7 @@ const RegisterDevice = ({ navigation }) => {
             <View>
          
             
-               
+             
             <Picker
               selectedValue={selectedValue}
               style={{width: '100%'}} 
@@ -658,17 +677,7 @@ const RegisterDevice = ({ navigation }) => {
 			 
             </Picker>
 
-          <Datetime
-              dateFormat="MM-DD-YYYY"
-              timeFormat={true}
-              onChange={onChange}
-              inputProps={inputProps}
-              value={datevalue}
-            />
-        
-         
-    
-            <TextInput
+          <TextInput
               label="Enter Hardware ID"
               returnKeyType="next"
               maxLength={50}
@@ -678,6 +687,14 @@ const RegisterDevice = ({ navigation }) => {
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
+            />
+            <Datetime
+              style={{width: '100%'}}
+              dateFormat="MM-DD-YYYY"
+              timeFormat={true}
+              onChange={onChange}
+              inputProps={inputProps}
+              value={datevalue}
             />
 
             <TextInput
@@ -710,6 +727,28 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
+             <TextInput
+              label="Enter Measurement Name"
+              returnKeyType="next"
+              value={measName}
+              onChangeText={text => setmeasName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+            <TextInput
+              label="Enter Field Name"
+              returnKeyType="next"
+              value={fieldName}
+              onChangeText={text => setfieldName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+
+
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -755,8 +794,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '35%',
-	
-    marginVertical: 5,
+	  marginVertical: 5,
     paddingVertical: 2,
     marginLeft: '15%',
     marginRight: 'auto',

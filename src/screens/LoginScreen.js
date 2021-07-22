@@ -105,7 +105,7 @@ const LoginScreen = ({ navigation }) => {
   }
   const onSignupPressed = () => {
    
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/signup'
+    const url = 'https://staging-Userscreenchange.mcci.mobi/dncserver/signup'
     fetch(url, {
       method: 'POST',
       headers: {
