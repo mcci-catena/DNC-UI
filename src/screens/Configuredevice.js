@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform} from 'react-native'
+import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
 import TextInput from '../components/TextInput'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
@@ -10,7 +10,7 @@ import  moment from 'moment'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
-
+import AwesomeAlert from 'react-native-awesome-alerts';
 const Configuredevice = ({ navigation }) => {
   let [site, setsite] = useState([])
   let [pile, setpile] = useState([])
@@ -18,7 +18,7 @@ const Configuredevice = ({ navigation }) => {
   const[lat,setlat]=useState('');
   const[long,setlong]=useState('');
   let [servername, setServername] = useState({ value: '' })
-  let [databasename, setdatabasename] = useState('')
+  let [Hardwareid, setHardwareid] = useState('')
   let [pilename, setpilename] = useState('')
   let [measurementname, setmeasurementname] = useState('')
   const [datevalue, setdatevalue] = useState(new Date())
@@ -53,7 +53,8 @@ const Configuredevice = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [uservisible, setuserVisible] = useState(false);
   const [shouldShow, setShouldShow] = useState(true);
-  
+  const [showAlert, setshowAlert] = useState(false);
+  const [showRemoveAlert, setshowRemoveAlert] = useState(false);
   const clients = []
   const sites = []
   const piles = []
@@ -71,6 +72,7 @@ const Configuredevice = ({ navigation }) => {
   const [time, setTime] = useState(new Date());
   const tablearray=[];
   const [clienttaglist,setclienttaglist]=useState({});
+  const[taglist,settaglist]=useState([]);
   const [tableHead, settableHead] =useState([])
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([]);
@@ -110,15 +112,13 @@ const Configuredevice = ({ navigation }) => {
   const[taglength,settaglength]=useState();
  
 
-  let textarray = [];
+  
+ let textarray = [];
  const addTextInput = (index) => {
-     
-     
-      
+     let label=taglist[index]
      textarray.push(<TextInput key={index}  label="Tag"
      onChangeText={(text) => addValues(text,index)} />);
-     alert(JSON.stringify(textarray))
-     
+     //alert(JSON.stringify(textarray))
      settextInput(textarray);
   }
   
@@ -142,7 +142,7 @@ const Configuredevice = ({ navigation }) => {
     setinputData(dataArray);
   }
   
-  alert(JSON.stringify(inputData));
+  //alert(JSON.stringify(inputData));
   }
     const dateformatvalue = moment(date).format('MM/DD/YYYY')
     const timevalue = moment(time).format('HH:mm:ss')
@@ -179,7 +179,8 @@ const Configuredevice = ({ navigation }) => {
        let tableHead=[];
        let widthArr=[];
        taglist=clienttaglist[itemValue];
-       alert(JSON.stringify(taglist));
+       //alert(JSON.stringify(taglist));
+       settaglist(taglist);
        settaglength(taglist.length);
        tableHead.push("S.NO");
        widthArr.push(50);
@@ -191,6 +192,8 @@ const Configuredevice = ({ navigation }) => {
        tableHead.push("Hardware id")
        tableHead.push("Install Date")
        tableHead.push("Remove Date")
+       tableHead.push("Action")
+       widthArr.push(200);
        widthArr.push(200);
        widthArr.push(200);
        widthArr.push(200);
@@ -236,7 +239,7 @@ const Configuredevice = ({ navigation }) => {
               array.push(hwid);
               array.push(idate);
               array.push(rdate);
-             
+              array.push(rdate);
               tablearray.push(array);
               
           }
@@ -328,53 +331,7 @@ const Configuredevice = ({ navigation }) => {
     if (removesubmit) {
       setIsremoveDialogVisible(false)
      
-      var url =
-        'https://staging-analytics.weradiate.com/apidbm/rmdevice/' +
-        '' +
-        deviceValue +
-        ''
-        console.log("remove url:"+url);
-      const postMethod = {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-        body: JSON.stringify({
-          client: selectedValue,
-          site: siteValue,
-          pile: pileValue,
-          id: deviceValue,
-          location: locationValue,
-          datetime: datevalue,
-        }),
-      }
-      console.log("remove url:"+JSON.stringify(postMethod));
-      fetch(url, postMethod)
-        .then(response => {
-          const statusCode = response.status
-          response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            }
-           
-             else if (responseJson['message'] != null) {
-              alert(JSON.stringify(responseJson['message']))
-            }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
+     
       setremovesubmit(false)
     } else if (replacesubmit) {
       setIsreplaceDialogVisible(false)
@@ -475,7 +432,18 @@ const Configuredevice = ({ navigation }) => {
 
       setdeletesumbit(false)
     } else {
-
+      let requestdata={};
+      requestdata["cname"]=selectedValue;
+      requestdata["lat"]=lat;
+      requestdata["long"]=long;
+      requestdata["id"]=deviceValue;
+      requestdata["datetime"]=datevalue;
+      for(var i=0;i<taglength;i++)
+      {  
+          let textdata=inputData[i];
+          requestdata[""+taglist[i]+""]=textdata["text"];
+      }
+      alert(JSON.stringify(requestdata));
       setIsDialogVisible(false)
       var url = 'https://staging-iseechange.mcci.mobi/dncserver/device'
       console.log("new url:"+url);
@@ -486,14 +454,7 @@ const Configuredevice = ({ navigation }) => {
           Accept: 'application/json',
           Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
         },
-        body: JSON.stringify({
-          client: selectedValue,
-          lat: lat,
-          long: long,
-          id: deviceValue,
-          location: locationValue,
-          datetime: datevalue,
-        }),
+        body: JSON.stringify(requestdata),
       }
       console.log("new url:"+JSON.stringify(postMethod));
       fetch(url, postMethod)
@@ -826,19 +787,85 @@ const Configuredevice = ({ navigation }) => {
 
     setdatetextVisible(true)
   }
+  const element = (cellData, index) => (
+    
+    <View style={{flexDirection:'row'}}>
+    <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+""})}>
+      <View >
+      <Image
+       source={require('../assets/edit.png')}
+      fadeDuration={0}
+      style={{ width: 40, height: 40 }}
+    />
+      </View>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={()=>createButtonAlert({hwid:""+cellData[taglength+1]+""})}>
+    <View >
+    <Image
+       source={require('../assets/delete.png')}
+      fadeDuration={0}
+      style={{ width: 40, height: 40 }}
+    />
+    </View>
+  </TouchableOpacity>
+  </View>
+  );
+  const createButtonAlert = ({hwid}) =>
+  {
+    alert(JSON.stringify(hwid));
+    setshowAlert(true);
+    setHardwareid(hwid);
+  };
+  const createRemoveButtonAlert = ({hwid}) =>
+  {
+    alert(JSON.stringify(hwid));
+    setshowRemoveAlert(true);
+    setHardwareid(hwid);
+  };
   const removeDevice = () => {
-    setselectedValue('');
-    setsiteValue('');
-    setpileValue('');
-    setlocationValue('');
-    setdeviceValue('');
-    const dateformatvalue = moment(date-1).format('MM/DD/YYYY')
-    const timevalue = moment(time).format('HH:mm:ss')
-     const datestringvalue = dateformatvalue + ',' + timevalue;
-     setdatevalue(datestringvalue);
-    setremovedevicepicker(true)
-    setIsremoveDialogVisible(true)
-    setremovesubmit(true)
+    var url =
+    'https://staging-iseechange.mcci.mobi/dncserver/rmdevice' +
+    '' +
+    selectedValue +
+    ''
+    console.log("remove url:"+url);
+  const postMethod = {
+    method: 'PUT',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+    },
+    body: JSON.stringify({
+      hwid: Hardwareid,
+      datetime: datestringvalue,
+    }),
+  }
+  console.log("remove url:"+JSON.stringify(postMethod));
+  fetch(url, postMethod)
+    .then(response => {
+      const statusCode = response.status
+      response.json().then(responseJson => {
+        if (statusCode == 403) {
+          alert('inavalid token/token expired')
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'LoginScreen' }],
+          })
+        }
+       
+         else if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
+        }
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Configuredevice' }],
+        })
+      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
     
   }
   const addDevice = () => {
@@ -847,7 +874,7 @@ const Configuredevice = ({ navigation }) => {
       addTextInput(i);
     }
     
-    setselectedValue('');
+    //setselectedValue('');
     setsiteValue('');
     setpileValue('');
     setlocationValue('');
@@ -868,16 +895,50 @@ const Configuredevice = ({ navigation }) => {
     setIsreplaceDialogVisible(true)
   }
   const deleteDevice = () => {
-    setselectedValue('');
-    setsiteValue('');
-    setpileValue('');
-    setlocationValue('');
-    setdeviceValue('');
-    setdeletesumbit(true)
-    setreplacesubmit(false)
-    setremovedevicepicker(false)
-    setremovesubmit(false)
-    setIsDialogVisible(true)
+    var url =
+        'https://staging-iseechange.mcci.mobi/dncserver/rmdevice' +
+        '' +
+        deviceValue +
+        ''
+        console.log("delete url:"+url);
+      const postMethod = {
+        method: 'DELETE',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+        },
+        body: JSON.stringify({
+          client: selectedValue,
+          site: siteValue,
+          pile: pileValue,
+
+          location: locationValue,
+        }),
+      }
+      console.log("repalce url:"+JSON.stringify(postMethod));
+      fetch(url, postMethod)
+        .then(response => {
+          const statusCode = response.status
+          response.json().then(responseJson => {
+            if (statusCode == 403) {
+              alert('inavalid token/token expired')
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'LoginScreen' }],
+              })
+            } else if (responseJson['message'] != null) {
+              alert(JSON.stringify(responseJson['message']))
+            }
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Configuredevice' }],
+            })
+          })
+        })
+        .catch(error => {
+          console.error(error)
+        })
   }
   const newDevice = itemValue => {
     setnewdeviceValue(itemValue);
@@ -961,6 +1022,7 @@ const pickerenabled=(itemValue) =>
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
               </Picker>
+            
         <ScrollView horizontal={true} > 
         {tablehide && (   <Table borderStyle={{borderColor: 'transparent'}}>
      
@@ -972,7 +1034,7 @@ const pickerenabled=(itemValue) =>
               <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                    <Cell  key={cellIndex} data={cellIndex === taglength+4 ? element(rowData, index): cellData}  style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
                   ))
                 }
               </TableWrapper>
@@ -982,6 +1044,36 @@ const pickerenabled=(itemValue) =>
        
         </Table>)}
         </ScrollView>
+        <AwesomeAlert
+          show={showRemoveAlert}
+          showProgress={false}
+          title="Remove Device"
+          message={"Are you sure want to remove "+Hardwareid+"?"}
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="cancel"
+          confirmText="Remove "
+          confirmButtonColor="#DD6B55"
+          onCancelPressed={() => setshowRemoveAlert(false)}
+          onConfirmPressed={() =>removeDevice()}
+/>
+<AwesomeAlert
+          show={showAlert}
+          showProgress={false}
+          title="Delete Device"
+          message={"Are you sure want to delete "+Hardwareid+"?"}
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="cancel"
+          confirmText="delete "
+          confirmButtonColor="#DD6B55"
+          onCancelPressed={() => setshowAlert(false)}
+          onConfirmPressed={() =>deleteDevice()}
+/>
         <Portal>
           <Dialog
             style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
@@ -1043,6 +1135,7 @@ const pickerenabled=(itemValue) =>
               {textInput.map((value,key) => {
           return value
         })}
+         
               
             </Dialog.Content>
             <Dialog.Actions>
