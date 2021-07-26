@@ -6,8 +6,9 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import  moment from 'moment'
-import DateTimePicker from '@react-native-community/datetimepicker';
+import  moment, { utc } from 'moment'
+import Datetime from 'react-datetime'
+import 'react-datetime/css/react-datetime.css'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
@@ -21,7 +22,7 @@ const Configuredevice = ({ navigation }) => {
   let [Hardwareid, setHardwareid] = useState('')
   let [pilename, setpilename] = useState('')
   let [measurementname, setmeasurementname] = useState('')
-  const [datevalue, setdatevalue] = useState(new Date())
+  const [datevalue, onChange] = useState()
   let [removedevicepicker, setremovedevicepicker] = useState(false)
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [isreplaceDialogVisible, setIsreplaceDialogVisible] = useState(false)
@@ -101,7 +102,10 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
-
+  let inputProps = {
+    placeholder: 'Date and time',
+    className: 'datetime',
+  }
   useEffect(() => {
     getApitoken()
   }, [])
@@ -144,36 +148,41 @@ const Configuredevice = ({ navigation }) => {
   
   //alert(JSON.stringify(inputData));
   }
-    const dateformatvalue = moment(date).format('MM/DD/YYYY')
-    const timevalue = moment(time).format('HH:mm:ss')
-    const datestringvalue = dateformatvalue + ',' + timevalue
-    const onChange = (event, selectedValue) => {
+  // const formatDate = new Date();
+  // const toUTCDate = formatDate.toISOString();
+  // alert(toUTCDate);
+  // const hvalue=new Date(toUTCDate);
+  const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
+  const timevalue = moment(datevalue).utc().format('HH:mm:ss')
+  const datestringvalue = dateformatvalue + ',' + timevalue
+  //alert(datestringvalue);
+    // const onChange = (event, selectedValue) => {
   
-      setShow(Platform.OS === 'ios');
+    //   setShow(Platform.OS === 'ios');
       
-      if (mode == 'date') {
-        const currentDate = selectedValue || new Date();
-        setDate(currentDate);
-        setMode('time');
-        setShow(Platform.OS !== 'ios'); 
-      } else {
-        const selectedTime = selectedValue || new Date();
-        setTime(selectedTime);
-        setShow(Platform.OS === 'ios'); 
-        setMode('date'); 
-      }
-      setdatevalue(datestringvalue);
-    };
-    const showMode = (currentMode) => {
-      setShow(true);
-      setMode(currentMode);
+    //   if (mode == 'date') {
+    //     const currentDate = selectedValue || new Date();
+    //     setDate(currentDate);
+    //     setMode('time');
+    //     setShow(Platform.OS !== 'ios'); 
+    //   } else {
+    //     const selectedTime = selectedValue || new Date();
+    //     setTime(selectedTime);
+    //     setShow(Platform.OS === 'ios'); 
+    //     setMode('date'); 
+    //   }
+    //   setdatevalue(datestringvalue);
+    // };
+    // const showMode = (currentMode) => {
+    //   setShow(true);
+    //   setMode(currentMode);
       
-    };
+    // };
   
-    const showDatepicker = () => {
-      showMode('date');
+    // const showDatepicker = () => {
+    //   showMode('date');
       
-    };
+    // };
     const fetchtabledata = (itemValue) => {
        var taglist=[];
        let tableHead=[];
@@ -220,6 +229,7 @@ const Configuredevice = ({ navigation }) => {
             alert(JSON.stringify(responseJson['message']))
           }
           console.log(JSON.stringify(responseJson))
+          removedevices.push('Select the device')
           for(var i=0;i<responseJson.length;i++)
           {
               
@@ -229,7 +239,11 @@ const Configuredevice = ({ navigation }) => {
               let rdate=responseJson[i].rdate;
               let array=[];
               array.push(j);
-            
+              
+              removedevices.push(hwid)
+              
+    
+              
              for(var l=0;l<taglist.length;l++)
              {
                 let tag=taglist[l];
@@ -245,6 +259,7 @@ const Configuredevice = ({ navigation }) => {
           }
   
           settableData(tablearray);
+          setreplaceData(removedevices)
         })
       })
     }
@@ -284,160 +299,61 @@ const Configuredevice = ({ navigation }) => {
         console.error(error)
       })
   }
-
-  const fetchSitelist = itemValue => {
-    var url = 'https://staging-analytics.weradiate.com/apidbm/listsite'
-    console.log(url)
-    console.log("Sitesitem"+itemValue);
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        client: itemValue, 
-      }),
+const ReplaceDevice=()=>
+{
+  var url =
+  'https://staging-iseechange.mcci.mobi/dncserver/rpdev/' +
+  '' +
+  selectedValue +
+  ''
+  console.log("repalce url:"+url);
+const postMethod = {
+  method: 'POST',
+  headers: {
+    'Content-type': 'application/json',
+    Accept: 'application/json',
+    Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+  },
+  body: JSON.stringify({
+ nhwid: newdeviceValue,
+    hwid: deviceValue,
+    datetime: datestringvalue,
+  }),
+}
+console.log("replace:"+JSON.stringify(postMethod));
+fetch(url, postMethod)
+  .then(response => {
+    const statusCode = response.status
+    response.json().then(responseJson => {
+      if (statusCode == 403) {
+        alert('inavalid token/token expired')
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      } else if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Configuredevice' }],
+      })
     })
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          sites.push('Select the sites')
-
-          for (var i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].site
-
-            sites.push(json)
-          }
-          console.log("Sitesitem"+sites);
-          setsite(sites)
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
+  })
+  .catch(error => {
+    console.error(error)
+  })
+}
+  
   const AddDevice = () => {
-    if (removesubmit) {
-      setIsremoveDialogVisible(false)
-     
-     
-      setremovesubmit(false)
-    } else if (replacesubmit) {
-      setIsreplaceDialogVisible(false)
-
-      var url =
-        'https://staging-analytics.weradiate.com/apidbm/rpdevice/' +
-        '' +
-        deviceValue +
-        ''
-        console.log("repalce url:"+url);
-      const postMethod = {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-        body: JSON.stringify({
-          client: selectedValue,
-          site: siteValue,
-          pile: pileValue,
-          newdev: newdeviceValue,
-          location: locationValue,
-          datetime: datevalue,
-        }),
-      }
-      console.log("replace:"+JSON.stringify(postMethod));
-      fetch(url, postMethod)
-        .then(response => {
-          const statusCode = response.status
-          response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
-              alert(JSON.stringify(responseJson['message']))
-            }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
-      setreplacesubmit(false)
-    } else if (deletesubmit) {
-      setIsDialogVisible(false)
-
-      var url =
-        'https://staging-analytics.weradiate.com/apidbm/device/' +
-        '' +
-        deviceValue +
-        ''
-        console.log("delete url:"+url);
-      const postMethod = {
-        method: 'DELETE',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-        body: JSON.stringify({
-          client: selectedValue,
-          site: siteValue,
-          pile: pileValue,
-
-          location: locationValue,
-        }),
-      }
-      console.log("repalce url:"+JSON.stringify(postMethod));
-      fetch(url, postMethod)
-        .then(response => {
-          const statusCode = response.status
-          response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
-              alert(JSON.stringify(responseJson['message']))
-            }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
-
-      setdeletesumbit(false)
-    } else {
+    
+      
       let requestdata={};
       requestdata["cname"]=selectedValue;
       requestdata["lat"]=lat;
       requestdata["long"]=long;
       requestdata["id"]=deviceValue;
-      requestdata["datetime"]=datevalue;
+      requestdata["datetime"]=datestringvalue;
       for(var i=0;i<taglength;i++)
       {  
           let textdata=inputData[i];
@@ -479,98 +395,10 @@ const Configuredevice = ({ navigation }) => {
         .catch(error => {
           console.error(error)
         })
-    }
+    
   }
 
-  const fetchPilelist = itemValue => {
-    const url = 'https://staging-analytics.weradiate.com/apidbm/listpile'
-    const postMethod = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        client: selectedValue,
-        site: itemValue,
-      }),
-    }
-
-    fetch(url, postMethod)
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          piles.push('Select the Piles')
-
-          for (var i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].pile
-            piledbname['' + responseJson[i].pile + ''] = responseJson[i].dbname
-            pilemeasname['' + responseJson[i].pile + ''] =
-              responseJson[i].measname
-            piles.push(json)
-          }
-
-          setpile(piles)
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-  const fetchLocationlist = itemValue => {
-    const url = 'https://staging-analytics.weradiate.com/apidbm/listlocation'
-    const postMethod = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        client: selectedValue,
-        site: siteValue,
-        pile: itemValue,
-      }),
-    }
-
-    fetch(url, postMethod)
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          locations.push('Select the location')
-
-          for (var i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].lname
-
-            locations.push(json)
-          }
-
-          setlocation(locations)
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
+ 
 
   const fetchDevicelist = selectedValue => {
     
@@ -622,178 +450,13 @@ const Configuredevice = ({ navigation }) => {
       })
   }
 
-  const fetchremoveDevicelist = itemValue => {
-    
-    var url = 'https://staging-analytics.weradiate.com/apidbm/listrmdev'
-    console.log(url);
-    const postmethod = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        client: selectedValue,
-        site: siteValue,
-        pile: pileValue,
-        location: itemValue,
-      }),
-    }
-    console.log(postmethod);
-    fetch(url, postmethod)
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-
-          removedevices.push('Select the device')
-          for (let i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].devid
-
-            removedevices.push(json)
-          }
-
-          setreplaceData(removedevices)
-          sethwid(hwids)
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-  const fetchdeleteDevicelist = itemValue => {
-    
-    var url = 'https://staging-analytics.weradiate.com/apidbm/listdevice'
-    console.log(url);
-    const postmethod = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        client: selectedValue,
-        site: siteValue,
-        pile: pileValue,
-        location: itemValue,
-      }),
-    }
-    console.log(postmethod);
-    fetch(url, postmethod)
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-
-          devices.push('Select the device')
-          for (let i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].devid
-
-            devices.push(json)
-          }
-
-          setdevice(devices)
-          
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-
-  const cliendropdownEnabled = itemValue => {
-    setselectedValue(itemValue)
-    if(itemValue!="Select the Clients")
-    {
-    fetchSitelist(itemValue)
-    }
-  }
-  const sitedropdownEnabled = itemValue => {
- 
-    setsiteValue(itemValue)
-    if(itemValue!="Select the sites")
-    {
-    fetchPilelist(itemValue)
-    }
-  }
-  const piledropdownEnabled = itemValue => {
-    setpileValue(itemValue);
-    if(itemValue!="Select the Piles")
-    {
-    fetchLocationlist(itemValue)
-    }
-  }
-  const locationdropdownEnabled = itemValue => {
-    
-    setlocationValue(itemValue)
-    if(itemValue!="Select the location")
-    {
-    if (removedevicepicker ) {
-      fetchremoveDevicelist(itemValue)
-      setremovedevicepicker(false)
-    }
-    else if(deletesubmit)
-    {
-      fetchdeleteDevicelist(itemValue)
-    }
-     else {
-      fetchDevicelist(selectedValue)
-    }
-  }
-  }
-  const decicedropdownEnabled = itemValue => {
-  
-    setdeviceValue(itemValue)
-    if(itemValue!="Select the device" )
-    {
-      if(deletesubmit!=true)
-      {
-    fetchDevicelist(selectedValue);
-    if (replacesubmit!=true && removesubmit!=true) {
-      for (let i = 0; i < hwid.length; i++) {
-        const date1 = hwid[i]
-      
-        if (date1['hwid'] == itemValue) {
-          const datetime = date1['date']
-          const date = moment(datetime).format('MM/DD/YYYY')
-          const time = moment(datetime).format('HH:mm:ss')
-
-          const datestringvalue = date + ',' + time
-
-          setdatevalue(datestringvalue)
-        }
-      }
-    }
-  }
-    }
-
-    setdatetextVisible(true)
-  }
-  const element = (cellData, index) => (
+const element = (cellData, index) => (
     
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+""})}>
       <View >
       <Image
-       source={require('../assets/edit.png')}
+       source={require('../assets/remove.png')}
       fadeDuration={0}
       style={{ width: 40, height: 40 }}
     />
@@ -823,8 +486,9 @@ const Configuredevice = ({ navigation }) => {
     setHardwareid(hwid);
   };
   const removeDevice = () => {
+    setshowRemoveAlert(false);
     var url =
-    'https://staging-iseechange.mcci.mobi/dncserver/rmdevice' +
+    'https://staging-iseechange.mcci.mobi/dncserver/rmdev/' +
     '' +
     selectedValue +
     ''
@@ -868,37 +532,23 @@ const Configuredevice = ({ navigation }) => {
     })
     
   }
-  const addDevice = () => {
+  const addDevicebutton = () => {
     for(var i=0;i<taglength;i++)
     {
       addTextInput(i);
     }
-    
-    //setselectedValue('');
-    setsiteValue('');
-    setpileValue('');
-    setlocationValue('');
-    setdeviceValue('');
-    setremovesubmit(false);
-    setreplacesubmit(false);
     setIsDialogVisible(true)
   }
   const replaceDevice = () => {
-    setselectedValue('');
-    setsiteValue('');
-    setpileValue('');
-    setlocationValue('');
-    setdeviceValue('');
-    setreplacesubmit(true)
-    setremovedevicepicker(true)
-    setremovesubmit(false)
+    
     setIsreplaceDialogVisible(true)
   }
   const deleteDevice = () => {
+    setshowAlert(false);
     var url =
-        'https://staging-iseechange.mcci.mobi/dncserver/rmdevice' +
+        'https://staging-iseechange.mcci.mobi/dncserver/device/' +
         '' +
-        deviceValue +
+        selectedValue +
         ''
         console.log("delete url:"+url);
       const postMethod = {
@@ -909,11 +559,7 @@ const Configuredevice = ({ navigation }) => {
           Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
         },
         body: JSON.stringify({
-          client: selectedValue,
-          site: siteValue,
-          pile: pileValue,
-
-          location: locationValue,
+          hwid: Hardwareid,
         }),
       }
       console.log("repalce url:"+JSON.stringify(postMethod));
@@ -940,27 +586,7 @@ const Configuredevice = ({ navigation }) => {
           console.error(error)
         })
   }
-  const newDevice = itemValue => {
-    setnewdeviceValue(itemValue);
-    if(itemValue!="Select the devices")
-    {
-    
-     
-    for (let i = 0; i < hwid.length; i++) {
-      const date1 = hwid[i]
-    
-      if (date1['hwid'] == itemValue) {
-        const datetime = date1['date']
-        const date = moment(datetime).format('MM/DD/YYYY')
-        const time = moment(datetime).format('HH:mm:ss')
 
-        const datestringvalue = date + ',' + time
-
-        setdatevalue(datestringvalue)
-      }
-    }
-  }
-  }
 const pickerenabled=(itemValue) =>
 {
   console.log(itemValue);
@@ -983,19 +609,10 @@ const pickerenabled=(itemValue) =>
         <Button
           mode="contained"
           style={styles.button}
-          onPress={() => addDevice()}
+          onPress={() => addDevicebutton()}
         >
           New Device
         </Button>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => removeDevice()}
-        >
-          Remove Device
-        </Button>
-        </View>
-        <View style={{flexDirection:"row"}}>
         <Button
           mode="contained"
           style={styles.button}
@@ -1003,14 +620,8 @@ const pickerenabled=(itemValue) =>
         >
           Replace Device
         </Button>
-        <Button
-          mode="contained"
-          style={styles.button}
-          onPress={() => deleteDevice()}
-        >
-          Delete Device
-        </Button>
         </View>
+       
         <Picker
                 selectedValue={selectedValue}
                 style={{width: '30%',marginLeft: 'auto',
@@ -1057,7 +668,7 @@ const pickerenabled=(itemValue) =>
           confirmText="Remove "
           confirmButtonColor="#DD6B55"
           onCancelPressed={() => setshowRemoveAlert(false)}
-          onConfirmPressed={() =>removeDevice()}
+          onConfirmPressed={() =>ReplaceDevice}
 />
 <AwesomeAlert
           show={showAlert}
@@ -1076,7 +687,7 @@ const pickerenabled=(itemValue) =>
 />
         <Portal>
           <Dialog
-            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
+            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
             visible={isDialogVisible}
             onDismiss={() => setIsDialogVisible(false)}
           >
@@ -1084,6 +695,7 @@ const pickerenabled=(itemValue) =>
               style={{
                 marginLeft: 'auto',
                 marginRight: 'auto',
+                marginTop:'25%'
               }}
             >
               Add Device Information
@@ -1111,7 +723,14 @@ const pickerenabled=(itemValue) =>
                 ))}
               </Picker> 
             
-             
+              <Datetime
+              style={{width: '100%'}}
+              dateFormat="MM-DD-YYYY"
+              timeFormat={true}
+              onChange={onChange}
+              inputProps={inputProps}
+              value={datevalue}
+            />
               <TextInput
               label="Enter lattitude"
               returnKeyType="next"
@@ -1157,123 +776,11 @@ const pickerenabled=(itemValue) =>
           </Dialog>
         </Portal>
 
-        <Portal>
-          <Dialog
-            style={{ width: '90%', marginLeft: '5%',backgroundColor: '#F7F6E7' }}
-            visible={isremoveDialogVisible}
-            onDismiss={() => setIsremoveDialogVisible(false)}
-          >
-            <Dialog.Title
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            >
-              Remove Device Information
-            </Dialog.Title>
-            <Dialog.Content
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                width:'80%'
-              }}
-            >
-            
-            {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}  
-         <TouchableOpacity onPress={showDatepicker}>
-          <Text style={{borderWidth:1}}>{datevalue}</Text>
-        </TouchableOpacity>
         
-              <Picker
-                selectedValue={selectedValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => cliendropdownEnabled(itemValue)}
-              >
-                {data.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-
-              <Picker
-                selectedValue={siteValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => sitedropdownEnabled(itemValue)}
-              >
-                {site.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                selectedValue={pileValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => piledropdownEnabled(itemValue)}
-              >
-                {pile.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                selectedValue={locationValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => locationdropdownEnabled(itemValue)}
-              >
-                {location.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                
-                selectedValue={deviceValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => decicedropdownEnabled(itemValue)}
-              >
-                {replacedata.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button
-                mode="contained"
-                style={styles.button}
-                onPress={AddDevice}
-              >
-                Submit
-              </Button>
-
-              <Button
-                mode="contained"
-                style={styles.button}
-                onPress={() => setIsremoveDialogVisible(false)}
-              >
-                Cancel
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
 
         <Portal>
           <Dialog
-            style={{ width: '90%', marginLeft: '5%',backgroundColor: '#F7F6E7' }}
+            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
             visible={isreplaceDialogVisible}
             onDismiss={() => setIsreplaceDialogVisible(false)}
           >
@@ -1292,57 +799,22 @@ const pickerenabled=(itemValue) =>
                 width:'80%'
               }}
             >
-              <Picker
-                selectedValue={selectedValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => cliendropdownEnabled(itemValue)}
-              >
-                {data.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
+              
 
-              <Picker
-                selectedValue={siteValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => sitedropdownEnabled(itemValue)}
-              >
-                {site.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                selectedValue={pileValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => piledropdownEnabled(itemValue)}
-              >
-                {pile.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-                selectedValue={locationValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => locationdropdownEnabled(itemValue)}
-              >
-                {location.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
+              <Datetime
+              style={{width: '100%'}}
+              dateFormat="MM-DD-YYYY"
+              timeFormat={true}
+              onChange={onChange}
+              inputProps={inputProps}
+              value={datevalue}
+            />
               <Picker
                 selectedValue={deviceValue}
                 style={{
                   width: '100%'
                 }}
-                onValueChange={itemValue => decicedropdownEnabled(itemValue)}
+                onValueChange={itemValue => setdeviceValue(itemValue)}
               >
                 {replacedata.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
@@ -1354,7 +826,7 @@ const pickerenabled=(itemValue) =>
                 style={{
                   width: '100%'
                 }}
-                onValueChange={itemValue => newDevice(itemValue)}
+                onValueChange={itemValue => setnewdeviceValue(itemValue)}
               >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
@@ -1365,7 +837,7 @@ const pickerenabled=(itemValue) =>
               <Button
                 mode="contained"
                 style={styles.button}
-                onPress={AddDevice}
+                onPress={ReplaceDevice}
               >
                 Submit
               </Button>
