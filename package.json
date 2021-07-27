@@ -46,6 +46,7 @@
     "react-native-table-component": "^1.2.1",
     "react-native-web": "^0.16.1",
     "react-navigation": "^4.4.4",
+    "react-rainbow-components": "^1.26.0",
     "react-table": "^7.6.3",
     "react-usestateref": "^1.0.5"
   },

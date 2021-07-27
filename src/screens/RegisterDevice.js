@@ -13,8 +13,9 @@ import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import  moment from 'moment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import Datetime from 'react-datetime'
-import 'react-datetime/css/react-datetime.css'
+// import Datetime from 'react-datetime'
+// import 'react-datetime/css/react-datetime.css'
+import { DateTimePicker } from 'react-rainbow-components';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 const RegisterDevice = ({ navigation }) => {
@@ -42,7 +43,7 @@ const RegisterDevice = ({ navigation }) => {
   const [edit, setedit] = useState(null);
   const [shouldShow, setShouldShow] = useState(true);
   const[oldClient,setoldClient]=useState('');
-  const [datevalue, onChange] = useState()
+  const [datevalue, setdatevalue] = useState(new Date())
   const tablearray=[];
   const clients = [];
   const [tableHead, settableHead] =useState(["S.No","clents", 'Hardware ID','Measurement Name','Field Name','Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
@@ -56,14 +57,11 @@ const RegisterDevice = ({ navigation }) => {
 
 
 
-  let inputProps = {
-    placeholder: 'Date and time',
-    className: 'datetime',
-  }
-
   const dateformatvalue = moment(datevalue).format('MM/DD/YYYY')
   const timevalue = moment(datevalue).format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
+ // const formatDate = new Date(datestringvalue);
+  //const toUTCDate = formatDate.toISOString();
  
  
 
@@ -688,14 +686,13 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
-            <Datetime
-              style={{width: '100%'}}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={true}
-              onChange={onChange}
-              inputProps={inputProps}
-              value={datevalue}
-            />
+              <DateTimePicker
+            value={datevalue}
+            minDate={new Date(2018, 0, 4)}
+            maxDate={new Date(3020, 0, 4)}
+            
+            onChange={value =>setdatevalue(value)}
+        />
 
             <TextInput
               label="Enter Device ID"

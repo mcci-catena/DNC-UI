@@ -9,10 +9,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import  moment, { utc } from 'moment'
 // import Datetime from 'react-datetime'
 // import 'react-datetime/css/react-datetime.css'
-import { DateTimePicker } from 'react-rainbow-components';
+// import { DateTimePicker } from 'react-rainbow-components';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
+import DateTimePicker from '@react-native-community/datetimepicker';
 const Configuredevice = ({ navigation }) => {
   let [site, setsite] = useState([])
   let [pile, setpile] = useState([])
@@ -157,33 +158,33 @@ const Configuredevice = ({ navigation }) => {
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
   //alert(datestringvalue);
-    // const onChange = (event, selectedValue) => {
+    const onChange = (event, selectedValue) => {
   
-    //   setShow(Platform.OS === 'ios');
+      setShow(Platform.OS === 'ios');
       
-    //   if (mode == 'date') {
-    //     const currentDate = selectedValue || new Date();
-    //     setDate(currentDate);
-    //     setMode('time');
-    //     setShow(Platform.OS !== 'ios'); 
-    //   } else {
-    //     const selectedTime = selectedValue || new Date();
-    //     setTime(selectedTime);
-    //     setShow(Platform.OS === 'ios'); 
-    //     setMode('date'); 
-    //   }
-    //   setdatevalue(datestringvalue);
-    // };
-    // const showMode = (currentMode) => {
-    //   setShow(true);
-    //   setMode(currentMode);
+      if (mode == 'date') {
+        const currentDate = selectedValue || new Date();
+        setDate(currentDate);
+        setMode('time');
+        setShow(Platform.OS !== 'ios'); 
+      } else {
+        const selectedTime = selectedValue || new Date();
+        setTime(selectedTime);
+        setShow(Platform.OS === 'ios'); 
+        setMode('date'); 
+      }
+      setdatevalue(datestringvalue);
+    };
+    const showMode = (currentMode) => {
+      setShow(true);
+      setMode(currentMode);
       
-    // };
+    };
   
-    // const showDatepicker = () => {
-    //   showMode('date');
+    const showDatepicker = () => {
+      showMode('date');
       
-    // };
+    };
     const fetchtabledata = (itemValue) => {
        var taglist=[];
        let tableHead=[];
@@ -709,7 +710,19 @@ const pickerenabled=(itemValue) =>
               }}
             >
               
-             
+              {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode={mode}
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
+        />
+      )} 
+             <TouchableOpacity onPress={showDatepicker}>
+          <Text style={{borderWidth:1}}>{datestringvalue}</Text>
+        </TouchableOpacity>
              <Picker
                 //  enabled={false}
                 selectedValue={deviceValue}
@@ -723,14 +736,8 @@ const pickerenabled=(itemValue) =>
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
               </Picker> 
-
-             <DateTimePicker
-            value={datevalue}
-            minDate={new Date(2018, 0, 4)}
-            maxDate={new Date(3020, 0, 4)}
-            
-            onChange={value =>setdatevalue(value)}
-        />
+              
+          
               <TextInput
               label="Enter lattitude"
               returnKeyType="next"
@@ -800,14 +807,19 @@ const pickerenabled=(itemValue) =>
               }}
             >
               
-
-              <DateTimePicker
-            value={datevalue}
-            minDate={new Date(2018, 0, 4)}
-            maxDate={new Date(3020, 0, 4)}
-            
-            onChange={value =>setdatevalue(value)}
+        <TouchableOpacity onPress={showDatepicker}>
+          <Text style={{borderWidth:1}}>{datevalue}</Text>
+        </TouchableOpacity>
+              {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode={mode}
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
         />
+      )} 
               <Picker
                 selectedValue={deviceValue}
                 style={{
