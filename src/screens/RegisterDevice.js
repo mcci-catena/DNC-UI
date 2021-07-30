@@ -243,11 +243,11 @@ const RegisterDevice = ({ navigation }) => {
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-      <View >
+      <View style={{ paddingRight: 10 }}>
       <Image
        source={require('../assets/edit.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
@@ -256,7 +256,7 @@ const RegisterDevice = ({ navigation }) => {
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
   </TouchableOpacity>
@@ -599,16 +599,16 @@ const RegisterDevice = ({ navigation }) => {
  
   </View>
      
-      <View style={{marginTop:'5%'}}> 
+      <View style={{ marginTop:'5%', marginHorizontal: 20 }}> 
       <ScrollView horizontal={true} > 
       <Table borderStyle={{borderColor: 'transparent'}}>
      
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white'}}/>
+          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
           <ScrollView>
      
           {
             tableData.map((rowData, index) => (
-              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
+              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
                     <Cell  key={cellIndex} data={cellIndex === 10 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
@@ -819,9 +819,9 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-  head: { height: 40, backgroundColor: '#808B97' },
+  head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  row: { flexDirection: 'row', backgroundColor: '#FFF1C1',borderWidth: 1, borderColor: '#C1C0B9' },
+  row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },
   btnText: { textAlign: 'center', color: '#fff' },

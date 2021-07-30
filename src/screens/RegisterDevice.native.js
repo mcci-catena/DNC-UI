@@ -274,11 +274,11 @@ const RegisterDevice = ({ navigation }) => {
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-      <View >
+      <View style={{ paddingRight: 10 }}>
       <Image
        source={require('../assets/edit.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
@@ -287,7 +287,7 @@ const RegisterDevice = ({ navigation }) => {
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
   </TouchableOpacity>
@@ -644,7 +644,7 @@ const RegisterDevice = ({ navigation }) => {
  
   </View>
      
-      
+      <View style={{ marginLeft: 'auto', marginRight: 'auto', paddingTop: 20 }}>
       <ScrollView horizontal={true} > 
       <Table borderStyle={{borderColor: 'transparent'}}>
      
@@ -666,6 +666,7 @@ const RegisterDevice = ({ navigation }) => {
        
         </Table>
         </ScrollView>
+        </View>
       
         <AwesomeAlert
           show={showAlert}

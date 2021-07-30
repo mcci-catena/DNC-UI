@@ -456,11 +456,11 @@ const element = (cellData, index) => (
     
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+""})}>
-      <View >
+      <View style={{ paddingRight: 10 }}>
       <Image
        source={require('../assets/remove.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
@@ -469,7 +469,7 @@ const element = (cellData, index) => (
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
   </TouchableOpacity>
@@ -624,10 +624,18 @@ const pickerenabled=(itemValue) =>
         </Button>
         </View>
        
+        <View style={{ width: '50%', 
+                borderRadius: 10, 
+                borderWidth: 1, 
+                borderColor: '#560CCE', 
+                overflow: 'hidden', 
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: 10,
+                marginBottom: 20 }}>
         <Picker
                 selectedValue={selectedValue}
-                style={{width: '30%',marginLeft: 'auto',
-                marginRight: 'auto'}}
+                style={{width: '100%'}}
                 enabled={pickerhide}
                 onValueChange={itemValue =>pickerenabled(itemValue)}
               >
@@ -635,16 +643,19 @@ const pickerenabled=(itemValue) =>
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
               </Picker>
+              </View>
             
+        <View style={{ paddingLeft: 10, paddingRight: 10 }}>    
         <ScrollView horizontal={true} > 
         {tablehide && (   <Table borderStyle={{borderColor: 'transparent'}}>
      
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white'}}/>
+          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
           <ScrollView>
      
           {
             tableData.map((rowData, index) => (
-              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
+              // #F7F6E7
+              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
                     <Cell  key={cellIndex} data={cellIndex === taglength+4 ? element(rowData, index): cellData}  style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
@@ -657,6 +668,8 @@ const pickerenabled=(itemValue) =>
        
         </Table>)}
         </ScrollView>
+        </View>
+
         <AwesomeAlert
           show={showRemoveAlert}
           showProgress={false}
@@ -689,28 +702,39 @@ const pickerenabled=(itemValue) =>
 />
         <Portal>
           <Dialog
-            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
+            // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
+            style={{ width: '90%',backgroundColor: '#FFFFFF'}}
             visible={isDialogVisible}
             onDismiss={() => setIsDialogVisible(false)}
           >
+            <Dialog.ScrollArea>
+            <ScrollView style={{ marginTop: 5, marginBottom: 5, width: '100%' }} contentContainerStyle={{paddingHorizontal: 0 }}>
             <Dialog.Title
               style={{
+                fontSize: 15,
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                marginTop:'25%'
+                marginTop:'5%',
+                marginBottom:'10%',
+                backgroundColor: '#560CCE',
+                color: '#FFFFFF',
+                padding: 10,
+                borderRadius: 40,
               }}
             >
-              Add Device Information
+              ADD DEVICE INFORMATION
             </Dialog.Title>
             <Dialog.Content
               style={{
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                width:'75%'
+                width:'100%'
               }}
             >
               
+              <View style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', height: 45 }}>
               {show && (
+        // <View style={{ marginLeft: 'auto', marginRight: 'auto', height: 50 }}>
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -718,24 +742,40 @@ const pickerenabled=(itemValue) =>
           is24Hour={true}
           display="default"
           onChange={onChange}
-        />
+        />        
       )} 
-             <TouchableOpacity onPress={showDatepicker}>
+      
+        <TouchableOpacity onPress={showDatepicker}>
           <Text style={{borderWidth:1}}>{datestringvalue}</Text>
         </TouchableOpacity>
+        </View>
+
+        <View style={{ width: '100%', 
+                height: 40,
+                borderRadius: 5, 
+                borderWidth: 1, 
+                borderColor: '#560CCE', 
+                overflow: 'hidden', 
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: 10,
+                marginBottom: 10,
+                alignSelf: 'center' }}>
              <Picker
                 //  enabled={false}
                 selectedValue={deviceValue}
                 style={{
-                  width: '100%'
-
+                  width: '100%',
+                  height: 40,
+                  color: '#696C6E'
                 }}
                 onValueChange={itemValue => setdeviceValue(itemValue)}
               >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
-              </Picker> 
+              </Picker>
+              </View>
               
           
               <TextInput
@@ -764,22 +804,28 @@ const pickerenabled=(itemValue) =>
          
               
             </Dialog.Content>
+
+            
             <Dialog.Actions>
               <Button
                 mode="contained"
-                style={styles.button}
+                style={styles.dialogbutton}
                 onPress={AddDevice}
               >
                 Submit
               </Button>
               <Button
                 mode="contained"
-                style={styles.button}
+                style={styles.dialogbutton}
                 onPress={() => setIsDialogVisible(false)}
               >
                 Cancel
               </Button>
             </Dialog.Actions>
+            
+
+            </ScrollView>
+            </Dialog.ScrollArea>
           </Dialog>
         </Portal>
 
@@ -807,9 +853,7 @@ const pickerenabled=(itemValue) =>
               }}
             >
               
-        <TouchableOpacity onPress={showDatepicker}>
-          <Text style={{borderWidth:1}}>{datevalue}</Text>
-        </TouchableOpacity>
+        
               {show && (
         <DateTimePicker
           testID="dateTimePicker"
@@ -820,6 +864,11 @@ const pickerenabled=(itemValue) =>
           onChange={onChange}
         />
       )} 
+      <TouchableOpacity onPress={showDatepicker}>
+          {/* <Text style={{borderWidth:1}}>{datevalue}</Text> */}
+          <Text style={{borderWidth:1}}>{datestringvalue}</Text>
+        </TouchableOpacity>
+
               <Picker
                 selectedValue={deviceValue}
                 style={{
@@ -882,6 +931,14 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+  dialogbutton: {
+    width: '40%',
+    marginTop: 0,
+    marginBottom: 20,
+    paddingVertical: 2,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   row: {
     flexDirection: 'row',
   },
@@ -912,9 +969,11 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-  head: { height: 40, backgroundColor: '#808B97' },
+  // #808B97
+  head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  row: { flexDirection: 'row', backgroundColor: '#FFF1C1',borderWidth: 1, borderColor: '#C1C0B9' },
+  // #FFF1C1
+  row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },
   btnText: { textAlign: 'center', color: '#fff' },
