@@ -33,7 +33,10 @@ const LoginScreen = ({ navigation }) => {
       uname: email.value,
       pwd: password.value,
     }
-
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Dashboard' }],
+    })
     const storeData = async (taken, uname, usertype) => {
       try {
         const tokenValue = JSON.stringify(taken)
@@ -47,67 +50,68 @@ const LoginScreen = ({ navigation }) => {
         console.log(e)
       }
     }
-   
-    const url = 'https://staging-analytics.weradiate.com/apidbm/dlogin'
-    const postMethod= {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    }
-    console.log(postMethod);
-    fetch(url,postMethod)
-      .then(response => {
-        const statusCode = response.status
-        
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-        }
-        response.json().then(responseJson => {
-          console.log(responseJson)
-          let usertype = ''
-          const result = 'User ID and Password is not valid'
-          if (responseJson.message == result) {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-            alert(result)
-          } else {
-            const token = responseJson['token']
-            const uname = email.value
-            const clients = responseJson['clients']
-            if (clients == undefined) {
-              usertype = 'Client'
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Dashboard' }],
-              })
-            } else {
-              usertype = 'Admin'
-              setmodalVisible(false);
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Dashboard' }],
-              })
-            }
 
-            storeData(token, uname, usertype)
-          }
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+   
+    // const url = 'https://staging-analytics.weradiate.com/apidbm/dlogin'
+    // const postMethod= {
+    //   method: 'POST',
+    //   headers: {
+    //     Accept: 'application/json',
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(data),
+    // }
+    // console.log(postMethod);
+    // fetch(url,postMethod)
+    //   .then(response => {
+    //     const statusCode = response.status
+        
+    //     if (statusCode == 403) {
+    //       alert('inavalid token/token expired')
+    //     }
+    //     response.json().then(responseJson => {
+    //       console.log(responseJson)
+    //       let usertype = ''
+    //       const result = 'User ID and Password is not valid'
+    //       if (responseJson.message == result) {
+    //         navigation.reset({
+    //           index: 0,
+    //           routes: [{ name: 'LoginScreen' }],
+    //         })
+    //         alert(result)
+    //       } else {
+    //         const token = responseJson['token']
+    //         const uname = email.value
+    //         const clients = responseJson['clients']
+    //         if (clients == undefined) {
+    //           usertype = 'Client'
+    //           navigation.reset({
+    //             index: 0,
+    //             routes: [{ name: 'Dashboard' }],
+    //           })
+    //         } else {
+    //           usertype = 'Admin'
+    //           setmodalVisible(false);
+    //           navigation.reset({
+    //             index: 0,
+    //             routes: [{ name: 'Dashboard' }],
+    //           })
+    //         }
+
+      //       storeData(token, uname, usertype)
+      //     }
+      //   })
+      // })
+      // .catch(error => {
+      //   console.error(error)
+      // })
       
   }
   const onSignupPressed = () => {
    
     const url = 'https://staging-iseechange.mcci.mobi/dncserver/signup'
     fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers: {
        
         Accept: 'application/json',
@@ -119,18 +123,21 @@ const LoginScreen = ({ navigation }) => {
         console.log(responseJson)
         
 
-        const result = 'Welcome Admin'
-
-        if (responseJson.message == result) {
+        const result = "Welcome Admin"
+       
+        if (responseJson["message"] == result) {
           navigation.reset({
             index: 0,
-            routes: [{ name: 'RegisterScreen' }],
+            routes: [{ name: 'AdminSignup' }],
           })
-        } else {
+        } else if(responseJson["message"]="Welcome User") {
           navigation.reset({
             index: 0,
-            routes: [{ name: 'UserScreen' }],
+            routes: [{ name: 'UserSignup' }],
           })
+        }
+        else{
+          alert(JSON.stringify(responseJson["message"]));
         }
       })
       .catch(error => {

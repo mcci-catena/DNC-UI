@@ -14,7 +14,7 @@ const Dashboard=({navigation})=> {
    
  
   <AppBar navigation={navigation} title={"DNC"}></AppBar>
-  <View style={{flex: 1,width: '85%',maxWidth: 340,alignSelf: 'center',alignItems: 'center',justifyContent: 'center',borderWidth: 10, borderColor: 'red',}}>
+  <View style={{width: '85%',alignSelf: 'center',maxWidth:400,alignItems: 'center',justifyContent: 'center',borderWidth: 10, borderColor: 'red',marginTop:'5%'}}>
              <Text style={{alignItems:'center',justifyContent:"center",fontSize:30,color:'blue'}}>Welcome to DNC</Text>
   </View>
 

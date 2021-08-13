@@ -24,12 +24,15 @@ const RegisterDevice = ({ navigation }) => {
   let [deviceid, setdeviceid] = useState('')
   let [devid, setdevid] = useState('')
   let [deveui, setdeveui] = useState('')
+  let [measName, setmeasName] = useState('')
+  let [fieldName, setfieldName] = useState('')
   const [idate, setidate] = useState('')
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [data, setData] = useState([])
   const [selectedValue, setselectedValue] = useState('')
   const [Api, setApi] = useState('')
   const [clientName, setclientName] = useState('')
+  const [oldClient, setoldClient] = useState('')
   const [dilogtitle,setdilogtitle]=useState('Add device');
   const [uname, setuname] = useState('')
   const [oldhwid, setoldhwid] = useState('')
@@ -43,9 +46,10 @@ const RegisterDevice = ({ navigation }) => {
  
   const tablearray=[];
   const clients = [];
-  const [tableHead, settableHead] =useState(["S.No","clents", 'Hardware ID', 'Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
+  const [tableHead, settableHead] =useState(["clents", 'Hardware ID', 'Action'])
   const [tableData, settableData] = useState([]);
-  const [widthArr, setwidthArr] = useState([50,100, 180, 180, 180, 180, 200, 200, 100]);
+  const [deviceData, setdeviceData] = useState([]);
+  const [widthArr, setwidthArr] = useState([100, 180, 100]);
 
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
@@ -112,7 +116,8 @@ const RegisterDevice = ({ navigation }) => {
   
   
   const fetchtabledata =( token )=> {
-    const url='https://staging-analytics.weradiate.com/apidbm/listadev';
+    const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
+    
     const getMethod={
       method: 'GET',
       headers: {
@@ -143,26 +148,34 @@ const RegisterDevice = ({ navigation }) => {
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
             let array=[];
-            array.push(j);
+            let deviceArray=[];
+            //array.push(j);
             array.push(client);
             array.push(hwid);
-            array.push(deviceid);
-            array.push(devID);
-            array.push(devEUI);
-            array.push(idate);
-            array.push(rdate);
+            deviceArray.push(hwid);
+            deviceArray.push(deviceid);
+            deviceArray.push(devID);
+            deviceArray.push(devEUI);
+            deviceArray.push(idate);
+            deviceArray.push(rdate);
+            deviceArray.push(mmname);
+            deviceArray.push(fdname);
             array.push(client);
             tablearray.push(array);
+            deviceData.push(deviceArray)
             
         }
 
         settableData(tablearray);
+        setdeviceData(deviceData);
       })
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-analytics.weradiate.com/apidbm/client', {
+    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -221,7 +234,7 @@ const RegisterDevice = ({ navigation }) => {
   const Adddevice = () => {
     setIsDialogVisible(false)
 
-    var url = 'https://staging-analytics.weradiate.com/apidbm/mdevice'
+    var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
     console.log(url);
     const putMethod = {
       method: 'POST',
@@ -237,6 +250,8 @@ const RegisterDevice = ({ navigation }) => {
         devID: devid,
         devEUI: deveui,
         datetime: datevalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
     console.log(putMethod);
@@ -259,20 +274,20 @@ const RegisterDevice = ({ navigation }) => {
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-      <View >
+      <View style={{ paddingRight: 10 }}>
       <Image
        source={require('../assets/edit.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
-    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[1]+"",hwid:""+cellData[2]+"",idate:""+cellData[6]+""})}>
+    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[0]+"",hwid:""+cellData[1]+""})}>
     <View >
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
   </TouchableOpacity>
@@ -287,57 +302,67 @@ const RegisterDevice = ({ navigation }) => {
   const editIconclicked=(rowData,index) =>
   {
     console.log(rowData);
+    var dateutc;
     setedit(true);
     setdilogtitle('Edit device');
-    setclientName(rowData[1]);
-    setselectedValue(rowData[1]);
-    setHardwareid(rowData[2]);
-    setoldhwid(rowData[2]);
-    setdeviceid(rowData[3]);
-    setdevid(rowData[4]);
-    setdeveui(rowData[5]);
-    setidate(rowData[6]);
-    var dateutc = Date.parse(rowData[6]);
+    setclientName(rowData[0]);
+    setoldClient(rowData[0])
+    //setselectedValue(rowData[0]);
+    setHardwareid(rowData[1]);
+    setoldhwid(rowData[1]);
+    for(i=0;i<deviceData.length;i++)
+    {
+      if(deviceData[i][0]==rowData[1])
+      {
+        
+        setdeviceid(deviceData[i][1]);
+        setdevid(deviceData[i][2]);
+        setdeveui(deviceData[i][3]);
+        setidate(deviceData[i][4]);
+        setmeasName(deviceData[i][6])
+        setfieldName(deviceData[i][7])
+        dateutc = Date.parse(deviceData[i][4]);
+      }
+    }
+    
     // var dateist=new Date(dateutc);
     // dateist.setHours(dateist.getHours() + 5); 
     // dateist.setMinutes(dateist.getMinutes() + 30);
     const dateformatvalue = moment(dateutc).format('MM/DD/YYYY')
+   
     const timevalue = moment(dateutc).format('HH:mm:ss')
+   
     const datestringvalue = dateformatvalue + ',' + timevalue
- 
+    
    setdatevalue(datestringvalue);
-    checkeditable(rowData[1] ,rowData[2])
+    checkeditable(rowData[0] ,rowData[1])
  
     
  
    
   }
 
-  const createButtonAlert = ({client,hwid,idate}) =>
+  const createButtonAlert = ({client,hwid}) =>
   {
 
-    // Alert.alert(
-    //   "Delete user",
-    //   "Are you sure want to delete?",
-    //   [
-    //     {
-    //       text: "Cancel",
-    //       onPress: () => console.log("Cancel Pressed"),
-    //       style: "cancel"
-    //     },
-    //     { text: "OK", onPress:()=>Deletedevice (client,hwid,idate) }
-    //   ]
-    // )
+   
     setshowAlert(true);
     setclientName(client);
     setHardwareid(hwid);
-    setidate(idate);
+    for(i=0;i<deviceData.length;i++)
+    {
+      if(deviceData[i][0]==hwid)
+      {
+        setidate(deviceData[i][4]);
+      }
+    }
+   
 
   };
 
   const checkeditable = ( clientName, Hardwareid) => {
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listmdev/' +
+      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
       '' +
       clientName +
       ''
@@ -403,7 +428,7 @@ const RegisterDevice = ({ navigation }) => {
     }
     else{
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listadev/' +
+      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
       '' +
       itemValue +
       ''
@@ -439,14 +464,14 @@ const RegisterDevice = ({ navigation }) => {
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
             let array=[];
-            array.push(j);
+           // array.push(j);
             array.push(client);
             array.push(hwid);
-            array.push(deviceid);
-            array.push(devID);
-            array.push(devEUI);
-            array.push(idate);
-            array.push(rdate);
+           // array.push(deviceid);
+            //array.push(devID);
+            //array.push(devEUI);
+            //array.push(idate);
+            //array.push(rdate);
             array.push(client);
             tablearray.push(array);
             
@@ -464,7 +489,7 @@ const RegisterDevice = ({ navigation }) => {
      if(edit)
      {
        console.log("onedit");
-       updateDevice(clientName,Hardwareid);
+       updateDevice(selectedValue,Hardwareid);
      }
      else
      {
@@ -474,14 +499,13 @@ const RegisterDevice = ({ navigation }) => {
      }
    }
   const Deletedevice = ( client, hwid, idate ) => {
-    alert(JSON.stringify(client));
-    alert(JSON.stringify(hwid));
-    alert(JSON.stringify(idate));
+    
+    setshowAlert(false)
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
       '' +
       client +
       ''
@@ -521,10 +545,11 @@ const RegisterDevice = ({ navigation }) => {
   }
       
   const updateDevice = (client, currenthwid ) => {
+    setIsDialogVisible(false);
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
       '' +
-      client +
+      oldClient +
       ''
     
      console.log(url);
@@ -537,12 +562,14 @@ const RegisterDevice = ({ navigation }) => {
       },
       body: JSON.stringify({
         hwid: oldhwid,
-       
+        nclient:client,
         nhwid: currenthwid,
         deviceid: deviceid,
         devID: devid,
         devEUI: deveui,
         datetime: datevalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
    console.log(JSON.stringify(putMethod));
@@ -575,8 +602,8 @@ const RegisterDevice = ({ navigation }) => {
      
       <AppBar navigation={navigation} title={"Register Device"}></AppBar>
       
-      <View style={{flexDirection:'row',height:"10%"}}>
-	  
+      
+	  <View style={{flexDirection:"row"}}>
       <Button
         mode="contained"
         style={styles.button}
@@ -588,7 +615,7 @@ const RegisterDevice = ({ navigation }) => {
 	  
       <Picker
     selectedValue={selectedValue}
-    
+    style={{width: '35%'}}
     onValueChange={itemValue => clientwisetableData({ itemValue })}
   >
  
@@ -598,24 +625,24 @@ const RegisterDevice = ({ navigation }) => {
 	  
 	 
     ))}
-	
   </Picker>
+  
  
   </View>
      
-      
+      <View style={{ marginLeft: 'auto', marginRight: 'auto', paddingTop: 20 }}>
       <ScrollView horizontal={true} > 
       <Table borderStyle={{borderColor: 'transparent'}}>
      
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white'}}/>
+          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{ margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
           <ScrollView>
      
           {
             tableData.map((rowData, index) => (
-              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
+              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === 8 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                    <Cell  key={cellIndex} data={cellIndex === 2 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
                   ))
                 }
               </TableWrapper>
@@ -625,6 +652,7 @@ const RegisterDevice = ({ navigation }) => {
        
         </Table>
         </ScrollView>
+        </View>
       
         <AwesomeAlert
           show={showAlert}
@@ -643,15 +671,21 @@ const RegisterDevice = ({ navigation }) => {
 />
       <Portal>
         <Dialog
-          style={{ width: '90%', marginLeft: '5%' ,backgroundColor: '#F7F6E7'}}
+          style={{ width: '90%', marginLeft: '5%' ,backgroundColor: '#FFFFFF'}}
           visible={isDialogVisible}
           onDismiss={() => setIsDialogVisible(false)}
         >
           <Dialog.Title
             style={{
+              fontSize: 15,
               marginLeft: 'auto',
               marginRight: 'auto',
-              
+              marginTop:'5%',
+              marginBottom:'10%',
+              backgroundColor: '#560CCE',
+              color: '#FFFFFF',
+              padding: 10,
+              borderRadius: 40,
             }}
           >
             {dilogtitle}
@@ -660,25 +694,30 @@ const RegisterDevice = ({ navigation }) => {
             style={{
               marginLeft: 'auto',
               marginRight: 'auto',
-              width:'80%'
+              width:'100%'
             }}
           >
             <View>
          
             
-            {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}     
+            <View style={{ width: '100%', 
+                height: 40,
+                borderRadius: 5, 
+                borderWidth: 1, 
+                borderColor: '#560CCE', 
+                overflow: 'hidden', 
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: 10,
+                marginBottom: 10,
+                alignSelf: 'center' }}>
             <Picker
               selectedValue={selectedValue}
-              style={{width: '100%'}} 
+              style={{
+                width: '100%',
+                height: 40,
+                color: '#696C6E'
+              }}
               onValueChange={itemValue => setselectedValue(itemValue)}
             >
 			
@@ -687,6 +726,7 @@ const RegisterDevice = ({ navigation }) => {
               ))}
 			 
             </Picker>
+            </View>
            
          <TouchableOpacity onPress={showDatepicker}>
           <Text style={{borderWidth:1}}>{datevalue}</Text>
@@ -736,6 +776,36 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
+            <TextInput
+              label="Enter Meas Name"
+              returnKeyType="next"
+              value={measName}
+              onChangeText={text => setmeasName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+            <TextInput
+              label="Enter Field Name"
+              returnKeyType="next"
+              value={fieldName}
+              onChangeText={text => setfieldName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+                {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={date}
+          mode={mode}
+          is24Hour={true}
+          display="default"
+          onChange={onChange}
+        />
+      )}  
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -810,9 +880,9 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-  head: { height: 40, backgroundColor: '#808B97' },
+  head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  row: { flexDirection: 'row', backgroundColor: '#FFF1C1',borderWidth: 1, borderColor: '#C1C0B9' },
+  row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },
   btnText: { textAlign: 'center', color: '#fff' },

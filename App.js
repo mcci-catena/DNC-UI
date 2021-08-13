@@ -143,13 +143,10 @@ export default class App extends React.Component {
       <Drawer.Screen name="Home" component={Homestackscreen} />
       <Drawer.Screen name="User Management" component={UserstackScreen} />
      <Drawer.Screen name="Client Mangement" component={ClientstackScreen} />
-     <Drawer.Screen name="Field Configure" component={RegisterDevicestackScreen} />
      <Drawer.Screen name="Register Device" component={RegisterDevicestackScreen} />
      <Drawer.Screen name="Configure Device" component={ConfigureDevicestackScreen} />
-     <Drawer.Screen name="Configure Field" component={ConfigureFieldstackScreen} /> 
-   
-    
-    </Drawer.Navigator>
+     
+   </Drawer.Navigator>
  
 
         </NavigationContainer>

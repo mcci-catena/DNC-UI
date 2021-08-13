@@ -9,6 +9,7 @@ import { Dialog, Portal} from 'react-native-paper'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
+import { emailValidator } from '../helpers/emailValidator'
 const HomeScreen = ({ navigation }) => {
 
   const [email, setEmail] = useState({ value: '', error: '' })
@@ -25,15 +26,19 @@ const HomeScreen = ({ navigation }) => {
   const [Api, setApi] = useState('')
   const [uname, setuname] = useState('')
   const [visible, setVisible] = useState(false);
-  const [shouldShow, setShouldShow] = useState(true);
- 
+  const [shouldShow, setShouldShow] = useState(false);
+  const [otpshow, setotpshow] = useState(false);
+  const [otpalert, setotpalert] = useState(false);
   const tablearray=[];
   const clients = []
   const windowWidth = Dimensions.get('window').width;
  
-  const [tableHead, settableHead] =useState(['Clien name', 'User', 'Email', 'Action'])
+  const [tableHead, settableHead] =useState(['User', 'Email', 'Action'])
   const [tableData, settableData] = useState([]);
-
+  
+  const [alertmessage, setalertmessage] = useState('');
+  
+  const [otp, setotp] = useState('');
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -59,7 +64,45 @@ const HomeScreen = ({ navigation }) => {
     
   }, [])
 
- 
+  const onverifyPressed = () => {
+    
+     
+    const emailError = emailValidator(email.value)
+    if (emailError) {
+     
+      setEmail({ ...email, error: emailError })
+       
+      return
+    }
+    
+    var emaildata={};
+    emaildata['uname']=username.value;
+    emaildata['email']=email.value;
+    emaildata['mode']='usignup';
+    emaildata['status']='non-verified';
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emaildata),
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        console.log(responseJson)
+        setotpshow(true);
+        setalertmessage(JSON.stringify(responseJson.message));
+        setotpalert(true);
+     
+       
+      })
+      .catch(error => {
+        console.error(error)
+      })
+      
+  }
   const checkuser=(usertype)=>
   {
       usertype=JSON.stringify(usertype);
@@ -76,26 +119,13 @@ const HomeScreen = ({ navigation }) => {
    setUsername({ value: ''+username+'', error: '' })
    setEmail({ value: ''+email+'', error: '' })
   
-    // Alert.alert(
-    //   "Delete user",
-    //   "Are you sure want to delete?",
-    //   [
-    //     {
-    //       text: "Cancel",
-    //       onPress: () => console.log("Cancel Pressed"),
-    //       style: "cancel"
-    //     },
-    //     { text: "OK", onPress:()=>DeleteUser (username,email) }
-    //   ]
-    // )
- 
-  };
+};
     const DeleteUser = (username,email) => {
         console.log("Assignvalue");
         console.log(username);
         console.log(email);
       var url =
-        'https://staging-analytics.weradiate.com/apidbm/user/' +
+        'https://staging-dashboard.mouserat.io/dncserver/delete-user/' +
         '' +
         username+
         ''
@@ -140,7 +170,7 @@ const HomeScreen = ({ navigation }) => {
   
     const updateUser = () => {
       var url =
-        'https://staging-analytics.weradiate.com/apidbm/user/' +
+        'https://staging-dashboard.mouserat.io/dncserver/update-user/' +
         '' +
         username.value +
         ''
@@ -155,6 +185,7 @@ const HomeScreen = ({ navigation }) => {
         body: JSON.stringify({
           email:oldEmail,
           email_new: email.value,
+          pwd: password.value,
         }),
       }
   
@@ -186,12 +217,14 @@ const HomeScreen = ({ navigation }) => {
     }
  const editIconclicked=(rowData,index) =>
  {
-  setaddUserdilog(true);
-   setclientName(rowData[0]);
-   setUsername({ value: ''+rowData[1]+'', error: '' })
-   setEmail({ value: ''+rowData[2]+'', error: '' })
-   setoldEmail(rowData[2]);
+  
 
+  // setclientName(rowData[0]);
+  setPassword({ value:'', error: '' })
+   setUsername({ value: ''+rowData[0]+'', error: '' })
+   setEmail({ value: ''+rowData[1]+'', error: '' })
+   setoldEmail(rowData[1]);
+   setaddUserdilog(true);
   
  }
   
@@ -207,7 +240,7 @@ const HomeScreen = ({ navigation }) => {
       />
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={()=>createButtonAlert({username:""+cellData[1]+"",email:""+cellData[2]+""})}>
+      <TouchableOpacity onPress={()=>createButtonAlert({username:""+cellData[0]+"",email:""+cellData[1]+""})}>
       <View >
       <Image
          source={require('../assets/delete.png')}
@@ -220,7 +253,8 @@ const HomeScreen = ({ navigation }) => {
     );
 
 const fetchInventory = (token) => {
-  var url = 'https://staging-analytics.weradiate.com/apidbm/listuser'
+  
+  var url = 'https://staging-dashboard.mouserat.io/dncserver/list-user'
   const getMethod = {
     method: 'GET',
     headers: {
@@ -247,24 +281,24 @@ const fetchInventory = (token) => {
       
      for(var i=0;i<responseJson.length;i++)
      {
-      
-         let cname  = responseJson[i].cname;
-         let user=responseJson[i].user;
+         
+         let user=responseJson[i].uname;
          let email=responseJson[i].email;
          let cid=responseJson[i].cid;
          let array=[];
-         array.push(cname);
+       
          array.push(user);
          array.push(email);
          array.push(cid);
          tablearray.push(array);
          
      }
+     settableData(tablearray);
      console.log(tablearray);
     })
    
     
-    settableData(tablearray);
+  
   })
 }
 
@@ -274,7 +308,7 @@ const fetchInventory = (token) => {
 
 
   const fetchData = (token) => {
-    fetch('https://staging-analytics.weradiate.com/apidbm/client', {
+    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -314,8 +348,9 @@ const fetchInventory = (token) => {
 
   const adduserbutton=() =>
   {
-    setUsername({ value: '', error: '' })
-    setEmail({ value: '', error: '' })
+    setUsername({ value: '', error: '' });
+    setEmail({ value: '', error: '' });
+    setPassword({ value:'', error: '' });
     setselectedValue('');
     setIsDialogVisible(true);
   }
@@ -323,7 +358,7 @@ const fetchInventory = (token) => {
    
     setIsDialogVisible(false)
 
-    var url = 'https://staging-analytics.weradiate.com/apidbm/cuser'
+    var url = 'https://staging-dashboard.mouserat.io/dncserver/usignup'
     const putMethod = {
       method: 'POST',
       headers: {
@@ -336,12 +371,15 @@ const fetchInventory = (token) => {
         uname: username.value,
         pwd: password.value,
         email: email.value,
+        otpnum:otp,
+        mode: "usignup"
       }),
     }
 
     fetch(url, putMethod).then(response => {
       const statusCode = response.status
       response.json().then(responseJson => {
+       
         if (statusCode == 403) {
           alert('inavalid token/token expired')
           navigation.reset({
@@ -351,9 +389,11 @@ const fetchInventory = (token) => {
         } else if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-      fetchInventory(Api);
+      
       })
     })
+
+    fetchInventory(Api);
   }
 
 
@@ -374,14 +414,14 @@ const fetchInventory = (token) => {
       <ScrollView  >
           
       <Table borderStyle={{borderColor: 'transparent'}}>
-          <Row data={tableHead} style={styles.head}  textStyle={{margin: 6,color:'white'}}/>
+          <Row data={tableHead} style={styles.head}  textStyle={{margin: 6,color:'white',fontWeight: 'bold', textTransform: 'uppercase'}}/>
           
           {
             tableData.map((rowData, index) => (
-              <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
+              <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === 3 ? element(rowData, index) : cellData} textStyle={styles.text}/>
+                    <Cell  key={cellIndex} data={cellIndex === 2 ? element(rowData, index) : cellData} textStyle={styles.text}/>
                   ))
                 }
               </TableWrapper>
@@ -470,6 +510,33 @@ const fetchInventory = (token) => {
               keyboardType="email-address"
               
             />
+            <TouchableOpacity style={{backgroundColor:'#00ff00',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
+          <Text style={{color:'#FFFFFF'}}>Verify</Text>
+        </TouchableOpacity>
+        {otpshow && (  <TextInput
+       
+       label="Type here your otp"
+       returnKeyType="next"
+       value={otp.value}
+       onChangeText={text => setotp(text)}
+       
+     />)}
+
+<AwesomeAlert
+          show={otpalert}
+          showProgress={false}
+          title="Alert"
+          message={alertmessage}
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          showConfirmButton={true}
+        
+          confirmText="ok "
+          confirmButtonColor="#DD6B55"
+        
+          onConfirmPressed={() =>setotpalert(false)}
+        />
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -529,20 +596,12 @@ const fetchInventory = (token) => {
           >
             <View>
             
-            <TextInput
-              label="User name"
-              returnKeyType="next"
-              defaultValue={clientName}
-              disabled={true}
-              autoCapitalize="none"
-              autoCompleteType="name"
-              textContentType="name"
-              keyboardType="default"
-            />
+            
            <TextInput
               label="User name"
               returnKeyType="next"
-              defaultValue={username.value}
+              //defaultValue={username.value}
+              value={username.value}
               disabled={true}
               autoCapitalize="none"
               autoCompleteType="name"
@@ -562,6 +621,16 @@ const fetchInventory = (token) => {
               keyboardType="email-address"
               
             />
+             <TextInput
+              label="Password"
+              returnKeyType="next"
+              value={password.value}
+              onChangeText={text => setPassword({ value: text, error: '' })}
+              autoCapitalize="none"
+              autoCompleteType="name"
+              textContentType="name"
+              keyboardType="default"
+            /> 
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -634,9 +703,9 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-  head: { height: 40, backgroundColor: '#808B97' },
+  head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  row: { flexDirection: 'row', backgroundColor: '#FFF1C1',borderWidth: 1, borderColor: '#C1C0B9' },
+  row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },
   btnText: { textAlign: 'center', color: '#fff' }
