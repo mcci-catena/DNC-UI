@@ -55,7 +55,7 @@ if(isLoading){
          
             if(text.length==6)
             {
-              const url = 'https://staging-iseechange.mcci.mobi/dncserver/chkmoa'
+              const url = 'https://staging-dashboard.mouserat.io/dncserver/chkmoa'
               fetch(url, {
                 method: 'POST',
                 headers: {
@@ -81,7 +81,7 @@ if(isLoading){
 
             }
             
-     // setShouldShow(false)
+    
   }
   const onverifyPressed = () => {
     
@@ -94,14 +94,19 @@ if(isLoading){
       return
     }
     setspinner(true);
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/samail'
+    var emaildata={};
+    emaildata['uname']=Username.value;
+    emaildata['email']=email.value;
+    emaildata['mode']='asignup';
+    emaildata['status']='non-verified';
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({email:email.value}),
+      body: JSON.stringify(emaildata),
     })
       .then(response => response.json())
       .then(responseJson => {
@@ -110,7 +115,7 @@ if(isLoading){
         setalertmessage(JSON.stringify(responseJson.message));
       setshowAlert(true);
      
-        //setspinner(false);
+       
       })
       .catch(error => {
         console.error(error)
@@ -118,7 +123,7 @@ if(isLoading){
       setTimeout(() => {setspinner(false)}, 500);
   }
   const onSignUpPressed = () => {
-    // setspinner(true);
+    
     if(shouldShow!=true)
     {
 
@@ -142,8 +147,8 @@ if(isLoading){
     console.log(password.value)
     console.log(email.value)
     console.log(Orgname.value)
-   // const proxyurl = 'https://cors-anywhere.herokuapp.com/'
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/asignup'
+
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/asignup'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -151,19 +156,21 @@ if(isLoading){
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        oname: Orgname.value,
+        cname: Orgname.value,
         uname: Username.value,
         pwd: password.value,
         email: email.value,
-       
+        otpnum:otp,
+        mode: "asignup"
       }),
     })
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson)
+      alert(JSON.stringify(responseJson['message']));
       setalertmessage(JSON.stringify(responseJson.message));
       setshowAlert(true);
-      // setspinner(false);
+      
       navigation.reset({
         index: 0,
         routes: [{ name: 'LoginScreen' }],
@@ -228,7 +235,7 @@ if(isLoading){
        label="Type here your otp"
        returnKeyType="next"
        value={otp.value}
-       onChangeText={text => otpvalidation(text)}
+       onChangeText={text => setotp(text)}
        
      />)}
        <Modal
