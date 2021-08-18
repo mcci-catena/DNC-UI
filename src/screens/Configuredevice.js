@@ -120,9 +120,9 @@ const Configuredevice = ({ navigation }) => {
   
  let textarray = [];
  const addTextInput = (index) => {
-     let label=taglist[index]
-     //alert(label);
-     textarray.push(<TextInput key={index}  label="tag"
+     let labelvalue=taglist[index]
+   
+     textarray.push(<TextInput key={index}  label={labelvalue}
      onChangeText={(text) => addValues(text,index)} />);
      settextInput(textarray);
   }
@@ -402,9 +402,9 @@ fetch(url, postMethod)
           //alert("muthu");
         
           let hwids1 = responseJson['hwids']
-         // alert(JSON.stringify(hwids1));
+          //alert(JSON.stringify(hwids1));
           devices.push('Select the devices')
-         
+         if(responseJson['message']!="No Devices registered under this client!"){
           for (let i = 0; i < hwids1.length; i++) {
             const activehwid = hwids1[i]
            // alert(JSON.stringify(hwids1));
@@ -412,10 +412,11 @@ fetch(url, postMethod)
 
             devices.push(activehwid['hwid'])
           }
+         }
           setdevice(devices)
           sethwid(hwids)
         
-        
+         
          
         })
       })
@@ -686,7 +687,7 @@ const pickerenabled=(itemValue) =>
         <Portal>
           <Dialog
             // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
-            style={{ width: '40%',backgroundColor: '#FFFFFF', marginHorizontal: 'auto' }}
+            style={{ width: '40%',backgroundColor: '#FFFFFF', marginLeft:Platform.OS === 'web' ? '30%' : '10%',marginTop:'15%' }}
             visible={isDialogVisible}
             onDismiss={() => setIsDialogVisible(false)}
           >
@@ -811,7 +812,7 @@ const pickerenabled=(itemValue) =>
         <Portal>
           <Dialog
             // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
-            style={{ width: '40%',backgroundColor: '#FFFFFF', marginHorizontal: 'auto' }}
+            style={{ width: Platform.OS === 'web' ? '40%' : '80%',backgroundColor: '#FFFFFF', marginHorizontal: 'auto',marginTop:'15%' }}
             visible={isreplaceDialogVisible}
             onDismiss={() => setIsreplaceDialogVisible(false)}
           >

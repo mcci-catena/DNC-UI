@@ -354,7 +354,7 @@ const RegisterDevice = ({ navigation }) => {
   }
 
   const clientwisetableData = ({ itemValue }) => {
-    
+
     settablesclient( itemValue)
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {

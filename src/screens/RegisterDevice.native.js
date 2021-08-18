@@ -29,6 +29,7 @@ const RegisterDevice = ({ navigation }) => {
   const [idate, setidate] = useState('')
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [data, setData] = useState([])
+  const [tablesclient, settablesclient] = useState('')
   const [selectedValue, setselectedValue] = useState('')
   const [Api, setApi] = useState('')
   const [clientName, setclientName] = useState('')
@@ -420,7 +421,7 @@ const RegisterDevice = ({ navigation }) => {
 
   const clientwisetableData = ({ itemValue }) => {
     
-    setselectedValue( itemValue)
+    settablesclient( itemValue)
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {
       let token=Api
@@ -614,7 +615,7 @@ const RegisterDevice = ({ navigation }) => {
 	  
 	  
       <Picker
-    selectedValue={selectedValue}
+    selectedValue={tablesclient}
     style={{width: '35%'}}
     onValueChange={itemValue => clientwisetableData({ itemValue })}
   >

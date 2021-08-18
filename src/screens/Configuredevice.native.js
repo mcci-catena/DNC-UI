@@ -430,7 +430,7 @@ fetch(url, postMethod)
           let hwids1 = responseJson['hwids']
     
           devices.push('Select the devices')
-          if(responseJson['message']=null)
+          if(responseJson['message']!="No Devices registered under this client!")
           {
           for (let i = 0; i < hwids1.length; i++) {
             const activehwid = hwids1[i]

@@ -10,6 +10,7 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import { emailValidator } from '../helpers/emailValidator'
+import { getapiurl } from './Geturl'
 const HomeScreen = ({ navigation }) => {
 
   const [email, setEmail] = useState({ value: '', error: '' })
@@ -41,12 +42,14 @@ const HomeScreen = ({ navigation }) => {
   const [otp, setotp] = useState('');
   const getApitoken = async () => {
     try {
+      
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
       const usertype = await AsyncStorage.getItem('usertype')
       if (token !== null && uname !== null) {
         setApi(token)
         
+     
         fetchInventory(token);
         checkuser(usertype);
         setuname(uname.replace(/['"]+/g, ''))
@@ -308,6 +311,7 @@ const fetchInventory = (token) => {
 
 
   const fetchData = (token) => {
+   
     fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
       method: 'GET',
       headers: {
@@ -331,10 +335,10 @@ const fetchInventory = (token) => {
 
           for (var i = 0; i < responseJson.length; i++) {
             const json = responseJson[i].cname
-
+        
             clients.push(json)
           }
-
+         
           setData(clients)
         
         
@@ -410,7 +414,7 @@ const fetchInventory = (token) => {
         Add user
       </Button>
      
-
+      <View style={{ marginLeft: '10', marginRight: '10', paddingTop: 20 }}>
       <ScrollView  >
           
       <Table borderStyle={{borderColor: 'transparent'}}>
@@ -431,7 +435,7 @@ const fetchInventory = (token) => {
         </Table>
       
         </ScrollView>
-
+</View>
         <AwesomeAlert
           show={showAlert}
           showProgress={false}
@@ -449,15 +453,22 @@ const fetchInventory = (token) => {
 />
       <Portal>
         <Dialog
-          style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%',backgroundColor: '#F7F6E7' }}
+          style={{ width: Platform.OS === 'web' ? '40%' : '80%', backgroundColor: '#FFFFFF',marginLeft:Platform.OS === 'web' ? '30%' : '10%' }}
           visible={isDialogVisible}
           onDismiss={() => setIsDialogVisible(false)}
         >
           <Dialog.Title
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
+           style={{
+            fontSize: 15,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            marginTop:'5%',
+            marginBottom:'10%',
+            backgroundColor: '#560CCE',
+            color: '#FFFFFF',
+            padding: 10,
+            borderRadius: 40,
+          }}
           >
             Add User
           </Dialog.Title>
@@ -510,7 +521,7 @@ const fetchInventory = (token) => {
               keyboardType="email-address"
               
             />
-            <TouchableOpacity style={{backgroundColor:'#00ff00',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
+            <TouchableOpacity style={{backgroundColor:'#ff0000',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
           <Text style={{color:'#FFFFFF'}}>Verify</Text>
         </TouchableOpacity>
         {otpshow && (  <TextInput

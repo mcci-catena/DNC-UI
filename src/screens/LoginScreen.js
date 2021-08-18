@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'
-import Header from'../components/Header'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import BackButton from '../components/BackButton'
 import { theme } from '../core/theme'
 import { nameValidator } from '../helpers/nameValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
@@ -33,16 +31,13 @@ const LoginScreen = ({ navigation }) => {
       uname: email.value,
       pwd: password.value,
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Dashboard' }],
-    })
+   
     const storeData = async (taken, uname, usertype) => {
       try {
         const tokenValue = JSON.stringify(taken)
         const unameValue = JSON.stringify(uname)
-        //const type=JSON.stringify(usertype);
-        // alert(JSON.stringify(type));
+   
+        
         await AsyncStorage.setItem('token', tokenValue)
         await AsyncStorage.setItem('uname', unameValue)
         await AsyncStorage.setItem('usertype', usertype)
@@ -52,64 +47,66 @@ const LoginScreen = ({ navigation }) => {
     }
 
    
-    // const url = 'https://staging-analytics.weradiate.com/apidbm/dlogin'
-    // const postMethod= {
-    //   method: 'POST',
-    //   headers: {
-    //     Accept: 'application/json',
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(data),
-    // }
-    // console.log(postMethod);
-    // fetch(url,postMethod)
-    //   .then(response => {
-    //     const statusCode = response.status
+      const url = 'https://staging-iseechange.mcci.mobi/dncserver/login'
+    const postMethod= {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    }
+    console.log(postMethod);
+    fetch(url,postMethod)
+      .then(response => {
+        const statusCode = response.status
         
-    //     if (statusCode == 403) {
-    //       alert('inavalid token/token expired')
-    //     }
-    //     response.json().then(responseJson => {
-    //       console.log(responseJson)
-    //       let usertype = ''
-    //       const result = 'User ID and Password is not valid'
-    //       if (responseJson.message == result) {
-    //         navigation.reset({
-    //           index: 0,
-    //           routes: [{ name: 'LoginScreen' }],
-    //         })
-    //         alert(result)
-    //       } else {
-    //         const token = responseJson['token']
-    //         const uname = email.value
-    //         const clients = responseJson['clients']
-    //         if (clients == undefined) {
-    //           usertype = 'Client'
-    //           navigation.reset({
-    //             index: 0,
-    //             routes: [{ name: 'Dashboard' }],
-    //           })
-    //         } else {
-    //           usertype = 'Admin'
-    //           setmodalVisible(false);
-    //           navigation.reset({
-    //             index: 0,
-    //             routes: [{ name: 'Dashboard' }],
-    //           })
-    //         }
+        if (statusCode == 403) {
+          alert('inavalid token/token expired')
+        }
+        response.json().then(responseJson => {
+          console.log(responseJson)
+          let usertype = ''
+         const result = 'User ID and Password is not valid'
+          if (responseJson.message == "User not exists"||responseJson.message=="Invalid password") {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'LoginScreen' }],
+            })
+            alert(result)
+          } else {
+            const token = responseJson['token']
+            const uname = email.value
+            const level = responseJson['level']
+            if (level == "1") {
+              usertype = 'Client'
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Dashboard' }],
+              })
+             
+            } else {
+             
+              usertype = 'Admin'
+              setmodalVisible(false);
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Dashboard' }],
+              })
+            }
 
-      //       storeData(token, uname, usertype)
-      //     }
-      //   })
-      // })
-      // .catch(error => {
-      //   console.error(error)
-      // })
+            storeData(token, uname, usertype)
+          }
+        })
+      })
+      .catch(error => {
+        console.error(error)
+      })
       
   }
   const onSignupPressed = () => {
    
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/signup'
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/signup'
     fetch(url, {
       method: 'GET',
       headers: {
@@ -155,6 +152,7 @@ const LoginScreen = ({ navigation }) => {
       
       <TextInput
         label="User name"
+        
         returnKeyType="next"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}

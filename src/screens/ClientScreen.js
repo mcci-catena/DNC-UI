@@ -29,7 +29,7 @@ const ClientScreen = ({navigation}) => {
   const [textboxshow, settextboxshow] = useState(true);
   const [pickershow, setpickershow] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
-  const [tableHead, settableHead] =useState(['Client id', 'ClientName','Action'])
+  const [tableHead, settableHead] =useState(['Client id', 'Client Name','Action'])
   const [tableData, settableData] = useState([])
   const [edittableData, setedittableData] = useState([])
   const openMenu = () => setVisible(true);
@@ -381,25 +381,25 @@ const ClientScreen = ({navigation}) => {
       })
   }
   const element = (cellData, index) => (
-    <View style={{flexDirection:'row'}}>
+    <View style={{flexDirection:'row' }}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-      <View >
+      <View>
       <Image
        source={require('../assets/edit.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
-    <TouchableOpacity onPress={()=>createButtonAlert({clientname:""+cellData[1]+""})}>
+    {/* <TouchableOpacity onPress={()=>createButtonAlert({clientname:""+cellData[1]+""})}>
     <View >
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
-  </TouchableOpacity>
+  </TouchableOpacity> */}
   </View>
   );
 
@@ -546,10 +546,11 @@ const ClientScreen = ({navigation}) => {
       <Portal>
       
         <Dialog
-          style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
+          style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#FFFFFF'}}
           visible={false}
           onDismiss={() => setIsDialogVisible(false)}
         >
+          {/* #F7F6E7 */}
           <Dialog.Title
             style={{
               marginLeft: 'auto',
@@ -577,7 +578,7 @@ const ClientScreen = ({navigation}) => {
       
       </Portal>
       </ScrollView>
-      <Modal presentationStyle="overFullScreen" transparent={true} visible={isDialogVisible}>
+      <Modal presentationStyle="overFullScreen" transparent={true} visible={isDialogVisible} >
       <ScrollView>
          <View style={{
             flex: 1,
@@ -586,8 +587,16 @@ const ClientScreen = ({navigation}) => {
             alignItems: 'center',
             width: Platform.OS === 'web' ? '50%' : '80%', 
             marginLeft:Platform.OS === 'web' ? '25%' : '10%' ,
-            backgroundColor: '#F7F6E7',
-               
+            backgroundColor: '#FFFFFF',
+            borderRadius: 10,
+            shadowColor: "#000000",
+            shadowOpacity: 0.5,
+            shadowRadius: 2,
+            shadowOffset: {
+              height: 1,
+              width: 1
+            },
+            elevation: 3
         }}>
             <View style={{width: Platform.OS === 'web' ? '60%' : '90%', }}>
              <View style={{
@@ -598,7 +607,7 @@ const ClientScreen = ({navigation}) => {
                
            }}>
           
-            <Text style={{fontSize:25}}>Add Client</Text>
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop: 10 }}>ADD CLIENT</Text>
                
            
              
@@ -678,10 +687,10 @@ const ClientScreen = ({navigation}) => {
        
       <Text>-OR-</Text>
  
-       <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
-          <Text style={{color:'white'}}>Select Database</Text>
+       <TouchableOpacity style={{backgroundColor:'#560CCE',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
+          <Text style={{color:'white'}}>SELECT DATABASE</Text>
         </TouchableOpacity> 
-  
+  {/* #0000FF */}
     <TextInput
   
               label="Tag-1"
@@ -723,9 +732,9 @@ const ClientScreen = ({navigation}) => {
               keyboardType="default"
             />
 
-<TouchableOpacity disabled={devicestatus} style={{backgroundColor:'#0000FF',alignItems: "center",padding: 10,borderRadius:25}} onPress={() => addTextInput(textInput.length)}>
-          <Text style={{color:'white'}}>Add more tags</Text>
-        </TouchableOpacity>
+<TouchableOpacity disabled={devicestatus} style={{backgroundColor:'#560CCE',alignItems: "center",padding: 10,borderRadius:25}} onPress={() => addTextInput(textInput.length)}>
+          <Text style={{color:'white'}}>ADD MORE TAGS</Text>
+        </TouchableOpacity> 
             
    
        {textInput.map((value,key) => {

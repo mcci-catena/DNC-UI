@@ -37,7 +37,7 @@ export default function AppBar({navigation,title}) {
       visible={uservisible}
       onDismiss={closeUser}
       anchor={{ x: windowWidth, y: 50 }}>
-      <Menu.Item    title="Change password" onPress={()=>changepassscreen()}/>
+      {/* <Menu.Item    title="Change password" onPress={()=>changepassscreen()}/> */}
       <Menu.Item   title="Logout" onPress={()=>changelogoutscreen()} />
    
     </Menu>
