@@ -268,7 +268,7 @@ const RegisterDevice = ({ navigation }) => {
         } else if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-        fetchtabledata(Api);
+        clientwisetableData();
       })
     })
   }
@@ -418,10 +418,10 @@ const RegisterDevice = ({ navigation }) => {
         console.error(error)
       })
   }
-
-  const clientwisetableData = ({ itemValue }) => {
+  const clientpickerenabled=({ itemValue })=>
+  {
     
-    settablesclient( itemValue)
+    settablesclient( itemValue);
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {
       let token=Api
@@ -432,6 +432,75 @@ const RegisterDevice = ({ navigation }) => {
       'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
       '' +
       itemValue +
+      ''
+    console.log(url);  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+    }).then(response => {
+      const statusCode = response.status
+
+      response.json().then(responseJson => {
+        if (statusCode == 403) {
+          alert('inavalid token/token expired')
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'LoginScreen' }],
+          })
+        }
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify("test"+responseJson['message']))
+        }
+        console.log(JSON.stringify(responseJson[0]))
+        for(var i=0;i<responseJson.length;i++)
+        {
+            let j=i+1;
+            let client  = responseJson[i].client;
+            let hwid=responseJson[i].hwid;
+            let deviceid=responseJson[i].deviceid;
+            let devID=responseJson[i].devID;
+            let devEUI=responseJson[i].devEUI;
+            let idate=responseJson[i].idate;
+            let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
+            let array=[];
+            array.push(j);
+            array.push(client);
+            array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
+            array.push(deviceid);
+            array.push(devID);
+            array.push(devEUI);
+            array.push(idate);
+            array.push(rdate);
+            array.push(client);
+            tablearray.push(array);
+            
+        }
+
+        settableData(tablearray);
+      })
+    })
+    }
+  }
+  const clientwisetableData = () => {
+    
+   
+    if(tablesclient=='All' ||tablesclient =='Select the Clients' ||tablesclient==undefined||tablesclient==null)
+    {
+      let token=Api
+      fetchtabledata(token);
+    }
+    else{
+    var url =
+      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
+      '' +
+      tablesclient +
       ''
     fetch(url, {
       method: 'GET',
@@ -536,7 +605,7 @@ const RegisterDevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          fetchtabledata(Api);
+          clientwisetableData();
         })
         .catch(error => {
           console.error(error)
@@ -588,13 +657,13 @@ const RegisterDevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson))
           }
-          fetchtabledata(Api);
+          clientwisetableData();
         })
       })
       .catch(error => {
         console.error(error)
       })
-      fetchtabledata(Api);
+     
   }
 
   return (
@@ -617,7 +686,7 @@ const RegisterDevice = ({ navigation }) => {
       <Picker
     selectedValue={tablesclient}
     style={{width: '35%'}}
-    onValueChange={itemValue => clientwisetableData({ itemValue })}
+    onValueChange={itemValue => clientpickerenabled({ itemValue })}
   >
  
     {data.map((value,key) => (

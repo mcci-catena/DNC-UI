@@ -7,9 +7,6 @@ import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import  moment, { utc } from 'moment'
-// import Datetime from 'react-datetime'
-// import 'react-datetime/css/react-datetime.css'
-// import { DateTimePicker } from 'react-rainbow-components';
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
@@ -382,10 +379,7 @@ fetch(url, postMethod)
             } else if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
+            fetchtabledata(selectedValue);
           })
         })
         .catch(error => {
@@ -519,10 +513,7 @@ const element = (cellData, index) => (
          else if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Configuredevice' }],
-        })
+        fetchtabledata(selectedValue);
       })
     })
     .catch(error => {
@@ -574,10 +565,7 @@ const element = (cellData, index) => (
             } else if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
+            fetchtabledata(selectedValue);
           })
         })
         .catch(error => {

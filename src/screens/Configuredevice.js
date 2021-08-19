@@ -303,10 +303,7 @@ fetch(url, postMethod)
       } else if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Configuredevice' }],
-      })
+      fetchtabledata(selectedValue);
     })
   })
   .catch(error => {
@@ -355,10 +352,11 @@ fetch(url, postMethod)
             } else if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
+            // navigation.reset({
+            //   index: 0,
+            //   routes: [{ name: 'Configuredevice' }],
+            // })
+            fetchtabledata(selectedValue);
           })
         })
         .catch(error => {
@@ -496,10 +494,7 @@ const element = (cellData, index) => (
          else if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Configuredevice' }],
-        })
+        fetchtabledata(selectedValue);
       })
     })
     .catch(error => {
@@ -552,10 +547,11 @@ const element = (cellData, index) => (
             } else if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Configuredevice' }],
-            })
+            // navigation.reset({
+            //   index: 0,
+            //   routes: [{ name: 'Configuredevice' }],
+            // })
+            fetchtabledata(selectedValue);
           })
         })
         .catch(error => {
