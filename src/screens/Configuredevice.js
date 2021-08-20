@@ -309,6 +309,7 @@ fetch(url, postMethod)
   .catch(error => {
     console.error(error)
   })
+  fetchDevicelist(selectedValue);
 }
   
   const AddDevice = () => {
@@ -362,7 +363,7 @@ fetch(url, postMethod)
         .catch(error => {
           console.error(error)
         })
-    
+        fetchDevicelist(selectedValue);
   }
 
  
@@ -397,15 +398,15 @@ fetch(url, postMethod)
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          //alert("muthu");
+          
         
           let hwids1 = responseJson['hwids']
-          //alert(JSON.stringify(hwids1));
+          
           devices.push('Select the devices')
          if(responseJson['message']!="No Devices registered under this client!"){
           for (let i = 0; i < hwids1.length; i++) {
             const activehwid = hwids1[i]
-           // alert(JSON.stringify(hwids1));
+           
             hwids.push(activehwid)
 
             devices.push(activehwid['hwid'])
@@ -500,6 +501,7 @@ const element = (cellData, index) => (
     .catch(error => {
       console.error(error)
     })
+    fetchDevicelist(selectedValue);
     
   }
   const addDevicebutton = () => {
@@ -557,6 +559,7 @@ const element = (cellData, index) => (
         .catch(error => {
           console.error(error)
         })
+        fetchDevicelist(selectedValue);
   }
 
 const pickerenabled=(itemValue) =>
@@ -595,10 +598,7 @@ const pickerenabled=(itemValue) =>
         </View>
        
         <View style={{ width: '20%',
-                // height: '40%', 
-                // borderRadius: 10, 
-                // borderWidth: 1, 
-                // borderColor: '#560CCE', 
+                
                 overflow: 'hidden', 
                 marginLeft: 'auto',
                 marginRight: 'auto',
@@ -682,11 +682,13 @@ const pickerenabled=(itemValue) =>
         <View style={styles.centeredView}> 
         <Portal>
           <Dialog
-            // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
-            style={{ width: '40%',backgroundColor: '#FFFFFF', marginLeft:Platform.OS === 'web' ? '30%' : '10%',marginTop:'15%' }}
+
+           style={{ width: '40%', height: '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' }}
             visible={isDialogVisible}
             onDismiss={() => setIsDialogVisible(false)}
           >
+          <Dialog.ScrollArea>
+          <ScrollView contentContainerStyle={{paddingHorizontal: 24}}>
             <Dialog.Title
               style={{
                 fontSize: 15,
@@ -800,6 +802,8 @@ const pickerenabled=(itemValue) =>
                 Cancel
               </Button>
             </Dialog.Actions>
+            </ScrollView>
+        </Dialog.ScrollArea>
           </Dialog>
         </Portal>
         </View>
@@ -807,7 +811,7 @@ const pickerenabled=(itemValue) =>
 
         <Portal>
           <Dialog
-            // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
+            
             style={{ width: Platform.OS === 'web' ? '40%' : '80%',backgroundColor: '#FFFFFF', marginHorizontal: 'auto',marginTop:'15%' }}
             visible={isreplaceDialogVisible}
             onDismiss={() => setIsreplaceDialogVisible(false)}
@@ -853,11 +857,8 @@ const pickerenabled=(itemValue) =>
         />
         </View>
 
-<View style={{ width: '100%', 
+        <View style={{ width: '100%', 
                 height: 40,
-                // borderRadius: 5, 
-                // borderWidth: 1, 
-                // borderColor: '#560CCE', 
                 overflow: 'hidden', 
                 marginLeft: 'auto',
                 marginRight: 'auto',
@@ -884,9 +885,6 @@ const pickerenabled=(itemValue) =>
 
               <View style={{ width: '100%', 
                 height: 40,
-                // borderRadius: 5, 
-                // borderWidth: 1, 
-                // borderColor: '#560CCE', 
                 overflow: 'hidden', 
                 marginLeft: 'auto',
                 marginRight: 'auto',
@@ -894,7 +892,7 @@ const pickerenabled=(itemValue) =>
                 marginBottom: 10,
                 alignSelf: 'center' }}>
               <Picker
-                //  enabled={false}
+                
                 selectedValue={newdeviceValue}
                 style={{
                   width: '100%',
@@ -977,7 +975,6 @@ const styles = StyleSheet.create({
   form: {
     width: '500px',
     padding: '10px',
-   // border: '5px solid gray',
     marginLeft: 'auto',
     marginRight: 'auto',
   },
@@ -990,9 +987,7 @@ const styles = StyleSheet.create({
   singleHead: { width: 100, height: 40},
   centeredView: {
     flex: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
-    marginTop: 22
+    marginVertical: 10
   },
 })
 export default Configuredevice

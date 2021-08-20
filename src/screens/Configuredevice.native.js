@@ -12,58 +12,28 @@ import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import DateTimePicker from '@react-native-community/datetimepicker';
 const Configuredevice = ({ navigation }) => {
-  let [site, setsite] = useState([])
-  let [pile, setpile] = useState([])
   let [hwid, sethwid] = useState([])
   const[lat,setlat]=useState('');
   const[long,setlong]=useState('');
-  let [servername, setServername] = useState({ value: '' })
   let [Hardwareid, setHardwareid] = useState('')
-  let [pilename, setpilename] = useState('')
-  let [measurementname, setmeasurementname] = useState('')
   const [datevalue, setdatevalue] = useState(new Date())
-  let [removedevicepicker, setremovedevicepicker] = useState(false)
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [isreplaceDialogVisible, setIsreplaceDialogVisible] = useState(false)
-  const [isremoveDialogVisible, setIsremoveDialogVisible] = useState(false)
-  const [removesubmit, setremovesubmit] = useState(false)
-  const [replacesubmit, setreplacesubmit] = useState(false)
-  const [deletesubmit, setdeletesumbit] = useState(false)
-  const [ClientVisible, setIsclientVisible] = React.useState(false)
   const [newdeviceValue, setnewdeviceValue] = useState('')
-  const [datetextVisible, setdatetextVisible] = useState(false)
-  const [piletextVisible, setpiletextVisible] = useState(false)
-  const [pilebuttonVisible, setpilebuttonVisible] = useState(true)
-  const [locationbuttonVisible, setlocationbuttonVisible] = useState(true)
   const [data, setData] = useState([])
   const [replacedata, setreplaceData] = useState([])
   const [selectedValue, setselectedValue] = useState('')
-  const [siteValue, setsiteValue] = useState('')
-  const [pileValue, setpileValue] = useState('')
-  const [locationValue, setlocationValue] = useState('')
   const [deviceValue, setdeviceValue] = useState('')
   const [Api, setApi] = useState('')
   const [uname, setuname] = useState('')
-  const [location, setlocation] = useState([])
   let [device, setdevice] = useState([])
-  const [siteservername, setsiteservername] = useState({})
-  const [tableValue, settableValue] = useState('')
-  const [piledbname, setpiledbname] = useState({})
-  const [pilemeasname, setpilemeasname] = useState({})
-  const [visible, setVisible] = useState(false);
-  const [uservisible, setuserVisible] = useState(false);
   const [shouldShow, setShouldShow] = useState(true);
   const [showAlert, setshowAlert] = useState(false);
   const [showRemoveAlert, setshowRemoveAlert] = useState(false);
   const clients = []
-  const sites = []
-  const piles = []
-  const locations = []
   const devices = []
   const removedevices = []
-  const removedevicesdate = {}
   const hwids = []
-
   const [pickerhide, setpickerhide] = useState(true)
   const [tablehide, settablehide] = useState(true)
   const [date, setDate] = useState(new Date());
@@ -76,6 +46,10 @@ const Configuredevice = ({ navigation }) => {
   const [tableHead, settableHead] =useState([])
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([]);
+  const [textInput, settextInput] = useState([]);
+  const [inputData, setinputData] = useState([])
+  const[taglength,settaglength]=useState();
+   let textarray = [];
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -101,22 +75,17 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
-  let inputProps = {
-    placeholder: 'Date and time',
-    className: 'datetime',
-  }
+ 
   useEffect(() => {
     getApitoken()
   }, [])
 
   
-  const [textInput, settextInput] = useState([]);
-  const [inputData, setinputData] = useState([])
-  const[taglength,settaglength]=useState();
+  
  
 
   
- let textarray = [];
+
  const addTextInput = (index) => {
      let label=taglist[index]
      textarray.push(<TextInput key={index}  label="Tag"
@@ -385,7 +354,7 @@ fetch(url, postMethod)
         .catch(error => {
           console.error(error)
         })
-    
+        fetchDevicelist(selectedValue);
   }
 
  

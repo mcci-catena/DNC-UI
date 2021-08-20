@@ -18,7 +18,7 @@ const Dashboard=({navigation})=> {
              <Text style={{alignItems:'center',justifyContent:"center",fontSize:30,color:'blue'}}>Welcome to DNC</Text>
   </View>
 
-  
+  {/* <Text style={{marginTop:'95%',marginLeft:'50%'}}>Version 1.0.0</Text> */}
 </View>
   );
 }

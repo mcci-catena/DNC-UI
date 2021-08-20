@@ -13,7 +13,7 @@ import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
 
 const RegisterScreen = ({ navigation }) => {
-  console.log('register')
+ 
   const [Username, setUsername] = useState({ value: '', error: '' })
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
@@ -27,62 +27,23 @@ const RegisterScreen = ({ navigation }) => {
 
 
 
-useEffect(() => {
+  useEffect(() => {
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
-}, []);
+  }, []);
 
-if(isLoading){
+  if(isLoading){
     return(
-      <View style={{
-        flex: 1,
-       
-        justifyContent: 'center',
-        alignItems: 'center'
-    }}>
-        
-      <ActivityIndicator size="large"  />
-      <Text >Loading</Text>
-    </View>
+      <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
+        <ActivityIndicator size="large"  />
+        <Text >Loading</Text>
+      </View>
    
     );
-}
-
-  const otpvalidation=(text)  =>
-
-  {
-         
-            if(text.length==6)
-            {
-              const url = 'https://staging-dashboard.mouserat.io/dncserver/chkmoa'
-              fetch(url, {
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({email:email.value,oauth:text}),
-              })
-                .then(response => response.json())
-                .then(responseJson => {
-                  console.log(responseJson)
-                  setalertmessage(JSON.stringify(responseJson.message));
-                  setshowAlert(true);
-                  if(responseJson.message="Auth Success")
-                  {
-                    setShouldShow(false);
-                  }
-                  
-                })
-                .catch(error => {
-                  console.error(error)
-                })
-
-            }
-            
-    
   }
+
+ 
   const onverifyPressed = () => {
     
      
@@ -121,7 +82,7 @@ if(isLoading){
         console.error(error)
       })
       setTimeout(() => {setspinner(false)}, 500);
-  }
+    }
   const onSignUpPressed = () => {
     
     if(shouldShow!=true)
@@ -183,25 +144,25 @@ if(isLoading){
     <Background>
       
       <Header>Create Admin Account</Header>
-      <TextInput
+        <TextInput
         label="Organization Name"
         returnKeyType="next"
         value={Orgname.value}
         onChangeText={text => setOrgname({ value: text, error: '' })}
         error={!!Orgname.error}
         errorText={Orgname.error}
-      />
-      <TextInput
+        />
+        <TextInput
         label="User Name"
         returnKeyType="next"
         value={Username.value}
         onChangeText={text => setUsername({ value: text, error: '' })}
         error={!!Username.error}
         errorText={Username.error}
-      />
+        />
 
       
-      <TextInput
+        <TextInput
         label="Password"
         returnKeyType="done"
         value={password.value}
@@ -209,60 +170,42 @@ if(isLoading){
         error={!!password.error}
         errorText={password.error}
         secureTextEntry
-      />
+        />
   
-      <TextInput
+        <TextInput
         label="Email"
-     
-       
-       returnKeyType="next"
-       value={email.value}
-       onChangeText={text => setEmail({ value: text, error: '' })}
-       error={!!email.error}
-       errorText={email.error}
-       autoCapitalize="none"
-       autoCompleteType="email"
-       textContentType="emailAddress"
-       keyboardType="email-address"
-     />
+        returnKeyType="next"
+        value={email.value}
+        onChangeText={text => setEmail({ value: text, error: '' })}
+        error={!!email.error}
+        errorText={email.error}
+        autoCapitalize="none"
+        autoCompleteType="email"
+        textContentType="emailAddress"
+        keyboardType="email-address"
+        />
      
     
-    <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
-          <Text style={styles.link}>Verify</Text>
-        </TouchableOpacity>
-    {shouldShow && (  <TextInput
+      <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
+          <Text style={styles.link}>Verify Email</Text>
+      </TouchableOpacity>
+      {shouldShow && (  <TextInput
        
        label="Type here your otp"
        returnKeyType="next"
        value={otp.value}
        onChangeText={text => setotp(text)}
        
-     />)}
-       <Modal
-      presentationStyle="overFullScreen"
-      transparent={true}
-      visible={spinner}
-     
-    >
-         <View style={{
-            flex: 1,
-           
-            justifyContent: 'center',
-            alignItems: 'center',
-        }}>
-            <View style={{
-                backgroundColor: "#F7F6E7",
-                width: 300,
-                height: 150,justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor:"#F7F6E7"
-           }}>
-          <ActivityIndicator size="large" color="#00ff00" />
-          <Text style={{color:"#00ff00"}}>Loading</Text>
-        </View>
-        </View>
-        </Modal>
-  <AwesomeAlert
+      />)}
+      <Modal presentationStyle="overFullScreen" transparent={true} visible={spinner}>
+         <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
+            <View style={{backgroundColor: "#F7F6E7",width: 300,height: 150,justifyContent: 'center',alignItems: 'center',backgroundColor:"#F7F6E7"}}>
+              <ActivityIndicator size="large" color="#00ff00" />
+              <Text style={{color:"#00ff00"}}>Loading</Text>
+            </View>
+          </View>
+      </Modal>
+      <AwesomeAlert
           show={showAlert}
           showProgress={false}
           title="Alert"
@@ -276,15 +219,9 @@ if(isLoading){
           confirmButtonColor="#DD6B55"
         
           onConfirmPressed={() =>setshowAlert(false)}
-        />
+      />
    
-      <Button
-        mode="contained"
-        onPress={onSignUpPressed}
-        style={{ marginTop: 24 }}
-      >
-        Sign Up
-      </Button>
+      <Button mode="contained" onPress={onSignUpPressed} style={{ marginTop: 24 }}>Sign Up</Button>
       <View style={styles.row}>
         <Text style={{ color: 'white' }}>Already have an account? </Text>
         <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>

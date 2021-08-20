@@ -19,14 +19,12 @@ const LoginScreen = ({ navigation }) => {
     setmodalVisible(true);
     const emailError = nameValidator(email.value)
     const passwordError = passwordValidator(password.value)
-
     if (emailError || passwordError) {
       setEmail({ ...email, error: emailError })
       setPassword({ ...password, error: passwordError })
       return
     }
-    console.log(email.value)
-    console.log(password.value)
+    
     var data = {
       uname: email.value,
       pwd: password.value,
@@ -47,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
     }
 
    
-      const url = 'https://staging-iseechange.mcci.mobi/dncserver/login'
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/login'
     const postMethod= {
       method: 'POST',
       headers: {
@@ -60,21 +58,25 @@ const LoginScreen = ({ navigation }) => {
     fetch(url,postMethod)
       .then(response => {
         const statusCode = response.status
-        
+        alert(JSON.stringify(statusCode))
         if (statusCode == 403) {
           alert('inavalid token/token expired')
         }
+        if (statusCode == 502) {
+          alert('Please turn on server')
+        }
         response.json().then(responseJson => {
-          console.log(responseJson)
-          let usertype = ''
-         const result = 'User ID and Password is not valid'
-          if (responseJson.message == "User not exists"||responseJson.message=="Invalid password") {
+         
+        let usertype = ''
+        const result = 'Invalid username/password'
+        if (responseJson.message == result) {
             navigation.reset({
               index: 0,
               routes: [{ name: 'LoginScreen' }],
             })
             alert(result)
-          } else {
+          } 
+          else {
             const token = responseJson['token']
             const uname = email.value
             const level = responseJson['level']
@@ -142,15 +144,11 @@ const LoginScreen = ({ navigation }) => {
       })
   }
   return (
+  
     <Background>
-      
-    
-
-
-    
       <Logo />
       
-      <TextInput
+        <TextInput
         label="User name"
         
         returnKeyType="next"
@@ -163,7 +161,7 @@ const LoginScreen = ({ navigation }) => {
         textContentType="emailAddress"
         keyboardType="email-address"
       />
-     <TextInput
+      <TextInput
         
         
         label="Password"
@@ -190,10 +188,11 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.link}>Sign up</Text>
         </TouchableOpacity>
       </View>
-    
+      {/* <Text style={{marginBottom:'25%',color:'#ffffff'}}>Version 1.0.0</Text> */}
      
     </Background>
-	
+   
+    
   )
 }
 

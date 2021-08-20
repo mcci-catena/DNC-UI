@@ -235,11 +235,11 @@ const HomeScreen = ({ navigation }) => {
     const element = (cellData, index) => (
       <View style={{flexDirection:'row'}}>
       <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-        <View >
+        <View style={{ paddingRight: 10 }}>
         <Image
          source={require('../assets/edit.png')}
         fadeDuration={0}
-        style={{ width: 40, height: 40 }}
+        style={{ width: 20, height: 20 }}
       />
         </View>
       </TouchableOpacity>
@@ -248,7 +248,7 @@ const HomeScreen = ({ navigation }) => {
       <Image
          source={require('../assets/delete.png')}
         fadeDuration={0}
-        style={{ width: 40, height: 40 }}
+        style={{ width: 20, height: 20 }}
       />
       </View>
     </TouchableOpacity>
@@ -414,7 +414,7 @@ const fetchInventory = (token) => {
         Add user
       </Button>
      
-      <View style={{ marginLeft: '10', marginRight: '10', paddingTop: 20 }}>
+      <View style={{ width: '80%', marginHorizontal: 'auto', paddingTop: 20 }}>
       <ScrollView  >
           
       <Table borderStyle={{borderColor: 'transparent'}}>

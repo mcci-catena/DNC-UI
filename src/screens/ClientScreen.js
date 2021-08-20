@@ -7,7 +7,7 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
-import { ExitToApp } from '@material-ui/icons'
+
 
 
 const ClientScreen = ({navigation}) => {
@@ -18,7 +18,6 @@ const ClientScreen = ({navigation}) => {
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [editsubmit, seteditsubmit] = useState(false)
   const [data, setData] = useState([])
-  const [selectedValue, setselectedValue] = useState('')
   const [Api, setApi] = useState('')
   const [uname, setuname] = useState('')
   const [dilogtitle, setdilogtitle] = useState('Add client')
@@ -32,9 +31,6 @@ const ClientScreen = ({navigation}) => {
   const [tableHead, settableHead] =useState(['Client id', 'Client Name','Action'])
   const [tableData, settableData] = useState([])
   const [edittableData, setedittableData] = useState([])
-  const openMenu = () => setVisible(true);
-  const [uservisible, setuserVisible] = useState(false);
-  const [shouldShow, setShouldShow] = useState(true);
   const [oldClientname, setoldClientname] = useState('');
   const [tag1, settag1] = useState('');
   const [tag2, settag2] = useState('');
@@ -44,28 +40,22 @@ const ClientScreen = ({navigation}) => {
   const [dbusername, setdbusername] = useState('');
   const [db, setdb] = useState('');
   const [dbpassword, setdbpassword] = useState('');
-  const closeMenu = () => setVisible(false);
-  const openUser = () => setuserVisible(true);
-  const closeUser = () => setuserVisible(false);
-  
   const [textInput, settextInput] = useState([]);
   const [inputData, setinputData] = useState([])
- 
- 
+  const [modaltitle, setmodaltitle] = useState('');
+  const anc='muthu';
 
- const anc='muthu';
- const addTextInput = (index) => {
- 
-  let textarray = [];
-  for (var i=0;i<textInput.length;i++)
-  {
-    textarray.push(textInput[i]);
-  }
+  const addTextInput = (index) => {
+    let textarray = [];
+    for (var i=0;i<textInput.length;i++)
+    {
+      textarray.push(textInput[i]);
+    }
  
     textarray.push(<TextInput key={index}  label="Tag" valu={anc}
       onChangeText={(text) => addValues(text, index)} />);
      
-      settextInput(textarray);
+    settextInput(textarray);
   }
 
   
@@ -117,7 +107,7 @@ const ClientScreen = ({navigation}) => {
   setclientname({ value: ''+rowData[1]+'', error: '' })
   setoldClientname(rowData[1]);
   
-  
+  setmodaltitle("Edit Client");
   for(var i=0;i<edittableData.length;i++)
   {
        let cid=edittableData[i][0];
@@ -422,6 +412,7 @@ const ClientScreen = ({navigation}) => {
   const Adduserdilogvisible=() =>
 {
   seteditsubmit(false);
+  setmodaltitle("Add Client")
   setclientname({ value: '', error: '' });
   seturl('');
   setdb('');
@@ -543,40 +534,8 @@ const ClientScreen = ({navigation}) => {
           onCancelPressed={() => setshowAlert(false)}
           onConfirmPressed={() =>Deleteclient (clientname.value)}
         />
-      <Portal>
       
-        <Dialog
-          style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#FFFFFF'}}
-          visible={false}
-          onDismiss={() => setIsDialogVisible(false)}
-        >
-          {/* #F7F6E7 */}
-          <Dialog.Title
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-            }}
-          >
-            {dilogtitle}
-          </Dialog.Title>
-         
-          <Dialog.Content
-            style={{
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              width:"80%",flex: 1
-            }}
-          >
-       
-
-            
-       
-          </Dialog.Content>
-          
-          
-        </Dialog>
       
-      </Portal>
       </ScrollView>
       <Modal presentationStyle="overFullScreen" transparent={true} visible={isDialogVisible} >
       <ScrollView>
@@ -607,7 +566,7 @@ const ClientScreen = ({navigation}) => {
                
            }}>
           
-            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop: 10 }}>ADD CLIENT</Text>
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop: 10 }}>{modaltitle}</Text>
                
            
              
@@ -732,15 +691,13 @@ const ClientScreen = ({navigation}) => {
               keyboardType="default"
             />
 
-<TouchableOpacity disabled={devicestatus} style={{backgroundColor:'#560CCE',alignItems: "center",padding: 10,borderRadius:25}} onPress={() => addTextInput(textInput.length)}>
-          <Text style={{color:'white'}}>ADD MORE TAGS</Text>
-        </TouchableOpacity> 
-            
-   
-       {textInput.map((value,key) => {
+
+      {textInput.map((value,key) => {
           return value
         })}
-         
+        <TouchableOpacity disabled={devicestatus} style={{backgroundColor:'#560CCE',alignItems: "center",padding: 10,borderRadius:25}} onPress={() => addTextInput(textInput.length)}>
+          <Text style={{color:'white'}}>ADD MORE TAGS</Text>
+        </TouchableOpacity>  
             
            
         </View>

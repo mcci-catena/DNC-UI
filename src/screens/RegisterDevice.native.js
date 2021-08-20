@@ -223,7 +223,7 @@ const RegisterDevice = ({ navigation }) => {
     setdilogtitle('Add device');
     setIsDialogVisible(true);
     
-    setselectedValue('');
+    ///setselectedValue('');
     setHardwareid('')
     setdeviceid('')
     setdevid('')
@@ -422,6 +422,7 @@ const RegisterDevice = ({ navigation }) => {
   {
     
     settablesclient( itemValue);
+    setselectedValue(itemValue);
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {
       let token=Api
