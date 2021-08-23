@@ -11,6 +11,7 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useIsFocused } from "@react-navigation/native";
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
   const[lat,setlat]=useState('');
@@ -61,13 +62,13 @@ const Configuredevice = ({ navigation }) => {
         fetchClientlist(token)
       }
       if (usertype == 'Client') {
-        console.log('Client');
+      
         setpickerhide(false);
         setShouldShow(false);
         
       }
       else{
-        console.log('Admin');
+   
            settablehide(false);
       }
       
@@ -75,11 +76,13 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
- 
+  const isFocused = useIsFocused();
   useEffect(() => {
-    getApitoken()
-  }, [])
-
+    if(isFocused){
+    getApitoken();
+    setselectedValue('');
+    }
+  }, [isFocused])
   
   
  
@@ -88,7 +91,7 @@ const Configuredevice = ({ navigation }) => {
 
  const addTextInput = (index) => {
      let label=taglist[index]
-     textarray.push(<TextInput key={index}  label="Tag"
+     textarray.push(<TextInput key={index}  label={label}
      onChangeText={(text) => addValues(text,index)} />);
      settextInput(textarray);
   }
@@ -179,8 +182,7 @@ const Configuredevice = ({ navigation }) => {
           Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
         },
       }
-      console.log(url);
-      console.log(getMethod);
+  
       fetch(url,getMethod ).then(response => {
         const statusCode = response.status
   
@@ -190,7 +192,7 @@ const Configuredevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          console.log(JSON.stringify(responseJson))
+   
           removedevices.push('Select the device')
           for(var i=0;i<responseJson.length;i++)
           {
@@ -263,12 +265,13 @@ const Configuredevice = ({ navigation }) => {
   }
 const ReplaceDevice=()=>
 {
+  setIsreplaceDialogVisible(false);
   var url =
   'https://staging-dashboard.mouserat.io/dncserver/rpdev/' +
   '' +
   selectedValue +
   ''
-  console.log("repalce url:"+url);
+
 const postMethod = {
   method: 'POST',
   headers: {
@@ -282,7 +285,7 @@ const postMethod = {
     datetime: datestringvalue,
   }),
 }
-console.log("replace:"+JSON.stringify(postMethod));
+
 fetch(url, postMethod)
   .then(response => {
     const statusCode = response.status
@@ -296,10 +299,8 @@ fetch(url, postMethod)
       } else if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Configuredevice' }],
-      })
+      fetchDevicelist(selectedValue);
+      fetchtabledata(selectedValue);
     })
   })
   .catch(error => {
@@ -324,7 +325,7 @@ fetch(url, postMethod)
       
       setIsDialogVisible(false)
       var url = 'https://staging-dashboard.mouserat.io/dncserver/device'
-      console.log("new url:"+url);
+
       const postMethod = {
         method: 'POST',
         headers: {
@@ -334,7 +335,7 @@ fetch(url, postMethod)
         },
         body: JSON.stringify(requestdata),
       }
-      console.log("new url:"+JSON.stringify(postMethod));
+
       fetch(url, postMethod)
         .then(response => {
           const statusCode = response.status
@@ -453,7 +454,7 @@ const element = (cellData, index) => (
     '' +
     selectedValue +
     ''
-    console.log("remove url:"+url);
+
   const postMethod = {
     method: 'PUT',
     headers: {
@@ -466,7 +467,7 @@ const element = (cellData, index) => (
       datetime: datestringvalue,
     }),
   }
-  console.log("remove url:"+JSON.stringify(postMethod));
+
   fetch(url, postMethod)
     .then(response => {
       const statusCode = response.status
@@ -508,7 +509,7 @@ const element = (cellData, index) => (
         '' +
         selectedValue +
         ''
-        console.log("delete url:"+url);
+   
       const postMethod = {
         method: 'DELETE',
         headers: {
@@ -520,7 +521,7 @@ const element = (cellData, index) => (
           hwid: Hardwareid,
         }),
       }
-      console.log("repalce url:"+JSON.stringify(postMethod));
+     
       fetch(url, postMethod)
         .then(response => {
           const statusCode = response.status

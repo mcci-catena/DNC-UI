@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
+import { useIsFocused } from "@react-navigation/native";
 const RegisterDevice = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
@@ -63,7 +64,7 @@ const RegisterDevice = ({ navigation }) => {
   const dateformatvalue = moment(date).format('MM/DD/YYYY')
   const timevalue = moment(time).format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
- 
+  const isFocused = useIsFocused();
   const onChange = (event, selectedValue) => {
   
     setShow(Platform.OS === 'ios');
@@ -111,9 +112,12 @@ const RegisterDevice = ({ navigation }) => {
   }
 
   useEffect(() => {
-    getApitoken()
-  }, [])
-
+    if(isFocused){
+     
+    getApitoken();
+    settablesclient(' ');
+    }
+  }, [isFocused])
   
   
   const fetchtabledata =( token )=> {

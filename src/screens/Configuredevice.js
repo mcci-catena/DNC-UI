@@ -13,6 +13,7 @@ import { DateTimePicker, RainbowThemeContainer } from 'react-rainbow-components'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
+import { useIsFocused } from "@react-navigation/native";
 const Configuredevice = ({ navigation }) => {
   let [site, setsite] = useState([])
   let [pile, setpile] = useState([])
@@ -78,6 +79,7 @@ const Configuredevice = ({ navigation }) => {
   const [tableHead, settableHead] =useState([])
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([]);
+  const isFocused = useIsFocused();
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -86,10 +88,10 @@ const Configuredevice = ({ navigation }) => {
       if (token !== null && uname !== null) {
         setApi(token)
         setuname(uname.replace(/['"]+/g, ''))
-        fetchClientlist(token)
+        fetchClientlist(token);
       }
       if (usertype == 'Client') {
-        console.log('Client');
+ 
         setpickerhide(false);
         setShouldShow(false);
         
@@ -108,8 +110,14 @@ const Configuredevice = ({ navigation }) => {
     className: 'datetime',
   }
   useEffect(() => {
-    getApitoken()
-  }, [])
+    
+    if(isFocused){
+      
+      getApitoken();
+      setselectedValue('');
+      
+    }
+  }, [isFocused])
 
   
   const [textInput, settextInput] = useState([]);
@@ -186,8 +194,7 @@ const Configuredevice = ({ navigation }) => {
           Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
         },
       }
-      console.log(url);
-      console.log(getMethod);
+
       fetch(url,getMethod ).then(response => {
         const statusCode = response.status
   
@@ -197,7 +204,7 @@ const Configuredevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          console.log(JSON.stringify(responseJson))
+  
           removedevices.push('Select the device')
           for(var i=0;i<responseJson.length;i++)
           {
@@ -270,12 +277,13 @@ const Configuredevice = ({ navigation }) => {
   }
 const ReplaceDevice=()=>
 {
+  setIsreplaceDialogVisible(false);
   var url =
   'https://staging-dashboard.mouserat.io/dncserver/rpdev/' +
   '' +
   selectedValue +
   ''
-  console.log("repalce url:"+url);
+
 const postMethod = {
   method: 'POST',
   headers: {
@@ -289,7 +297,7 @@ const postMethod = {
     datetime: datestringvalue,
   }),
 }
-console.log("replace:"+JSON.stringify(postMethod));
+
 fetch(url, postMethod)
   .then(response => {
     const statusCode = response.status
@@ -310,6 +318,7 @@ fetch(url, postMethod)
     console.error(error)
   })
   fetchDevicelist(selectedValue);
+ 
 }
   
   const AddDevice = () => {
@@ -329,7 +338,7 @@ fetch(url, postMethod)
       
       setIsDialogVisible(false)
       var url = 'https://staging-dashboard.mouserat.io/dncserver/device'
-      console.log("new url:"+url);
+
       const postMethod = {
         method: 'POST',
         headers: {
@@ -339,7 +348,7 @@ fetch(url, postMethod)
         },
         body: JSON.stringify(requestdata),
       }
-      console.log("new url:"+JSON.stringify(postMethod));
+
       fetch(url, postMethod)
         .then(response => {
           const statusCode = response.status
@@ -353,23 +362,21 @@ fetch(url, postMethod)
             } else if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
-            // navigation.reset({
-            //   index: 0,
-            //   routes: [{ name: 'Configuredevice' }],
-            // })
             fetchtabledata(selectedValue);
+            fetchDevicelist(selectedValue);
+           
           })
         })
         .catch(error => {
           console.error(error)
         })
-        fetchDevicelist(selectedValue);
+        
   }
 
  
 
   const fetchDevicelist = selectedValue => {
-    
+  
     var url =
       'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
       '' +
@@ -466,7 +473,7 @@ const element = (cellData, index) => (
     '' +
     selectedValue +
     ''
-    console.log("remove url:"+url);
+
   const postMethod = {
     method: 'PUT',
     headers: {
@@ -479,7 +486,7 @@ const element = (cellData, index) => (
       datetime: datestringvalue,
     }),
   }
-  console.log("remove url:"+JSON.stringify(postMethod));
+ 
   fetch(url, postMethod)
     .then(response => {
       const statusCode = response.status
@@ -523,7 +530,7 @@ const element = (cellData, index) => (
         '' +
         selectedValue +
         ''
-        console.log("delete url:"+url);
+       
       const postMethod = {
         method: 'DELETE',
         headers: {
@@ -535,7 +542,7 @@ const element = (cellData, index) => (
           hwid: Hardwareid,
         }),
       }
-      console.log("repalce url:"+JSON.stringify(postMethod));
+    
       fetch(url, postMethod)
         .then(response => {
           const statusCode = response.status
@@ -564,7 +571,7 @@ const element = (cellData, index) => (
 
 const pickerenabled=(itemValue) =>
 {
-  console.log(itemValue);
+  
 
     setselectedValue(itemValue);
 

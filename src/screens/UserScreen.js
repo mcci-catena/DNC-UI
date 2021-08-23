@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import { emailValidator } from '../helpers/emailValidator'
 import { getapiurl } from './Geturl'
+import { useIsFocused } from "@react-navigation/native";
 const HomeScreen = ({ navigation }) => {
 
   const [email, setEmail] = useState({ value: '', error: '' })
@@ -38,7 +39,7 @@ const HomeScreen = ({ navigation }) => {
   const [tableData, settableData] = useState([]);
   
   const [alertmessage, setalertmessage] = useState('');
-  
+  const isFocused = useIsFocused();
   const [otp, setotp] = useState('');
   const getApitoken = async () => {
     try {
@@ -63,9 +64,10 @@ const HomeScreen = ({ navigation }) => {
   }
 
   useEffect(() => {
+    if(isFocused){
     getApitoken();
-    
-  }, [])
+    }
+  }, [isFocused])
 
   const onverifyPressed = () => {
     
@@ -522,7 +524,7 @@ const fetchInventory = (token) => {
               
             />
             <TouchableOpacity style={{backgroundColor:'#ff0000',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
-          <Text style={{color:'#FFFFFF'}}>Verify</Text>
+          <Text style={{color:'#FFFFFF'}}>Verify Email</Text>
         </TouchableOpacity>
         {otpshow && (  <TextInput
        

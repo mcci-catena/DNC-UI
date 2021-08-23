@@ -104,10 +104,7 @@ const RegisterScreen = ({ navigation }) => {
       setOrgname({ ...Orgname, error: OrgnameError })
       return
     }
-    console.log(Username.value)
-    console.log(password.value)
-    console.log(email.value)
-    console.log(Orgname.value)
+    
 
     const url = 'https://staging-dashboard.mouserat.io/dncserver/asignup'
     fetch(url, {
@@ -127,7 +124,7 @@ const RegisterScreen = ({ navigation }) => {
     })
     .then(response => response.json())
     .then(responseJson => {
-      console.log(responseJson)
+      
       alert(JSON.stringify(responseJson['message']));
       setalertmessage(JSON.stringify(responseJson.message));
       setshowAlert(true);
@@ -228,6 +225,9 @@ const RegisterScreen = ({ navigation }) => {
           <Text style={styles.link}>Login</Text>
         </TouchableOpacity>
       </View>
+      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server V1.0.0-2</Text>
+    </View>
     </Background>
   )
 }

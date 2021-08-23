@@ -58,7 +58,7 @@ const LoginScreen = ({ navigation }) => {
     fetch(url,postMethod)
       .then(response => {
         const statusCode = response.status
-        alert(JSON.stringify(statusCode))
+      
         if (statusCode == 403) {
           alert('inavalid token/token expired')
         }
@@ -69,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
          
         let usertype = ''
         const result = 'Invalid username/password'
-        if (responseJson.message == result) {
+        if (responseJson.message == result ||responseJson.message=='User not exists') {
             navigation.reset({
               index: 0,
               routes: [{ name: 'LoginScreen' }],
@@ -188,7 +188,9 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.link}>Sign up</Text>
         </TouchableOpacity>
       </View>
-      {/* <Text style={{marginBottom:'25%',color:'#ffffff'}}>Version 1.0.0</Text> */}
+      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server V1.0.0-2</Text>
+    </View>
      
     </Background>
    

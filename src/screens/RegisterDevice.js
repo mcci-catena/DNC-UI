@@ -13,12 +13,12 @@ import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import  moment from 'moment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-// import Datetime from 'react-datetime'
-// import 'react-datetime/css/react-datetime.css'
 import { DateTimePicker } from 'react-rainbow-components';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
+import { useIsFocused } from "@react-navigation/native";
 const RegisterDevice = ({ navigation }) => {
+
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
   let [Hardwareid, setHardwareid] = useState('')
@@ -61,7 +61,7 @@ const RegisterDevice = ({ navigation }) => {
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
- 
+  const isFocused = useIsFocused();
  const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -79,8 +79,13 @@ const RegisterDevice = ({ navigation }) => {
   }
 
   useEffect(() => {
-    getApitoken()
-  }, [])
+    if(isFocused){
+     
+    getApitoken();
+    settablesclient('');
+    
+    }
+  }, [isFocused])
 
   
   

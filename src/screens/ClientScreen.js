@@ -207,7 +207,7 @@ const ClientScreen = ({navigation}) => {
     
     var url =
       'https://staging-dashboard.mouserat.io/dncserver/client-device-status/' + '' + clientid + ''
-    console.log(url);
+   
     const DELETEMethod = {
       method: 'GET',
       headers: {
@@ -216,7 +216,7 @@ const ClientScreen = ({navigation}) => {
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
     }
-    console.log(DELETEMethod);
+   
     fetch(url, DELETEMethod)
       .then(response => {
         const statusCode = response.status
@@ -245,7 +245,7 @@ const ClientScreen = ({navigation}) => {
     const Deleteclient = (clientname) => {
     var url =
       'https://staging-analytics.weradiate.com/apidbm/client/' + '' + clientname + ''
-    console.log(url);
+    
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -254,7 +254,7 @@ const ClientScreen = ({navigation}) => {
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
     }
-    console.log(DELETEMethod);
+
     fetch(url, DELETEMethod)
       .then(response => {
         const statusCode = response.status

@@ -101,7 +101,7 @@ const onverifyPressed = () => {
     const passwordError = passwordValidator(password.value)
     const ClientnameError = nameValidator(Clientname.value)
     let passlen = password.value
-    alert(passlen.length)
+    
     if (passlen.length < 8) {
       setPassword({ ...email, error: 'Password should be 8 characters' })
       return
@@ -233,7 +233,7 @@ const onverifyPressed = () => {
      
      
      <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
-          <Text style={styles.link}>Verify</Text>
+          <Text style={styles.link}>Verify Email</Text>
         </TouchableOpacity>
 
     
@@ -284,6 +284,9 @@ const onverifyPressed = () => {
           <Text style={styles.link}>Login</Text>
         </TouchableOpacity>
       </View>
+      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server V1.0.0-1</Text>
+    </View>
       </Background>
   )
 }

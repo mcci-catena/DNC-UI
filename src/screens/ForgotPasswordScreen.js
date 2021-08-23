@@ -6,7 +6,7 @@ import Header from '../components/Header'
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { emailValidator } from '../helpers/emailValidator'
-import {  View } from 'react-native'
+import {  View,Text } from 'react-native'
 import AwesomeAlert from 'react-native-awesome-alerts';
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState({ value: '', error: '' })
@@ -162,7 +162,11 @@ const ForgotPasswordScreen = ({ navigation }) => {
         
           onConfirmPressed={() =>setotpalert(false)}
         />
-      </View>
+      
+      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server V1.0.0-2</Text>
+    </View>
+    </View>
     </Background>
   )
 }
