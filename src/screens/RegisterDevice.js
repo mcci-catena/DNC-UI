@@ -1,3 +1,27 @@
+// Module: Registerdevice
+// 
+// Function:
+//      Function to register device for web
+// 
+// Version:
+//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 22 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -37,7 +61,6 @@ const RegisterDevice = ({ navigation }) => {
   const [dilogtitle,setdilogtitle]=useState('Add device');
   const [uname, setuname] = useState('')
   const [oldhwid, setoldhwid] = useState('')
-//    const [datevalue, setdatevalue] = useState(new Date())
   const [visible, setVisible] = useState(false);
   const [uservisible, setuserVisible] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
@@ -50,19 +73,15 @@ const RegisterDevice = ({ navigation }) => {
   const [tableHead, settableHead] =useState(["S.No","clients", 'Hardware ID','Measurement Name','Field Name','Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([50,100, 180, 180,180,180, 180, 180, 200, 200, 100]);
-
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
   const [time, setTime] = useState(new Date());
-
-
-
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
   const isFocused = useIsFocused();
- const getApitoken = async () => {
+  const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
@@ -80,15 +99,10 @@ const RegisterDevice = ({ navigation }) => {
 
   useEffect(() => {
     if(isFocused){
-     
-    getApitoken();
-    settablesclient('');
-    
+      getApitoken();
+      settablesclient('');
     }
   }, [isFocused])
-
-  
-  
   const fetchtabledata =( token )=> {
     const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
     const getMethod={
@@ -99,22 +113,19 @@ const RegisterDevice = ({ navigation }) => {
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
     }
-    console.log(url);
-    console.log(getMethod);
+    
     fetch(url,getMethod ).then(response => {
       const statusCode = response.status
-
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-        } else if (responseJson['message'] != null) {
-          alert(JSON.stringify(responseJson['message']))
-        }
-        console.log(JSON.stringify(responseJson))
-        for(var i=0;i<responseJson.length;i++)
-        {
-            let j=i+1;
-            let client  = responseJson[i].client;
+      if (statusCode == 403) {
+        alert('inavalid token/token expired')
+      } else if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
+      for(var i=0;i<responseJson.length;i++)
+      {
+          let j=i+1;
+          let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
             let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
@@ -183,7 +194,6 @@ const RegisterDevice = ({ navigation }) => {
   }
   const adddevicemange=()=>
   {
-
     setedit(false);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
@@ -193,13 +203,10 @@ const RegisterDevice = ({ navigation }) => {
     setdeveui('')
     setidate('')
     
-    
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-
     var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
-    console.log(url);
     const putMethod = {
       method: 'POST',
       headers: {
@@ -257,12 +264,6 @@ const RegisterDevice = ({ navigation }) => {
   </TouchableOpacity>
   </View>
   );
-
-
-
-  
-
-
   const editIconclicked=(rowData,index) =>
   {
     console.log(rowData);
@@ -287,7 +288,7 @@ const RegisterDevice = ({ navigation }) => {
     setdatevalue(datestringvalue);
     checkeditable(rowData[1] ,rowData[2])
  
-}
+  }
 
   const createButtonAlert = ({client,hwid,idate}) =>
   {

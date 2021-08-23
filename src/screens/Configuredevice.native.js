@@ -1,4 +1,27 @@
-
+// Module: Configuredevice
+// 
+// Function:
+//      Function to devicr configuration for App
+// 
+// Version:
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -50,7 +73,7 @@ const Configuredevice = ({ navigation }) => {
   const [textInput, settextInput] = useState([]);
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
-   let textarray = [];
+  let textarray = [];
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -76,28 +99,20 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
-  const isFocused = useIsFocused();
-  useEffect(() => {
-    if(isFocused){
+const isFocused = useIsFocused();
+useEffect(() => {
+  if(isFocused){
     getApitoken();
     setselectedValue('');
-    }
-  }, [isFocused])
-  
-  
- 
-
-  
-
- const addTextInput = (index) => {
+  }
+}, [isFocused])
+const addTextInput = (index) => {
      let label=taglist[index]
      textarray.push(<TextInput key={index}  label={label}
      onChangeText={(text) => addValues(text,index)} />);
      settextInput(textarray);
-  }
-  
- 
-  const addValues = (text, index) => {
+}
+const addValues = (text, index) => {
     let dataArray = inputData;
     let checkBool = false;
     if (dataArray.length !== 0){
@@ -110,13 +125,13 @@ const Configuredevice = ({ navigation }) => {
     }
     if (checkBool){
       setinputData(dataArray);
-  }
-  else {
-    dataArray.push({'text':text,'index':index});
-    setinputData(dataArray);
-  }
+    }
+    else {
+      dataArray.push({'text':text,'index':index});
+      setinputData(dataArray);
+    }
   
-  }
+}
  
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
@@ -656,10 +671,9 @@ const pickerenabled=(itemValue) =>
 />
         <Portal>
           <Dialog
-            // style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7',height:'auto'}}
-            style={{ width: '90%',backgroundColor: '#FFFFFF'}}
-            visible={isDialogVisible}
-            onDismiss={() => setIsDialogVisible(false)}
+          style={{ width: '90%',backgroundColor: '#FFFFFF'}}
+          visible={isDialogVisible}
+          onDismiss={() => setIsDialogVisible(false)}
           >
             <Dialog.ScrollArea>
             <ScrollView style={{ marginTop: 5, marginBottom: 5, width: '100%' }} contentContainerStyle={{paddingHorizontal: 0 }}>
@@ -688,7 +702,7 @@ const pickerenabled=(itemValue) =>
               
               <View style={{ width: '100%', marginLeft: 'auto', marginRight: 'auto', height: 45 }}>
               {show && (
-        // <View style={{ marginLeft: 'auto', marginRight: 'auto', height: 50 }}>
+     
         <DateTimePicker
           testID="dateTimePicker"
           value={date}
@@ -819,7 +833,7 @@ const pickerenabled=(itemValue) =>
         />
       )} 
       <TouchableOpacity onPress={showDatepicker}>
-          {/* <Text style={{borderWidth:1}}>{datevalue}</Text> */}
+          
           <Text style={{borderWidth:1}}>{datestringvalue}</Text>
         </TouchableOpacity>
 
@@ -835,7 +849,7 @@ const pickerenabled=(itemValue) =>
                 ))}
               </Picker>
               <Picker
-                //  enabled={false}
+              
                 selectedValue={newdeviceValue}
                 style={{
                   width: '100%'
@@ -919,14 +933,11 @@ const styles = StyleSheet.create({
   form: {
     width: '500px',
     padding: '10px',
-   // border: '5px solid gray',
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-  // #808B97
   head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  // #FFF1C1
   row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },

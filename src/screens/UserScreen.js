@@ -1,3 +1,27 @@
+// Module: UserScreen
+// 
+// Function:
+//      Function to User management
+// 
+// Version:
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker,ScrollView,Dimensions ,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -26,21 +50,17 @@ const HomeScreen = ({ navigation }) => {
   const [selectedValue, setselectedValue] = useState('')
   const [oldEmail, setoldEmail] = useState('')
   const [Api, setApi] = useState('')
-  const [uname, setuname] = useState('')
-  const [visible, setVisible] = useState(false);
   const [shouldShow, setShouldShow] = useState(false);
   const [otpshow, setotpshow] = useState(false);
   const [otpalert, setotpalert] = useState(false);
   const tablearray=[];
   const clients = []
-  const windowWidth = Dimensions.get('window').width;
- 
   const [tableHead, settableHead] =useState(['User', 'Email', 'Action'])
   const [tableData, settableData] = useState([]);
-  
   const [alertmessage, setalertmessage] = useState('');
   const isFocused = useIsFocused();
   const [otp, setotp] = useState('');
+  
   const getApitoken = async () => {
     try {
       
@@ -53,7 +73,6 @@ const HomeScreen = ({ navigation }) => {
      
         fetchInventory(token);
         checkuser(usertype);
-        setuname(uname.replace(/['"]+/g, ''))
         fetchData(token);
         
       }
@@ -70,16 +89,11 @@ const HomeScreen = ({ navigation }) => {
   }, [isFocused])
 
   const onverifyPressed = () => {
-    
-     
     const emailError = emailValidator(email.value)
     if (emailError) {
-     
       setEmail({ ...email, error: emailError })
-       
       return
     }
-    
     var emaildata={};
     emaildata['uname']=username.value;
     emaildata['email']=email.value;
@@ -94,171 +108,121 @@ const HomeScreen = ({ navigation }) => {
       },
       body: JSON.stringify(emaildata),
     })
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log(responseJson)
-        setotpshow(true);
-        setalertmessage(JSON.stringify(responseJson.message));
-        setotpalert(true);
-     
-       
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    .then(response => response.json())
+    .then(responseJson => {
+      setotpshow(true);
+      setalertmessage(JSON.stringify(responseJson.message));
+      setotpalert(true);
+    })
+    .catch(error => {
+      console.error(error)
+    })
       
   }
   const checkuser=(usertype)=>
   {
-      usertype=JSON.stringify(usertype);
-    
-      if (usertype!='Admin')
-      {
-        setShouldShow(true)
-      }
+    usertype=JSON.stringify(usertype);
+    if (usertype!='Admin')
+    {
+      setShouldShow(true)
+    }
   }
   const createButtonAlert = ({username,email}) =>
   {
-
     setshowAlert(true);
-   setUsername({ value: ''+username+'', error: '' })
-   setEmail({ value: ''+email+'', error: '' })
-  
-};
-    const DeleteUser = (username,email) => {
-        console.log("Assignvalue");
-        console.log(username);
-        console.log(email);
-      var url =
-        'https://staging-dashboard.mouserat.io/dncserver/delete-user/' +
-        '' +
-        username+
-        ''
-        console.log(JSON.stringify(url))
-      const DELETEMethod = {
-        method: 'DELETE',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-        body: JSON.stringify({
-          email: email,
-        }),
-      }
-      console.log(JSON.stringify(DELETEMethod))
-      fetch(url, DELETEMethod)
-        .then(response => {
-          const statusCode = response.status
-          console.log(JSON.stringify(response))
-          response.text().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
-              alert(JSON.stringify(responseJson['message']))
-            }
-  
-            
-  
-            fetchInventory(Api);
-          })
+    setUsername({ value: ''+username+'', error: '' })
+    setEmail({ value: ''+email+'', error: '' })
+  };
+  const DeleteUser = (username,email) => {
+    var url ='https://staging-dashboard.mouserat.io/dncserver/delete-user/' +'' +username+''
+    const DELETEMethod = {
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      body: JSON.stringify({
+        email: email,
+      }),
+    }
+    fetch(url, DELETEMethod)
+      .then(response => {
+        const statusCode = response.status
+        console.log(JSON.stringify(response))
+        response.text().then(responseJson => {
+          if (statusCode == 403) {
+            alert('inavalid token/token expired')
+            navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+          } else if (responseJson['message'] != null) {
+            alert(JSON.stringify(responseJson['message']))
+          }
+          fetchInventory(Api);
         })
-        .catch(error => {
-          console.error(error)
-        })
-        setshowAlert(false);
+      })
+      .catch(error => {
+        console.error(error)
+      })
+      setshowAlert(false);
     }
   
-    const updateUser = () => {
-      var url =
-        'https://staging-dashboard.mouserat.io/dncserver/update-user/' +
-        '' +
-        username.value +
-        ''
-  
-      const putMethod = {
-        method: 'PUT',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-        body: JSON.stringify({
-          email:oldEmail,
-          email_new: email.value,
-          pwd: password.value,
-        }),
-      }
-  
-      fetch(url, putMethod)
-        .then(response => {
-          const statusCode = response.status
-  
-          response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
-              alert(JSON.stringify(responseJson['message']))
-            }
-  
-            
-  
-            
-            setaddUserdilog(false);
-            fetchInventory(Api);
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
+  const updateUser = () => {
+    var url ='https://staging-dashboard.mouserat.io/dncserver/update-user/' +'' +username.value +''
+    const putMethod = {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      body: JSON.stringify({
+        email:oldEmail,
+        email_new: email.value,
+        pwd: password.value,
+      }),
     }
- const editIconclicked=(rowData,index) =>
- {
-  
-
-  // setclientName(rowData[0]);
+    fetch(url, putMethod)
+    .then(response => {
+      const statusCode = response.status
+      response.json().then(responseJson => {
+      if (statusCode == 403) {
+        alert('inavalid token/token expired')
+        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+      } else if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
+      setaddUserdilog(false);
+      fetchInventory(Api);
+      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
+  }
+  const editIconclicked=(rowData,index) =>
+  {
   setPassword({ value:'', error: '' })
-   setUsername({ value: ''+rowData[0]+'', error: '' })
-   setEmail({ value: ''+rowData[1]+'', error: '' })
-   setoldEmail(rowData[1]);
-   setaddUserdilog(true);
-  
- }
-  
-  
-    const element = (cellData, index) => (
-      <View style={{flexDirection:'row'}}>
+  setUsername({ value: ''+rowData[0]+'', error: '' })
+  setEmail({ value: ''+rowData[1]+'', error: '' })
+  setoldEmail(rowData[1]);
+  setaddUserdilog(true);
+  }
+  const element = (cellData, index) => (
+    <View style={{flexDirection:'row'}}>
       <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
         <View style={{ paddingRight: 10 }}>
-        <Image
-         source={require('../assets/edit.png')}
-        fadeDuration={0}
-        style={{ width: 20, height: 20 }}
-      />
+          <Image  source={require('../assets/edit.png')}  fadeDuration={0}  style={{ width: 20, height: 20 }}/>
         </View>
       </TouchableOpacity>
       <TouchableOpacity onPress={()=>createButtonAlert({username:""+cellData[0]+"",email:""+cellData[1]+""})}>
-      <View >
-      <Image
-         source={require('../assets/delete.png')}
-        fadeDuration={0}
-        style={{ width: 20, height: 20 }}
-      />
-      </View>
-    </TouchableOpacity>
+        <View >
+          <Image  source={require('../assets/delete.png')}  fadeDuration={0}  style={{ width: 20, height: 20 }}/>
+        </View>
+      </TouchableOpacity>
     </View>
-    );
+  );
 
 const fetchInventory = (token) => {
-  
   var url = 'https://staging-dashboard.mouserat.io/dncserver/list-user'
   const getMethod = {
     method: 'GET',
@@ -268,89 +232,62 @@ const fetchInventory = (token) => {
       Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
     },
   }
-
   fetch(url, getMethod).then(response => {
     const statusCode = response.status
-
     response.json().then(responseJson => {
-      if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'LoginScreen' }],
-        })
-      } else if (responseJson['message'] != null) {
-        alert(JSON.stringify(responseJson['message']))
-      }
-
-      
-     for(var i=0;i<responseJson.length;i++)
-     {
+    if (statusCode == 403) {
+      alert('inavalid token/token expired')
+      navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+    } else if (responseJson['message'] != null) {
+      alert(JSON.stringify(responseJson['message']))
+    }
+    for(var i=0;i<responseJson.length;i++)
+    {
+      let user=responseJson[i].uname;
+      let email=responseJson[i].email;
+      let cid=responseJson[i].cid;
+      let array=[];
+      array.push(user);
+      array.push(email);
+      array.push(cid);
+      tablearray.push(array);
          
-         let user=responseJson[i].uname;
-         let email=responseJson[i].email;
-         let cid=responseJson[i].cid;
-         let array=[];
-       
-         array.push(user);
-         array.push(email);
-         array.push(cid);
-         tablearray.push(array);
-         
-     }
-     settableData(tablearray);
-     console.log(tablearray);
-    })
-   
-    
-  
+    }
+    settableData(tablearray);
+     
+  })
   })
 }
 
-
-
-
-
-
-  const fetchData = (token) => {
-   
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+const fetchData = (token) => {
+  fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
+  })
+  .then(response => {
+    const statusCode = response.status
+    response.json().then(responseJson => {
+    if (statusCode == 403) {
+      alert('inavalid token/token expired')
+      navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+    } else if (responseJson['message'] != null) {
+      alert(JSON.stringify(responseJson['message']))
+    }
+    clients.push('Select the Clients')
+    for (var i = 0; i < responseJson.length; i++) {
+      const json = responseJson[i].cname
+      clients.push(json)
+    }
+    setData(clients)
     })
-      .then(response => {
-        const statusCode = response.status
-        response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          clients.push('Select the Clients')
-
-          for (var i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].cname
-        
-            clients.push(json)
-          }
-         
-          setData(clients)
-        
-        
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
-
 
   const adduserbutton=() =>
   {
@@ -360,10 +297,9 @@ const fetchInventory = (token) => {
     setselectedValue('');
     setIsDialogVisible(true);
   }
-  const Adduser = () => {
-   
-    setIsDialogVisible(false)
 
+  const Adduser = () => {
+    setIsDialogVisible(false)
     var url = 'https://staging-dashboard.mouserat.io/dncserver/usignup'
     const putMethod = {
       method: 'POST',
@@ -371,59 +307,41 @@ const fetchInventory = (token) => {
         'Content-type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify({
-        cname: selectedValue,
-        uname: username.value,
-        pwd: password.value,
-        email: email.value,
-        otpnum:otp,
-        mode: "usignup"
-      }),
+    },
+    body: JSON.stringify({
+      cname: selectedValue,
+      uname: username.value,
+      pwd: password.value,
+      email: email.value,
+      otpnum:otp,
+      mode: "usignup"
+    }),
     }
-
     fetch(url, putMethod).then(response => {
       const statusCode = response.status
       response.json().then(responseJson => {
-       
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        } else if (responseJson['message'] != null) {
-          alert(JSON.stringify(responseJson['message']))
-        }
+      if (statusCode == 403) {
+        alert('inavalid token/token expired')
+        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+      } else if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
       
-      })
     })
-
+    })
     fetchInventory(Api);
   }
 
-
   return (
     <View>
-     
-   
-     <AppBar navigation={navigation} title={"User Management"}></AppBar>
-      <Button
-        mode="contained"
-        style={styles.button}
-        onPress={adduserbutton}
-      >
-        Add user
-      </Button>
-     
+      <AppBar navigation={navigation} title={"User Management"}></AppBar>
+      <Button mode="contained"  style={styles.button} onPress={adduserbutton}>Add user</Button>
       <View style={{ width: '80%', marginHorizontal: 'auto', paddingTop: 20 }}>
-      <ScrollView  >
-          
-      <Table borderStyle={{borderColor: 'transparent'}}>
-          <Row data={tableHead} style={styles.head}  textStyle={{margin: 6,color:'white',fontWeight: 'bold', textTransform: 'uppercase'}}/>
-          
-          {
-            tableData.map((rowData, index) => (
+        <ScrollView  >
+          <Table borderStyle={{borderColor: 'transparent'}}>
+            <Row data={tableHead} style={styles.head}  textStyle={{margin: 6,color:'white',fontWeight: 'bold', textTransform: 'uppercase'}}/>
+            {
+              tableData.map((rowData, index) => (
               <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
@@ -431,28 +349,28 @@ const fetchInventory = (token) => {
                   ))
                 }
               </TableWrapper>
-            ))
-          }
+              ))
+            }
           
-        </Table>
+          </Table>
       
         </ScrollView>
-</View>
-        <AwesomeAlert
-          show={showAlert}
-          showProgress={false}
-          title="Delete User"
-          message={"Are you sure want to delete "+username.value+"?"}
-          closeOnTouchOutside={true}
-          closeOnHardwareBackPress={false}
-          showCancelButton={true}
-          showConfirmButton={true}
-          cancelText="cancel"
-          confirmText="delete "
-          confirmButtonColor="#DD6B55"
-          onCancelPressed={() => setshowAlert(false)}
-          onConfirmPressed={() =>DeleteUser (username.value,email.value)}
-/>
+      </View>
+      <AwesomeAlert
+      show={showAlert}
+      showProgress={false}
+      title="Delete User"
+      message={"Are you sure want to delete "+username.value+"?"}
+      closeOnTouchOutside={true}
+      closeOnHardwareBackPress={false}
+      showCancelButton={true}
+      showConfirmButton={true}
+      cancelText="cancel"
+      confirmText="delete "
+      confirmButtonColor="#DD6B55"
+      onCancelPressed={() => setshowAlert(false)}
+      onConfirmPressed={() =>DeleteUser (username.value,email.value)}
+      />
       <Portal>
         <Dialog
           style={{ width: Platform.OS === 'web' ? '40%' : '80%', backgroundColor: '#FFFFFF',marginLeft:Platform.OS === 'web' ? '30%' : '10%' }}
@@ -474,124 +392,95 @@ const fetchInventory = (token) => {
           >
             Add User
           </Dialog.Title>
-          <Dialog.Content
-            style={{
+            <Dialog.Content
+              style={{
               marginLeft: 'auto',
               marginRight: 'auto',
               width:"80%"
             }}
+            >
+              <View>
+                <Picker
+                selectedValue={selectedValue}
+                style={{width: '100%',height:'20%'}} 
+                onValueChange={itemValue => setselectedValue(itemValue)}
+                >
+                {data.map((value,key) => (
+                  <Picker.Item label={value} value={value} key={key} />
+                ))}
+                </Picker>
+                <TextInput
+                label="User name"
+                returnKeyType="next"
+                value={username.value}
+                onChangeText={text => setUsername({ value: text, error: '' })}
+                error={!!email.error}
+                errorText={email.error}
+                autoCapitalize="none"
+                autoCompleteType="name"
+                textContentType="name"
+                keyboardType="default"
+                />
+                <TextInput
+                label="Password"
+                returnKeyType="done"
+                value={password.value}
+                onChangeText={text => setPassword({ value: text, error: '' })}
+                secureTextEntry
+                />
+                <TextInput
+                label="E-mail address"
+                returnKeyType="done"
+                value={email.value}
+                onChangeText={text => setEmail({ value: text, error: '' })}
+                error={!!email.error}
+                errorText={email.error}
+                autoCapitalize="none"
+                autoCompleteType="email"
+                textContentType="emailAddress"
+                keyboardType="email-address"
+                />
+                <TouchableOpacity style={{backgroundColor:'#ff0000',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
+                  <Text style={{color:'#FFFFFF'}}>Verify Email</Text>
+                </TouchableOpacity>
+                {otpshow && (  <TextInput
+                label="Type here your otp"
+                returnKeyType="next"
+                value={otp.value}
+                onChangeText={text => setotp(text)}
+                />)}
+                <AwesomeAlert
+                show={otpalert}
+                showProgress={false}
+                title="Alert"
+                message={alertmessage}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={true}
+                showConfirmButton={true}
+                confirmText="ok "
+                confirmButtonColor="#DD6B55"
+                onConfirmPressed={() =>setotpalert(false)}
+                />
+                </View>
+              </Dialog.Content>
+            <Dialog.Actions>
+              <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}  onPress={Adduser}>
+                Submit
+              </Button>
+              <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}} onPress={() => setIsDialogVisible(false)}>
+                Cancel
+              </Button> 
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+        
+        <Portal>
+          <Dialog
+            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%',backgroundColor: '#F7F6E7' }}
+            visible={addUserdilog}
+            onDismiss={() => setaddUserdilog(false)}
           >
-            <View>
-            <Picker
-              selectedValue={selectedValue}
-              style={{width: '100%',height:'20%'}} 
-              onValueChange={itemValue => setselectedValue(itemValue)}
-            >
-              {data.map((value,key) => (
-                <Picker.Item label={value} value={value} key={key} />
-              ))}
-            </Picker>
-            <TextInput
-              label="User name"
-              returnKeyType="next"
-              value={username.value}
-              onChangeText={text => setUsername({ value: text, error: '' })}
-              error={!!email.error}
-              errorText={email.error}
-              autoCapitalize="none"
-              autoCompleteType="name"
-              textContentType="name"
-              keyboardType="default"
-            />
-            <TextInput
-              label="Password"
-              returnKeyType="done"
-              value={password.value}
-              onChangeText={text => setPassword({ value: text, error: '' })}
-              secureTextEntry
-            />
-            <TextInput
-              label="E-mail address"
-              returnKeyType="done"
-              value={email.value}
-              onChangeText={text => setEmail({ value: text, error: '' })}
-              error={!!email.error}
-              errorText={email.error}
-              autoCapitalize="none"
-              autoCompleteType="email"
-              textContentType="emailAddress"
-              keyboardType="email-address"
-              
-            />
-            <TouchableOpacity style={{backgroundColor:'#ff0000',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
-          <Text style={{color:'#FFFFFF'}}>Verify Email</Text>
-        </TouchableOpacity>
-        {otpshow && (  <TextInput
-       
-       label="Type here your otp"
-       returnKeyType="next"
-       value={otp.value}
-       onChangeText={text => setotp(text)}
-       
-     />)}
-
-<AwesomeAlert
-          show={otpalert}
-          showProgress={false}
-          title="Alert"
-          message={alertmessage}
-          closeOnTouchOutside={true}
-          closeOnHardwareBackPress={false}
-          showCancelButton={true}
-          showConfirmButton={true}
-        
-          confirmText="ok "
-          confirmButtonColor="#DD6B55"
-        
-          onConfirmPressed={() =>setotpalert(false)}
-        />
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions>
-             <Button
-              mode="contained"
-              style={{
-                width: '30%',
-                marginVertical: 10,
-                paddingVertical: 2,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-              onPress={Adduser}
-            >
-              Submit
-            </Button>
-            <Button
-              mode="contained"
-              style={{
-                width: '30%',
-                marginVertical: 10,
-                paddingVertical: 2,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-              onPress={() => setIsDialogVisible(false)}
-            >
-              Cancel
-            </Button> 
-            
-           
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-
-
-      <Portal>
-        <Dialog
-          style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%',backgroundColor: '#F7F6E7' }}
-          visible={addUserdilog}
-          onDismiss={() => setaddUserdilog(false)}
-        >
           <Dialog.Title
             style={{
               marginLeft: 'auto',
@@ -607,79 +496,55 @@ const fetchInventory = (token) => {
               width:"80%"
             }}
           >
-            <View>
-            
-            
-           <TextInput
-              label="User name"
-              returnKeyType="next"
-              //defaultValue={username.value}
-              value={username.value}
-              disabled={true}
-              autoCapitalize="none"
-              autoCompleteType="name"
-              textContentType="name"
-              keyboardType="default"
+          <View>
+            <TextInput
+            label="User name"
+            returnKeyType="next"
+            value={username.value}
+            disabled={true}
+            autoCapitalize="none"
+            autoCompleteType="name"
+            textContentType="name"
+            keyboardType="default"
             />
             <TextInput
-              label="E-mail address"
-              returnKeyType="done"
-              value={email.value}
-              onChangeText={text => setEmail({ value: text, error: '' })}
-              error={!!email.error}
-              errorText={email.error}
-              autoCapitalize="none"
-              autoCompleteType="email"
-              textContentType="emailAddress"
-              keyboardType="email-address"
-              
+            label="E-mail address"
+            returnKeyType="done"
+            value={email.value}
+            onChangeText={text => setEmail({ value: text, error: '' })}
+            error={!!email.error}
+            errorText={email.error}
+            autoCapitalize="none"
+            autoCompleteType="email"
+            textContentType="emailAddress"
+            keyboardType="email-address"
             />
-             <TextInput
-              label="Password"
-              returnKeyType="next"
-              value={password.value}
-              onChangeText={text => setPassword({ value: text, error: '' })}
-              autoCapitalize="none"
-              autoCompleteType="name"
-              textContentType="name"
-              keyboardType="default"
+            <TextInput
+            label="Password"
+            returnKeyType="next"
+            value={password.value}
+            onChangeText={text => setPassword({ value: text, error: '' })}
+            autoCapitalize="none"
+            autoCompleteType="name"
+            textContentType="name"
+            keyboardType="default"
             /> 
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
-              mode="contained"
-              style={{
-                width: '30%',
-                marginVertical: 10,
-                paddingVertical: 2,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-              onPress={updateUser}
-            >
-              Submit
-            </Button>
-            <Button
-              mode="contained"
-              style={{
-                width: '30%',
-                marginVertical: 10,
-                paddingVertical: 2,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-              onPress={() => setaddUserdilog(false)}
-            >
-              Cancel
-            </Button>
+          </View>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}  onPress={updateUser}>
+            Submit
+          </Button>
+          <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}onPress={() => setaddUserdilog(false)}>
+            Cancel
+          </Button>
           
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </View>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  </View>
   )
-}
+  }
 const styles = StyleSheet.create({
   container: {
     width: '100%',

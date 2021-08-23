@@ -1,3 +1,27 @@
+// Module: Configuredevice
+// 
+// Function:
+//      Function to register device for App
+// 
+// Version:
+//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 22 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -10,7 +34,6 @@ import {
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
-// import Datetime from 'react-datetime'
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import  moment from 'moment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -18,6 +41,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 import { useIsFocused } from "@react-navigation/native";
+
 const RegisterDevice = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
@@ -220,27 +244,22 @@ const RegisterDevice = ({ navigation }) => {
   const adddevicemange=()=>
   {
     const dateformatvalue = moment(date).format('MM/DD/YYYY')
-  const timevalue = moment(time).format('HH:mm:ss')
-  const datestringvalue = dateformatvalue + ',' + timevalue
+    const timevalue = moment(time).format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
     setedit(false);
     setdatevalue(datestringvalue);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
-    
-    ///setselectedValue('');
     setHardwareid('')
     setdeviceid('')
     setdevid('')
     setdeveui('')
     setidate('')
-    
-    
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-
     var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
-    console.log(url);
+  
     const putMethod = {
       method: 'POST',
       headers: {
@@ -312,7 +331,6 @@ const RegisterDevice = ({ navigation }) => {
     setdilogtitle('Edit device');
     setclientName(rowData[0]);
     setoldClient(rowData[0])
-    //setselectedValue(rowData[0]);
     setHardwareid(rowData[1]);
     setoldhwid(rowData[1]);
     for(i=0;i<deviceData.length;i++)
@@ -329,23 +347,13 @@ const RegisterDevice = ({ navigation }) => {
         dateutc = Date.parse(deviceData[i][4]);
       }
     }
-    
-    // var dateist=new Date(dateutc);
-    // dateist.setHours(dateist.getHours() + 5); 
-    // dateist.setMinutes(dateist.getMinutes() + 30);
+  
     const dateformatvalue = moment(dateutc).format('MM/DD/YYYY')
-   
     const timevalue = moment(dateutc).format('HH:mm:ss')
-   
     const datestringvalue = dateformatvalue + ',' + timevalue
-    
-   setdatevalue(datestringvalue);
+    setdatevalue(datestringvalue);
     checkeditable(rowData[0] ,rowData[1])
- 
-    
- 
-   
-  }
+ }
 
   const createButtonAlert = ({client,hwid}) =>
   {
@@ -424,7 +432,7 @@ const RegisterDevice = ({ navigation }) => {
   }
   const clientpickerenabled=({ itemValue })=>
   {
-    
+    let tablearray=[];
     settablesclient( itemValue);
     setselectedValue(itemValue);
     if(itemValue=='All' ||itemValue =='Select the Clients')
@@ -462,29 +470,14 @@ const RegisterDevice = ({ navigation }) => {
         console.log(JSON.stringify(responseJson[0]))
         for(var i=0;i<responseJson.length;i++)
         {
-            let j=i+1;
-            let client  = responseJson[i].client;
-            let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
-            let devID=responseJson[i].devID;
-            let devEUI=responseJson[i].devEUI;
-            let idate=responseJson[i].idate;
-            let rdate=responseJson[i].rdate;
-            let mmname=responseJson[i].mmname;
-            let fdname=responseJson[i].fdname;
-            let array=[];
-            array.push(j);
-            array.push(client);
-            array.push(hwid);
-            array.push(mmname);
-            array.push(fdname);
-            array.push(deviceid);
-            array.push(devID);
-            array.push(devEUI);
-            array.push(idate);
-            array.push(rdate);
-            array.push(client);
-            tablearray.push(array);
+          let j=i+1;
+          let client  = responseJson[i].client;
+          let hwid=responseJson[i].hwid;
+          let array=[];
+          array.push(client);
+          array.push(hwid);
+          array.push(client);
+          tablearray.push(array);
             
         }
 
@@ -533,23 +526,11 @@ const RegisterDevice = ({ navigation }) => {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
-            let devID=responseJson[i].devID;
-            let devEUI=responseJson[i].devEUI;
-            let idate=responseJson[i].idate;
-            let rdate=responseJson[i].rdate;
             let array=[];
-           // array.push(j);
             array.push(client);
             array.push(hwid);
-           // array.push(deviceid);
-            //array.push(devID);
-            //array.push(devEUI);
-            //array.push(idate);
-            //array.push(rdate);
             array.push(client);
             tablearray.push(array);
-            
         }
 
         settableData(tablearray);

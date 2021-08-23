@@ -1,8 +1,32 @@
+// Module: AdminSignup
+// 
+// Function:
+//      Function to Admin user signup module
+// 
+// Version:
+//    V2.02  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 13 2021 10:30:00 muthup
+//       Module created.
+
 import React, { useState,useEffect } from 'react'
 import { View, StyleSheet, TouchableOpacity,Modal,ActivityIndicator } from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
-import Logo from '../components/Logo'
 import Header from '../components/Header'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
@@ -24,10 +48,45 @@ const RegisterScreen = ({ navigation }) => {
   const [spinner, setspinner] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [version,setversion]=useState('');
 
+  
+  const getApiversion = () => {
+    
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    const postMethod= {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      
+    }
+   
+    fetch(url,postMethod)
+      .then(response => {
+        const statusCode = response.status
+        if (statusCode == 502) {
+          alert('Please turn on server')
+        }
+        response.json().then(responseJson => {
+        
+         if(responseJson!=null){
+         let versionarray=responseJson.split(' ');
+         setversion(versionarray[4])
+        }
+        
+        })
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    
+  }
 
 
   useEffect(() => {
+    getApiversion();
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
@@ -43,10 +102,7 @@ const RegisterScreen = ({ navigation }) => {
     );
   }
 
- 
   const onverifyPressed = () => {
-    
-     
     const emailError = emailValidator(email.value)
     if (emailError) {
      
@@ -82,7 +138,8 @@ const RegisterScreen = ({ navigation }) => {
         console.error(error)
       })
       setTimeout(() => {setspinner(false)}, 500);
-    }
+  }
+  
   const onSignUpPressed = () => {
     
     if(shouldShow!=true)
@@ -157,8 +214,6 @@ const RegisterScreen = ({ navigation }) => {
         error={!!Username.error}
         errorText={Username.error}
         />
-
-      
         <TextInput
         label="Password"
         returnKeyType="done"
@@ -168,7 +223,6 @@ const RegisterScreen = ({ navigation }) => {
         errorText={password.error}
         secureTextEntry
         />
-  
         <TextInput
         label="Email"
         returnKeyType="next"
@@ -181,28 +235,19 @@ const RegisterScreen = ({ navigation }) => {
         textContentType="emailAddress"
         keyboardType="email-address"
         />
-     
-    
-      <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
+        <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
           <Text style={styles.link}>Verify Email</Text>
-      </TouchableOpacity>
-      {shouldShow && (  <TextInput
-       
-       label="Type here your otp"
-       returnKeyType="next"
-       value={otp.value}
-       onChangeText={text => setotp(text)}
-       
-      />)}
-      <Modal presentationStyle="overFullScreen" transparent={true} visible={spinner}>
-         <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
+        </TouchableOpacity>
+        {shouldShow && (  <TextInput label="Type here your otp" returnKeyType="next"  value={otp.value} onChangeText={text => setotp(text)}/>)}
+        <Modal presentationStyle="overFullScreen" transparent={true} visible={spinner}>
+          <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
             <View style={{backgroundColor: "#F7F6E7",width: 300,height: 150,justifyContent: 'center',alignItems: 'center',backgroundColor:"#F7F6E7"}}>
               <ActivityIndicator size="large" color="#00ff00" />
               <Text style={{color:"#00ff00"}}>Loading</Text>
             </View>
           </View>
-      </Modal>
-      <AwesomeAlert
+        </Modal>
+        <AwesomeAlert
           show={showAlert}
           showProgress={false}
           title="Alert"
@@ -211,23 +256,20 @@ const RegisterScreen = ({ navigation }) => {
           closeOnHardwareBackPress={false}
           showCancelButton={true}
           showConfirmButton={true}
-        
           confirmText="ok "
           confirmButtonColor="#DD6B55"
-        
           onConfirmPressed={() =>setshowAlert(false)}
-      />
-   
-      <Button mode="contained" onPress={onSignUpPressed} style={{ marginTop: 24 }}>Sign Up</Button>
-      <View style={styles.row}>
-        <Text style={{ color: 'white' }}>Already have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>
-          <Text style={styles.link}>Login</Text>
-        </TouchableOpacity>
+        />
+        <Button mode="contained" onPress={onSignUpPressed} style={{ marginTop: 24 }}>Sign Up</Button>
+        <View style={styles.row}>
+          <Text style={{ color: 'white' }}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>
+            <Text style={styles.link}>Login</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server {version}</Text>
       </View>
-      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server V1.0.0-2</Text>
-    </View>
     </Background>
   )
 }
