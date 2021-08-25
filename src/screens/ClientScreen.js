@@ -63,7 +63,7 @@ const ClientScreen = ({navigation}) => {
   const [textInput, settextInput] = useState([]);
   const [inputData, setinputData] = useState([])
   const [modaltitle, setmodaltitle] = useState('');
-  const anc='muthu';
+  const anc='';
 
   const addTextInput = (index) => {
     let textarray = [];
@@ -72,7 +72,7 @@ const ClientScreen = ({navigation}) => {
       textarray.push(textInput[i]);
     }
  
-    textarray.push(<TextInput key={index}  label="Tag" value={anc}
+    textarray.push(<TextInput key={index}  label="Tag" valu={anc}
       onChangeText={(text) => addValues(text, index)} />);
      
     settextInput(textarray);
@@ -370,12 +370,13 @@ const ClientScreen = ({navigation}) => {
     settag1('');
     settag2('');
     settag3('');
+    setdevicestatus(false);
     setIsDialogVisible(true);
   }
 
   const Addclient = () => {
     setIsDialogVisible(false);
-    setdevicestatus(false);
+    
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
@@ -438,10 +439,11 @@ const ClientScreen = ({navigation}) => {
   return (
     <View>
       <AppBar navigation={navigation} title={"Client Mangement"}></AppBar>
-      <ScrollView  >
+      
         <Button mode="contained"  style={styles.button} onPress={Adduserdilogvisible}>Add Client</Button>
+        <ScrollView  >
         <View style={{ marginTop:'5%', marginHorizontal: 20 }}> 
-          <ScrollView  >
+         
             <Table borderStyle={{borderColor: 'transparent'}}>
               <Row data={tableHead} style={styles.head}  textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
               {
@@ -457,8 +459,9 @@ const ClientScreen = ({navigation}) => {
               }
               
             </Table>
-          </ScrollView>
+          
         </View>
+        </ScrollView>
         <AwesomeAlert
         show={showAlert}
         howProgress={false}
@@ -476,7 +479,7 @@ const ClientScreen = ({navigation}) => {
         />
       
       
-      </ScrollView>
+     
       <Modal presentationStyle="overFullScreen" transparent={true} visible={isDialogVisible} >
         <ScrollView>
           <View style={{flex: 1,marginTop:'5%',justifyContent: 'center',alignItems: 'center',width: Platform.OS === 'web' ? '50%' : '80%', 

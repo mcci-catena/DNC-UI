@@ -261,12 +261,13 @@ const Configuredevice = ({ navigation }) => {
           alert(JSON.stringify(responseJson['message']))
         }
         fetchtabledata(selectedValue);
+        fetchDevicelist(selectedValue);
     })
   })
   .catch(error => {
     console.error(error)
   })
-  fetchDevicelist(selectedValue);
+  
  }
   
   const AddDevice = () => {
@@ -544,7 +545,7 @@ const Configuredevice = ({ navigation }) => {
             <Dialog
             style={{ width: '40%', height: '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' }}
             visible={isDialogVisible}
-            onDismiss={() => setIsDialogVisible(false)}
+            
             >
             <Dialog.ScrollArea>
             <ScrollView contentContainerStyle={{paddingHorizontal: 24}}>
@@ -647,7 +648,7 @@ const Configuredevice = ({ navigation }) => {
       <Dialog
         style={{ width: Platform.OS === 'web' ? '40%' : '80%',backgroundColor: '#FFFFFF', marginHorizontal: 'auto',marginTop:'15%' }}
         visible={isreplaceDialogVisible}
-        onDismiss={() => setIsreplaceDialogVisible(false)}
+        
       >
       <Dialog.Title
         style={{

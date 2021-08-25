@@ -336,8 +336,9 @@ const fetchData = (token) => {
     <View>
       <AppBar navigation={navigation} title={"User Management"}></AppBar>
       <Button mode="contained"  style={styles.button} onPress={adduserbutton}>Add user</Button>
-      <View style={{ width: '80%', marginHorizontal: 'auto', paddingTop: 20 }}>
-        <ScrollView  >
+      <ScrollView  >
+      <View style={{ width: '80%', marginLeft:'10%', paddingTop: 20 }}>
+        
           <Table borderStyle={{borderColor: 'transparent'}}>
             <Row data={tableHead} style={styles.head}  textStyle={{margin: 6,color:'white',fontWeight: 'bold', textTransform: 'uppercase'}}/>
             {
@@ -353,9 +354,8 @@ const fetchData = (token) => {
             }
           
           </Table>
-      
-        </ScrollView>
       </View>
+      </ScrollView>
       <AwesomeAlert
       show={showAlert}
       showProgress={false}

@@ -286,7 +286,7 @@ const ReplaceDevice=()=>
   '' +
   selectedValue +
   ''
-
+alert(JSON.stringify(datestringvalue));
 const postMethod = {
   method: 'POST',
   headers: {
@@ -463,6 +463,7 @@ const element = (cellData, index) => (
     setHardwareid(hwid);
   };
   const removeDevice = () => {
+    
     setshowRemoveAlert(false);
     var url =
     'https://staging-dashboard.mouserat.io/dncserver/rmdev/' +
@@ -614,12 +615,13 @@ const pickerenabled=(itemValue) =>
               </Picker>
               </View>
             
-        <View style={{ paddingLeft: 10, paddingRight: 10 }}>    
+        <View style={{ paddingLeft: 10, paddingRight: 10 }}>   
+        <ScrollView> 
         <ScrollView horizontal={true} > 
         {tablehide && (   <Table borderStyle={{borderColor: 'transparent'}}>
      
           <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
-          <ScrollView>
+          
      
           {
             tableData.map((rowData, index) => (
@@ -633,9 +635,10 @@ const pickerenabled=(itemValue) =>
               </TableWrapper>
             ))
           }
-          </ScrollView>
+          
        
         </Table>)}
+        </ScrollView>
         </ScrollView>
         </View>
 
@@ -652,7 +655,7 @@ const pickerenabled=(itemValue) =>
           confirmText="Remove "
           confirmButtonColor="#DD6B55"
           onCancelPressed={() => setshowRemoveAlert(false)}
-          onConfirmPressed={() =>removeDevice}
+          onConfirmPressed={() =>removeDevice()}
 />
 <AwesomeAlert
           show={showAlert}

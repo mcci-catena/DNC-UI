@@ -692,7 +692,7 @@ const RegisterDevice = ({ navigation }) => {
         <Dialog
           style={{ width: '40%', marginLeft: '30%' ,backgroundColor: '#F7F6E7'}}
           visible={isDialogVisible}
-          onDismiss={() => setIsDialogVisible(false)}
+          
         >
           <Dialog.Title
             style={{

@@ -233,7 +233,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         />
       
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server {version}</Text>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
     </View>
  
     </Background>

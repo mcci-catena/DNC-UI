@@ -1,4 +1,4 @@
-// Module: Configuredevice
+// Module: RegisterDevice
 // 
 // Function:
 //      Function to register device for App
@@ -68,26 +68,20 @@ const RegisterDevice = ({ navigation }) => {
   const [showAlert, setshowAlert] = useState(false);
   const [edit, setedit] = useState(null);
   const [shouldShow, setShouldShow] = useState(true);
-  
- 
   const tablearray=[];
   const clients = [];
   const [tableHead, settableHead] =useState(["clents", 'Hardware ID', 'Action'])
   const [tableData, settableData] = useState([]);
   const [deviceData, setdeviceData] = useState([]);
   const [widthArr, setwidthArr] = useState([100, 180, 100]);
-
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
   const [time, setTime] = useState(new Date());
-
-
-
-  
-  const dateformatvalue = moment(date).format('MM/DD/YYYY')
-  const timevalue = moment(time).format('HH:mm:ss')
+  const dateformatvalue = moment(date).utc().format('MM/DD/YYYY')
+  const timevalue = moment(time).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
+  
   const isFocused = useIsFocused();
   const onChange = (event, selectedValue) => {
   
@@ -234,7 +228,7 @@ const RegisterDevice = ({ navigation }) => {
           }
 
           setData(clients)
-          //alert(JSON.stringify(clients));
+        
         })
       })
       .catch(error => {
@@ -243,8 +237,8 @@ const RegisterDevice = ({ navigation }) => {
   }
   const adddevicemange=()=>
   {
-    const dateformatvalue = moment(date).format('MM/DD/YYYY')
-    const timevalue = moment(time).format('HH:mm:ss')
+    const dateformatvalue = moment(date).utc().format('MM/DD/YYYY')
+    const timevalue = moment(time).utc().format('HH:mm:ss')
     const datestringvalue = dateformatvalue + ',' + timevalue
     setedit(false);
     setdatevalue(datestringvalue);
@@ -317,12 +311,6 @@ const RegisterDevice = ({ navigation }) => {
   </TouchableOpacity>
   </View>
   );
-
-
-
-  
-
-
   const editIconclicked=(rowData,index) =>
   {
     console.log(rowData);
@@ -408,19 +396,14 @@ const RegisterDevice = ({ navigation }) => {
           let result1 = false
           for (let i = 0; i < hwids.length; i++) {
             const activehwid = hwids[i]
-
             if (activehwid['hwid'] == Hardwareid) {
               result1 = true
             }
           }
 
           if (result1) {
-           
-            
-           
-            setIsDialogVisible(true)
-           
-          } else {
+           setIsDialogVisible(true)
+           } else {
             alert('This device is already assigned to a location by the Client')
             setIsDialogVisible(false)
           }
@@ -685,16 +668,15 @@ const RegisterDevice = ({ navigation }) => {
   
  
   </View>
-     
+  <ScrollView > 
       <View style={{ marginLeft: 'auto', marginRight: 'auto', paddingTop: 20 }}>
-      <ScrollView horizontal={true} > 
+      
       <Table borderStyle={{borderColor: 'transparent'}}>
-     
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{ margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
-          <ScrollView>
-     
-          {
+        <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{ margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
+        
+         {
             tableData.map((rowData, index) => (
+              
               <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
@@ -702,14 +684,14 @@ const RegisterDevice = ({ navigation }) => {
                   ))
                 }
               </TableWrapper>
+             
             ))
           }
-          </ScrollView>
        
         </Table>
-        </ScrollView>
+        
         </View>
-      
+        </ScrollView>
         <AwesomeAlert
           show={showAlert}
           showProgress={false}
@@ -729,7 +711,7 @@ const RegisterDevice = ({ navigation }) => {
         <Dialog
           style={{ width: '90%', marginLeft: '5%' ,backgroundColor: '#FFFFFF'}}
           visible={isDialogVisible}
-          onDismiss={() => setIsDialogVisible(false)}
+          
         >
           <Dialog.Title
             style={{

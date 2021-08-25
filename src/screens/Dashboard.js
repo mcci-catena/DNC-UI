@@ -71,7 +71,7 @@ const Dashboard=({navigation})=> {
       <Text style={{alignItems:'center',justifyContent:"center",fontSize:30,color:'blue'}}>Welcome to DNC</Text>
     </View>
     <View style={{ bottom:0, alignItems: 'center' }}>
-      <Text style={{ color: '#560CCE', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server {version}</Text>
+      <Text style={{ color: '#560CCE', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
     </View>
   </View>
 

@@ -191,7 +191,7 @@ const UserScreen = ({ navigation }) => {
     })
     .then(response => response.json())
     .then(responseJson => {
-        alert(JSON.stringify(responseJson['message']));
+        //alert(JSON.stringify(responseJson['message']));
         setalertmessage(JSON.stringify(responseJson.message));
         setshowAlert(true);
         navigation.reset({
@@ -294,7 +294,7 @@ const UserScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0-1 | Server {version}</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
       </View>
       </Background>
   )
