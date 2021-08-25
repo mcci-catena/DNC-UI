@@ -2,11 +2,6 @@ import React, { useState } from 'react'
 import { View, Text  ,Alert,Dimensions} from 'react-native';
 import { Appbar ,Menu} from 'react-native-paper';
 
-
-
-
-
-
 export default function AppBar({navigation,title}) {
   const closeUser = () => setuserVisible(false);
   const openUser = () => setuserVisible(true);
@@ -42,10 +37,6 @@ export default function AppBar({navigation,title}) {
    
     </Menu>
     </View>
-
-  
-
-  
 
   );
 }

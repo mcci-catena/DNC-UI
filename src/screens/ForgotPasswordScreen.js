@@ -1,10 +1,10 @@
 // Module: LoginScreen
 // 
 // Function:
-//      Function to lforgot password module
+//      Function to forgot password module
 // 
 // Version:
-//    V2.02  Thu Jul 25 2021 10:30:00  muthup   Edit level 1
+//    V1.0.0  Thu Jul 25 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,10 +18,7 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-// 
-//  Revision history:
-//       1.01 Wed July 25 2021 10:30:00 muthup
-//       Module created.
+
 import React, { useState,useEffect } from 'react'
 import Background from '../components/Background'
 import BackButton from '../components/BackButton'

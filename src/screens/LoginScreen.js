@@ -4,7 +4,7 @@
 //      Function to login module
 // 
 // Version:
-//    V2.02  Thu Jul 12 2021 10:30:00  muthup   Edit level 1
+//    V1.0.0  Thu Jul 12 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,10 +18,6 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-// 
-//  Revision history:
-//       1.01 Wed July 12 2021 10:30:00 muthup
-//       Module created.
 
 import React, { useState,useEffect } from 'react'
 import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'

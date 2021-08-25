@@ -4,7 +4,7 @@
 //      Function to devicr configuration for web
 // 
 // Version:
-//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V1.0.0  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,10 +18,7 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-// 
-//  Revision history:
-//       1.01 Wed July 17 2021 10:30:00 muthup
-//       Module created.
+
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
 import TextInput from '../components/TextInput'
