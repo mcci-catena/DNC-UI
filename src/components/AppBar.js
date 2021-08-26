@@ -1,3 +1,26 @@
+// Module: AppBar.js
+//
+// Function:
+//    Display the appbar 
+//
+// Version:
+//    V1.0.0  Mon Feb 08 2021 10:15:00 muthup   Edit level 1
+//
+// Copyright notice:
+//   This file copyright (C) 2020-2021 by
+//
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//        Ithaca, NY  14850
+//
+//   An unpublished work.  All rights reserved.
+//
+//   This file is proprietary information, and may not be disclosed or
+//   copied without the prior permission of MCCI Corporation
+//
+// Author:
+//   Muthupandi Pandiyaraj, MCCI Corporation March 2021
+//
 import React, { useState } from 'react'
 import { View, Text  ,Alert,Dimensions} from 'react-native';
 import { Appbar ,Menu} from 'react-native-paper';

@@ -4,7 +4,7 @@
 //    Display the backcground image
 //
 // Version:
-//    V2.03  Mon Feb 08 2021 10:15:00 muthup   Edit level 3
+//    V1.0.0  Mon Feb 08 2021 10:15:00 muthup   Edit level 1
 //
 // Copyright notice:
 //   This file copyright (C) 2020-2021 by
@@ -21,9 +21,7 @@
 // Author:
 //   Muthupandi Pandiyaraj, MCCI Corporation March 2021
 //
-// Revision History:
-//   2.01  Tue Jan 20 2020 3:57:00 muthup
-//   Module created.
+
 
 import React from 'react'
 import {
