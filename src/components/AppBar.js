@@ -2,11 +2,6 @@ import React, { useState } from 'react'
 import { View, Text  ,Alert,Dimensions} from 'react-native';
 import { Appbar ,Menu} from 'react-native-paper';
 
-
-
-
-
-
 export default function AppBar({navigation,title}) {
   const closeUser = () => setuserVisible(false);
   const openUser = () => setuserVisible(true);
@@ -37,15 +32,11 @@ export default function AppBar({navigation,title}) {
       visible={uservisible}
       onDismiss={closeUser}
       anchor={{ x: windowWidth, y: 50 }}>
-      <Menu.Item    title="Change password" onPress={()=>changepassscreen()}/>
+      {/* <Menu.Item    title="Change password" onPress={()=>changepassscreen()}/> */}
       <Menu.Item   title="Logout" onPress={()=>changelogoutscreen()} />
    
     </Menu>
     </View>
-
-  
-
-  
 
   );
 }

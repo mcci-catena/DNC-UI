@@ -1,8 +1,28 @@
+// Module: AdminSignup
+// 
+// Function:
+//      Function to Admin user signup module
+// 
+// Version:
+//    V1.0.0  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+
 import React, { useState,useEffect } from 'react'
 import { View, StyleSheet, TouchableOpacity,Modal,ActivityIndicator } from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
-import Logo from '../components/Logo'
 import Header from '../components/Header'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
@@ -13,7 +33,7 @@ import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
 
 const RegisterScreen = ({ navigation }) => {
-  console.log('register')
+ 
   const [Username, setUsername] = useState({ value: '', error: '' })
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
@@ -24,68 +44,61 @@ const RegisterScreen = ({ navigation }) => {
   const [spinner, setspinner] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [version,setversion]=useState('');
+
+  
+  const getApiversion = () => {
+    
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    const postMethod= {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      
+    }
+   
+    fetch(url,postMethod)
+      .then(response => {
+        const statusCode = response.status
+        if (statusCode == 502) {
+          alert('Please turn on server')
+        }
+        response.json().then(responseJson => {
+        
+         if(responseJson!=null){
+         let versionarray=responseJson.split(' ');
+         setversion(versionarray[4])
+        }
+        
+        })
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    
+  }
 
 
-
-useEffect(() => {
+  useEffect(() => {
+    getApiversion();
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
-}, []);
+  }, []);
 
-if(isLoading){
+  if(isLoading){
     return(
-      <View style={{
-        flex: 1,
-       
-        justifyContent: 'center',
-        alignItems: 'center'
-    }}>
-        
-      <ActivityIndicator size="large"  />
-      <Text >Loading</Text>
-    </View>
+      <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
+        <ActivityIndicator size="large"  />
+        <Text >Loading</Text>
+      </View>
    
     );
-}
-
-  const otpvalidation=(text)  =>
-
-  {
-         
-            if(text.length==6)
-            {
-              const url = 'https://staging-iseechange.mcci.mobi/dncserver/chkmoa'
-              fetch(url, {
-                method: 'POST',
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({email:email.value,oauth:text}),
-              })
-                .then(response => response.json())
-                .then(responseJson => {
-                  console.log(responseJson)
-                  setalertmessage(JSON.stringify(responseJson.message));
-                  setshowAlert(true);
-                  if(responseJson.message="Auth Success")
-                  {
-                    setShouldShow(false);
-                  }
-                  
-                })
-                .catch(error => {
-                  console.error(error)
-                })
-
-            }
-            
-     // setShouldShow(false)
   }
+
   const onverifyPressed = () => {
-    
-     
     const emailError = emailValidator(email.value)
     if (emailError) {
      
@@ -94,14 +107,19 @@ if(isLoading){
       return
     }
     setspinner(true);
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/samail'
+    var emaildata={};
+    emaildata['uname']=Username.value;
+    emaildata['email']=email.value;
+    emaildata['mode']='asignup';
+    emaildata['status']='non-verified';
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({email:email.value}),
+      body: JSON.stringify(emaildata),
     })
       .then(response => response.json())
       .then(responseJson => {
@@ -110,15 +128,16 @@ if(isLoading){
         setalertmessage(JSON.stringify(responseJson.message));
       setshowAlert(true);
      
-        //setspinner(false);
+       
       })
       .catch(error => {
         console.error(error)
       })
       setTimeout(() => {setspinner(false)}, 500);
   }
+  
   const onSignUpPressed = () => {
-    // setspinner(true);
+    
     if(shouldShow!=true)
     {
 
@@ -138,12 +157,9 @@ if(isLoading){
       setOrgname({ ...Orgname, error: OrgnameError })
       return
     }
-    console.log(Username.value)
-    console.log(password.value)
-    console.log(email.value)
-    console.log(Orgname.value)
-   // const proxyurl = 'https://cors-anywhere.herokuapp.com/'
-    const url = 'https://staging-iseechange.mcci.mobi/dncserver/asignup'
+    
+
+    const url = 'https://staging-dashboard.mouserat.io/dncserver/asignup'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -151,19 +167,21 @@ if(isLoading){
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        oname: Orgname.value,
+        cname: Orgname.value,
         uname: Username.value,
         pwd: password.value,
         email: email.value,
-       
+        otpnum:otp,
+        mode: "asignup"
       }),
     })
     .then(response => response.json())
     .then(responseJson => {
-      console.log(responseJson)
+      
+   
       setalertmessage(JSON.stringify(responseJson.message));
       setshowAlert(true);
-      // setspinner(false);
+      
       navigation.reset({
         index: 0,
         routes: [{ name: 'LoginScreen' }],
@@ -176,25 +194,23 @@ if(isLoading){
     <Background>
       
       <Header>Create Admin Account</Header>
-      <TextInput
+        <TextInput
         label="Organization Name"
         returnKeyType="next"
         value={Orgname.value}
         onChangeText={text => setOrgname({ value: text, error: '' })}
         error={!!Orgname.error}
         errorText={Orgname.error}
-      />
-      <TextInput
+        />
+        <TextInput
         label="User Name"
         returnKeyType="next"
         value={Username.value}
         onChangeText={text => setUsername({ value: text, error: '' })}
         error={!!Username.error}
         errorText={Username.error}
-      />
-
-      
-      <TextInput
+        />
+        <TextInput
         label="Password"
         returnKeyType="done"
         value={password.value}
@@ -202,60 +218,32 @@ if(isLoading){
         error={!!password.error}
         errorText={password.error}
         secureTextEntry
-      />
-  
-      <TextInput
+        />
+        <TextInput
         label="Email"
-     
-       
-       returnKeyType="next"
-       value={email.value}
-       onChangeText={text => setEmail({ value: text, error: '' })}
-       error={!!email.error}
-       errorText={email.error}
-       autoCapitalize="none"
-       autoCompleteType="email"
-       textContentType="emailAddress"
-       keyboardType="email-address"
-     />
-     
-    
-    <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
-          <Text style={styles.link}>Verify</Text>
+        returnKeyType="next"
+        value={email.value}
+        onChangeText={text => setEmail({ value: text, error: '' })}
+        error={!!email.error}
+        errorText={email.error}
+        autoCapitalize="none"
+        autoCompleteType="email"
+        textContentType="emailAddress"
+        keyboardType="email-address"
+        />
+        <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
+          <Text style={styles.link}>Verify Email</Text>
         </TouchableOpacity>
-    {shouldShow && (  <TextInput
-       
-       label="Type here your otp"
-       returnKeyType="next"
-       value={otp.value}
-       onChangeText={text => otpvalidation(text)}
-       
-     />)}
-       <Modal
-      presentationStyle="overFullScreen"
-      transparent={true}
-      visible={spinner}
-     
-    >
-         <View style={{
-            flex: 1,
-           
-            justifyContent: 'center',
-            alignItems: 'center',
-        }}>
-            <View style={{
-                backgroundColor: "#F7F6E7",
-                width: 300,
-                height: 150,justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor:"#F7F6E7"
-           }}>
-          <ActivityIndicator size="large" color="#00ff00" />
-          <Text style={{color:"#00ff00"}}>Loading</Text>
-        </View>
-        </View>
+        {shouldShow && (  <TextInput label="Type here your otp" returnKeyType="next"  value={otp.value} onChangeText={text => setotp(text)}/>)}
+        <Modal presentationStyle="overFullScreen" transparent={true} visible={spinner}>
+          <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
+            <View style={{backgroundColor: "#F7F6E7",width: 300,height: 150,justifyContent: 'center',alignItems: 'center',backgroundColor:"#F7F6E7"}}>
+              <ActivityIndicator size="large" color="#00ff00" />
+              <Text style={{color:"#00ff00"}}>Loading</Text>
+            </View>
+          </View>
         </Modal>
-  <AwesomeAlert
+        <AwesomeAlert
           show={showAlert}
           showProgress={false}
           title="Alert"
@@ -264,25 +252,19 @@ if(isLoading){
           closeOnHardwareBackPress={false}
           showCancelButton={true}
           showConfirmButton={true}
-        
           confirmText="ok "
           confirmButtonColor="#DD6B55"
-        
           onConfirmPressed={() =>setshowAlert(false)}
         />
-   
-      <Button
-        mode="contained"
-        onPress={onSignUpPressed}
-        style={{ marginTop: 24 }}
-      >
-        Sign Up
-      </Button>
-      <View style={styles.row}>
-        <Text style={{ color: 'white' }}>Already have an account? </Text>
-        <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>
-          <Text style={styles.link}>Login</Text>
-        </TouchableOpacity>
+        <Button mode="contained" onPress={onSignUpPressed} style={{ marginTop: 24 }}>Sign Up</Button>
+        <View style={styles.row}>
+          <Text style={{ color: 'white' }}>Already have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.replace('LoginScreen')}>
+            <Text style={styles.link}>Login</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
       </View>
     </Background>
   )

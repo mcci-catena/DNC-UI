@@ -1,3 +1,4 @@
+import { BorderColor } from '@material-ui/icons'
 import React from 'react'
 import { View, StyleSheet, Text } from 'react-native'
 import { TextInput as Input } from 'react-native-paper'
@@ -9,6 +10,7 @@ const TextInput = ({ errorText, description, ...props }) => (
       style={styles.input}
       selectionColor={theme.colors.primary}
       underlineColor="transparent"
+      outlineColor={theme.colors.primary}
       mode="outlined"
       {...props}
     />
@@ -26,6 +28,9 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '100%',
+    height: 40,
+    //borderColor: '#560CCE',
+    //borderColor: theme.colors.primary,
     backgroundColor: theme.colors.surface,
   },
   description: {

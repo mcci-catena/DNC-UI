@@ -1,3 +1,24 @@
+// Module: App.js
+// 
+// Function:
+//      Function to initiate the application
+// 
+// Version:
+//    V1.0.0  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       Muthu p, MCCI July 2021
+
 import React from 'react'
 import { Provider } from 'react-native-paper'
 import { NavigationContainer } from '@react-navigation/native'
@@ -143,13 +164,10 @@ export default class App extends React.Component {
       <Drawer.Screen name="Home" component={Homestackscreen} />
       <Drawer.Screen name="User Management" component={UserstackScreen} />
      <Drawer.Screen name="Client Mangement" component={ClientstackScreen} />
-     <Drawer.Screen name="Field Configure" component={RegisterDevicestackScreen} />
      <Drawer.Screen name="Register Device" component={RegisterDevicestackScreen} />
      <Drawer.Screen name="Configure Device" component={ConfigureDevicestackScreen} />
-     <Drawer.Screen name="Configure Field" component={ConfigureFieldstackScreen} /> 
-   
-    
-    </Drawer.Navigator>
+     
+   </Drawer.Navigator>
  
 
         </NavigationContainer>

@@ -1,3 +1,24 @@
+// Module: Registerdevice
+// 
+// Function:
+//      Function to register device for web
+// 
+// Version:
+//    V1.0.0  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+// 
+//  Copyright notice:
+//       This file copyright (C) 2021 by
+//       MCCI Corporation
+//       3520 Krums Corners Road
+//       Ithaca, NY 14850
+//       An unpublished work. All rights reserved.
+// 
+//       This file is proprietary information, and may not be disclosed or
+//       copied without the prior permission of MCCI Corporation.
+// 
+//  Author:
+//       muthup, MCCI July 2021
+
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -10,64 +31,53 @@ import {
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
-
 import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import  moment from 'moment'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import Datetime from 'react-datetime'
-import 'react-datetime/css/react-datetime.css'
+import { DateTimePicker } from 'react-rainbow-components';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
+import { useIsFocused } from "@react-navigation/native";
 const RegisterDevice = ({ navigation }) => {
+
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
   let [Hardwareid, setHardwareid] = useState('')
   let [deviceid, setdeviceid] = useState('')
   let [devid, setdevid] = useState('')
   let [deveui, setdeveui] = useState('')
+  let [measName, setmeasName] = useState('')
+  let [fieldName, setfieldName] = useState('')
   const [idate, setidate] = useState('')
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [data, setData] = useState([])
   const [selectedValue, setselectedValue] = useState('')
   const [Api, setApi] = useState('')
   const [clientName, setclientName] = useState('')
+  const [tablesclient, settablesclient] = useState('')
   const [dilogtitle,setdilogtitle]=useState('Add device');
   const [uname, setuname] = useState('')
   const [oldhwid, setoldhwid] = useState('')
-//    const [datevalue, setdatevalue] = useState(new Date())
   const [visible, setVisible] = useState(false);
   const [uservisible, setuserVisible] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
   const [edit, setedit] = useState(null);
   const [shouldShow, setShouldShow] = useState(true);
-  
-  const [datevalue, onChange] = useState()
+  const[oldClient,setoldClient]=useState('');
+  const [datevalue, setdatevalue] = useState(new Date())
   const tablearray=[];
   const clients = [];
-  const [tableHead, settableHead] =useState(["S.No","clents", 'Hardware ID', 'Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
+  const [tableHead, settableHead] =useState(["S.No","clients", 'Hardware ID','Measurement Name','Field Name','Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
   const [tableData, settableData] = useState([]);
-  const [widthArr, setwidthArr] = useState([50,100, 180, 180, 180, 180, 200, 200, 100]);
-
+  const [widthArr, setwidthArr] = useState([50,100, 180, 180,180,180, 180, 180, 200, 200, 100]);
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
   const [time, setTime] = useState(new Date());
-
-
-
-  let inputProps = {
-    placeholder: 'Date and time',
-    className: 'datetime',
-  }
-
-  const dateformatvalue = moment(datevalue).format('MM/DD/YYYY')
-  const timevalue = moment(datevalue).format('HH:mm:ss')
+  const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
+  const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
- 
- 
-
-  
- 
+  const isFocused = useIsFocused();
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -85,13 +95,13 @@ const RegisterDevice = ({ navigation }) => {
   }
 
   useEffect(() => {
-    getApitoken()
-  }, [])
-
-  
-  
+    if(isFocused){
+      getApitoken();
+      settablesclient('');
+    }
+  }, [isFocused])
   const fetchtabledata =( token )=> {
-    const url='https://staging-analytics.weradiate.com/apidbm/listadev';
+    const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
     const getMethod={
       method: 'GET',
       headers: {
@@ -100,32 +110,33 @@ const RegisterDevice = ({ navigation }) => {
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
     }
-    console.log(url);
-    console.log(getMethod);
+    
     fetch(url,getMethod ).then(response => {
       const statusCode = response.status
-
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-        } else if (responseJson['message'] != null) {
-          alert(JSON.stringify(responseJson['message']))
-        }
-        console.log(JSON.stringify(responseJson))
-        for(var i=0;i<responseJson.length;i++)
-        {
-            let j=i+1;
-            let client  = responseJson[i].client;
+      if (statusCode == 403) {
+        alert('inavalid token/token expired')
+      } else if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
+      for(var i=0;i<responseJson.length;i++)
+      {
+          let j=i+1;
+          let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
             let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
             array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
@@ -141,7 +152,7 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-analytics.weradiate.com/apidbm/client', {
+    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -171,7 +182,7 @@ const RegisterDevice = ({ navigation }) => {
           }
 
           setData(clients)
-          //alert(JSON.stringify(clients));
+         
         })
       })
       .catch(error => {
@@ -180,28 +191,19 @@ const RegisterDevice = ({ navigation }) => {
   }
   const adddevicemange=()=>
   {
-//     const dateformatvalue = moment(date).format('MM/DD/YYYY')
-//   const timevalue = moment(time).format('HH:mm:ss')
-//   const datestringvalue = dateformatvalue + ',' + timevalue
     setedit(false);
-   // setdatevalue(datestringvalue);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
-    
-    setselectedValue('');
     setHardwareid('')
     setdeviceid('')
     setdevid('')
     setdeveui('')
     setidate('')
     
-    
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-
-    var url = 'https://staging-analytics.weradiate.com/apidbm/mdevice'
-    console.log(url);
+    var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
     const putMethod = {
       method: 'POST',
       headers: {
@@ -216,9 +218,11 @@ const RegisterDevice = ({ navigation }) => {
         devID: devid,
         devEUI: deveui,
         datetime: datestringvalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
-    console.log(putMethod);
+ 
     fetch(url, putMethod).then(response => {
       const statusCode = response.status
       response.json().then(responseJson => {
@@ -231,82 +235,60 @@ const RegisterDevice = ({ navigation }) => {
         } else if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-        fetchtabledata(Api);
+        clientwisetableData();
       })
     })
   }
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
-      <View >
+      <View style={{ paddingRight: 10 }}>
       <Image
        source={require('../assets/edit.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
       </View>
     </TouchableOpacity>
-    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[1]+"",hwid:""+cellData[2]+"",idate:""+cellData[6]+""})}>
+    <TouchableOpacity onPress={()=>createButtonAlert({client:""+cellData[1]+"",hwid:""+cellData[2]+"",idate:""+cellData[8]+""})}>
     <View >
     <Image
        source={require('../assets/delete.png')}
       fadeDuration={0}
-      style={{ width: 40, height: 40 }}
+      style={{ width: 20, height: 20 }}
     />
     </View>
   </TouchableOpacity>
   </View>
   );
-
-
-
-  
-
-
   const editIconclicked=(rowData,index) =>
   {
     console.log(rowData);
     setedit(true);
+    
     setdilogtitle('Edit device');
     setclientName(rowData[1]);
+    setoldClient(rowData[1]);
     setselectedValue(rowData[1]);
     setHardwareid(rowData[2]);
     setoldhwid(rowData[2]);
-    setdeviceid(rowData[3]);
-    setdevid(rowData[4]);
-    setdeveui(rowData[5]);
-    setidate(rowData[6]);
-    var dateutc = Date.parse(rowData[6]);
-    // var dateist=new Date(dateutc);
-    // dateist.setHours(dateist.getHours() + 5); 
-    // dateist.setMinutes(dateist.getMinutes() + 30);
+    setdeviceid(rowData[5]);
+    setdevid(rowData[6]);
+    setdeveui(rowData[7]);
+    setidate(rowData[8]);
+    setmeasName(rowData[3])
+    setfieldName(rowData[4])
+    var dateutc = Date.parse(rowData[8]);
     const dateformatvalue = moment(dateutc).format('MM/DD/YYYY')
     const timevalue = moment(dateutc).format('HH:mm:ss')
     const datestringvalue = dateformatvalue + ',' + timevalue
-    onChange(datestringvalue);
-  // setdatevalue(datestringvalue);
+    setdatevalue(datestringvalue);
     checkeditable(rowData[1] ,rowData[2])
  
-    
- 
-   
   }
 
   const createButtonAlert = ({client,hwid,idate}) =>
   {
-
-    // Alert.alert(
-    //   "Delete user",
-    //   "Are you sure want to delete?",
-    //   [
-    //     {
-    //       text: "Cancel",
-    //       onPress: () => console.log("Cancel Pressed"),
-    //       style: "cancel"
-    //     },
-    //     { text: "OK", onPress:()=>Deletedevice (client,hwid,idate) }
-    //   ]
-    // )
     setshowAlert(true);
     setclientName(client);
     setHardwareid(hwid);
@@ -316,7 +298,7 @@ const RegisterDevice = ({ navigation }) => {
 
   const checkeditable = ( clientName, Hardwareid) => {
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listmdev/' +
+      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
       '' +
       clientName +
       ''
@@ -371,10 +353,10 @@ const RegisterDevice = ({ navigation }) => {
         console.error(error)
       })
   }
-
-  const clientwisetableData = ({ itemValue }) => {
-    
-    setselectedValue( itemValue)
+  const clientpickerenabled=({ itemValue })=>
+  {
+    settablesclient( itemValue);
+    setselectedValue(itemValue);
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {
       let token=Api
@@ -382,10 +364,11 @@ const RegisterDevice = ({ navigation }) => {
     }
     else{
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/listadev/' +
+      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
       '' +
       itemValue +
       ''
+    console.log(url);  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -404,7 +387,7 @@ const RegisterDevice = ({ navigation }) => {
           })
         }
         if (responseJson['message'] != null) {
-          alert(JSON.stringify(responseJson['message']))
+          alert(JSON.stringify("test"+responseJson['message']))
         }
         console.log(JSON.stringify(responseJson[0]))
         for(var i=0;i<responseJson.length;i++)
@@ -417,10 +400,84 @@ const RegisterDevice = ({ navigation }) => {
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
+            array.push(deviceid);
+            array.push(devID);
+            array.push(devEUI);
+            array.push(idate);
+            array.push(rdate);
+            array.push(client);
+            tablearray.push(array);
+            
+        }
+
+        settableData(tablearray);
+      })
+    })
+    }
+  }
+  const clientwisetableData = () => {
+
+     
+   
+    if(tablesclient=='All' ||tablesclient =='Select the Clients' ||tablesclient==undefined||tablesclient==null)
+    {
+      let token=Api
+      fetchtabledata(token);
+    }
+    else{
+    var url =
+      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
+      '' +
+      tablesclient +
+      ''
+    console.log(url);  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+    }).then(response => {
+      const statusCode = response.status
+
+      response.json().then(responseJson => {
+        if (statusCode == 403) {
+          alert('inavalid token/token expired')
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'LoginScreen' }],
+          })
+        }
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify("test"+responseJson['message']))
+        }
+        console.log(JSON.stringify(responseJson[0]))
+        for(var i=0;i<responseJson.length;i++)
+        {
+            let j=i+1;
+            let client  = responseJson[i].client;
+            let hwid=responseJson[i].hwid;
+            let deviceid=responseJson[i].deviceid;
+            let devID=responseJson[i].devID;
+            let devEUI=responseJson[i].devEUI;
+            let idate=responseJson[i].idate;
+            let rdate=responseJson[i].rdate;
+            let mmname=responseJson[i].mmname;
+            let fdname=responseJson[i].fdname;
+            let array=[];
+            array.push(j);
+            array.push(client);
+            array.push(hwid);
+            array.push(mmname);
+            array.push(fdname);
             array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
@@ -443,7 +500,7 @@ const RegisterDevice = ({ navigation }) => {
      if(edit)
      {
        console.log("onedit");
-       updateDevice(clientName,Hardwareid);
+       updateDevice(selectedValue,Hardwareid);
      }
      else
      {
@@ -453,14 +510,13 @@ const RegisterDevice = ({ navigation }) => {
      }
    }
   const Deletedevice = ( client, hwid, idate ) => {
-    alert(JSON.stringify(client));
-    alert(JSON.stringify(hwid));
-    alert(JSON.stringify(idate));
+    
+    setshowAlert(false);
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
       '' +
       client +
       ''
@@ -490,7 +546,9 @@ const RegisterDevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          fetchtabledata(Api);
+          
+            clientwisetableData();
+         
         })
         .catch(error => {
           console.error(error)
@@ -500,10 +558,12 @@ const RegisterDevice = ({ navigation }) => {
   }
       
   const updateDevice = (client, currenthwid ) => {
+  
+    setIsDialogVisible(false)
     var url =
-      'https://staging-analytics.weradiate.com/apidbm/mdevice/' +
+      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
       '' +
-      client +
+      oldClient +
       ''
     
      console.log(url);
@@ -516,12 +576,14 @@ const RegisterDevice = ({ navigation }) => {
       },
       body: JSON.stringify({
         hwid: oldhwid,
-       
+        nclient:client,
         nhwid: currenthwid,
         deviceid: deviceid,
         devID: devid,
         devEUI: deveui,
         datetime: datestringvalue,
+        mmname:measName,
+        fdname:fieldName
       }),
     }
    console.log(JSON.stringify(putMethod));
@@ -539,13 +601,16 @@ const RegisterDevice = ({ navigation }) => {
           } else if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson))
           }
-          fetchtabledata(Api);
+          //fetchtabledata(Api);
         })
       })
       .catch(error => {
         console.error(error)
       })
-      fetchtabledata(Api);
+      
+        
+        clientwisetableData();
+     
   }
 
   return (
@@ -554,7 +619,7 @@ const RegisterDevice = ({ navigation }) => {
      
       <AppBar navigation={navigation} title={"Register Device"}></AppBar>
       
-      <View style={{flexDirection:'row',height:"10%"}}>
+      <View style={{flexDirection:'row'}}>
 	  
       <Button
         mode="contained"
@@ -565,10 +630,10 @@ const RegisterDevice = ({ navigation }) => {
       </Button>
 	  
 	  
-      <Picker
-    selectedValue={selectedValue}
-    
-    onValueChange={itemValue => clientwisetableData({ itemValue })}
+    <Picker
+    selectedValue={tablesclient}
+    style={{width:'35%'}}
+    onValueChange={itemValue => clientpickerenabled({ itemValue })}
   >
  
     {data.map((value,key) => (
@@ -582,19 +647,19 @@ const RegisterDevice = ({ navigation }) => {
  
   </View>
      
-      
+      <View style={{ marginTop:'5%', marginHorizontal: 20 }}> 
       <ScrollView horizontal={true} > 
       <Table borderStyle={{borderColor: 'transparent'}}>
      
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white'}}/>
+          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
           <ScrollView>
      
           {
             tableData.map((rowData, index) => (
-              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F7F6E7'}]}>
+              <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === 8 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                    <Cell  key={cellIndex} data={cellIndex === 10 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
                   ))
                 }
               </TableWrapper>
@@ -604,7 +669,7 @@ const RegisterDevice = ({ navigation }) => {
        
         </Table>
         </ScrollView>
-      
+        </View>
         <AwesomeAlert
           show={showAlert}
           showProgress={false}
@@ -622,9 +687,9 @@ const RegisterDevice = ({ navigation }) => {
 />
       <Portal>
         <Dialog
-          style={{ width: '90%', marginLeft: '5%' ,backgroundColor: '#F7F6E7'}}
+          style={{ width: '40%', marginLeft: '30%' ,backgroundColor: '#F7F6E7'}}
           visible={isDialogVisible}
-          onDismiss={() => setIsDialogVisible(false)}
+          
         >
           <Dialog.Title
             style={{
@@ -645,7 +710,7 @@ const RegisterDevice = ({ navigation }) => {
             <View>
          
             
-               
+             
             <Picker
               selectedValue={selectedValue}
               style={{width: '100%'}} 
@@ -658,17 +723,7 @@ const RegisterDevice = ({ navigation }) => {
 			 
             </Picker>
 
-          <Datetime
-              dateFormat="MM-DD-YYYY"
-              timeFormat={true}
-              onChange={onChange}
-              inputProps={inputProps}
-              value={datevalue}
-            />
-        
-         
-    
-            <TextInput
+          <TextInput
               label="Enter Hardware ID"
               returnKeyType="next"
               maxLength={50}
@@ -679,6 +734,13 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
+              <DateTimePicker
+            value={datevalue}
+            minDate={new Date(2018, 0, 4)}
+            maxDate={new Date(3020, 0, 4)}
+            
+            onChange={value =>setdatevalue(value)}
+        />
 
             <TextInput
               label="Enter Device ID"
@@ -710,6 +772,28 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
+             <TextInput
+              label="Enter Measurement Name"
+              returnKeyType="next"
+              value={measName}
+              onChangeText={text => setmeasName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+            <TextInput
+              label="Enter Field Name"
+              returnKeyType="next"
+              value={fieldName}
+              onChangeText={text => setfieldName(text)}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />
+
+
             </View>
           </Dialog.Content>
           <Dialog.Actions>
@@ -755,8 +839,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: '35%',
-	
-    marginVertical: 5,
+	  marginVertical: 5,
     paddingVertical: 2,
     marginLeft: '15%',
     marginRight: 'auto',
@@ -784,9 +867,9 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 1,
   },
-  head: { height: 40, backgroundColor: '#808B97' },
+  head: { height: 40, backgroundColor: '#560CCE' },
   text: { margin: 6 },
-  row: { flexDirection: 'row', backgroundColor: '#FFF1C1',borderWidth: 1, borderColor: '#C1C0B9' },
+  row: { flexDirection: 'row', backgroundColor: '#E8DCFC',borderWidth: 1, borderColor: '#C1C0B9' },
   btn: { width: 58, height: 18, backgroundColor: '#78B7BB',  borderRadius: 2 },
   dataWrapper: { marginTop: -1 },
   btnText: { textAlign: 'center', color: '#fff' },
