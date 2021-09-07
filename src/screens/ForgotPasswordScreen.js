@@ -1,10 +1,10 @@
 // Module: LoginScreen
 // 
 // Function:
-//      Function to forgot password module
+//      Function to lforgot password module
 // 
 // Version:
-//    V1.0.0  Thu Jul 25 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 25 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 25 2021 10:30:00 muthup
+//       Module created.
 import React, { useState,useEffect } from 'react'
 import Background from '../components/Background'
 import BackButton from '../components/BackButton'
@@ -29,6 +32,8 @@ import Button from '../components/Button'
 import { emailValidator } from '../helpers/emailValidator'
 import {  View,Text } from 'react-native'
 import AwesomeAlert from 'react-native-awesome-alerts';
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState({ value: '', error: '' })
   const [otpshow, setotpshow] = useState(false);
@@ -44,7 +49,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   
   const getApiversion = () => {
     
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
       headers: {
@@ -85,7 +90,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
     emaildata['otpnum']=otpvalue;
     emaildata['mode']='fpwd';
     emaildata['status']='non-verified';
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/update-pwd'
+    const url = apiUrl+'/update-pwd'
     fetch(url, {
       method: 'PUT',
       headers: {
@@ -119,7 +124,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
     emaildata['email']=email.value;
     emaildata['mode']='fpwd';
     emaildata['status']='non-verified';
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/fp-send-otp'
+    const url = apiUrl+'/fp-send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -230,7 +235,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         />
       
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
+      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.1 | Server {version}</Text>
     </View>
  
     </Background>

@@ -4,7 +4,7 @@
 //      Function to Client management
 // 
 // Version:
-//    V1.0.0  Thu Jul 16 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 16 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,6 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 16 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, ScrollView,Image,Platform,TouchableOpacity,Modal,Picker} from 'react-native'
@@ -27,7 +31,8 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
-
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
 
 
 const ClientScreen = ({navigation}) => {
@@ -38,6 +43,7 @@ const ClientScreen = ({navigation}) => {
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [editsubmit, seteditsubmit] = useState(false)
   const [data, setData] = useState([])
+  const [measdata, setmeasdata] = useState([])
   const [Api, setApi] = useState('')
   const tablearray=[];
   const edittablearray=[];
@@ -49,9 +55,10 @@ const ClientScreen = ({navigation}) => {
   const [tableData, settableData] = useState([])
   const [edittableData, setedittableData] = useState([])
   const [tag1, settag1] = useState('');
-  const [tag2, settag2] = useState('');
-  const [tag3, settag3] = useState('');
-  const [dburl, seturl] = useState('');
+  // const [tag2, settag2] = useState('');
+  // const [tag3, settag3] = useState('');
+  const [dburl, seturl] = useState('http://influxdb:8086');
+  const [meas, setmeas] = useState('');
   const [clientid, setclientid] = useState();
   const [dbusername, setdbusername] = useState('');
   const [db, setdb] = useState('');
@@ -130,15 +137,15 @@ const ClientScreen = ({navigation}) => {
         setdbusername(edittableData[i][3]);
         setdbpassword(edittableData[i][4]);
         settag1(edittableData[i][6]);
-        settag2(edittableData[i][7]);
-        settag3(edittableData[i][8]);
+        // settag2(edittableData[i][7]);
+        // settag3(edittableData[i][8]);
       }
     }
     setIsDialogVisible(true);
   }
 
   const fetchInventory = (token) => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -195,7 +202,7 @@ const ClientScreen = ({navigation}) => {
   }
 
   const checkDeviceStatus = (clientid) => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/client-device-status/' + '' + clientid + ''
+    var url =apiUrl+'/client-device-status/' + '' + clientid + ''
     const DELETEMethod = {
       method: 'GET',
       headers: {
@@ -224,7 +231,7 @@ const ClientScreen = ({navigation}) => {
       
   }
   const Deleteclient = (clientname) => {
-    var url ='https://staging-analytics.weradiate.com/apidbm/client/' + '' + clientname + ''
+    var url =apiUrl+'/client/' + '' + clientname + ''
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -258,8 +265,8 @@ const ClientScreen = ({navigation}) => {
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
-    taglist.push(tag2);
-    taglist.push(tag3);
+    // taglist.push(tag2);
+    // taglist.push(tag3);
     for(var i=0;i<inputData.length;i++)
     {
       let data=inputData[i];
@@ -271,7 +278,7 @@ const ClientScreen = ({navigation}) => {
     jsondata["pwd"]=dbpassword;
     jsondata["dbname"]=db;
     jsondata["tlist"]=taglist;
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/client/'+'' + clientid + ''
+    var url = apiUrl+'/client/'+'' + clientid + ''
     const putMethod = {
         method: 'PUT',
         headers: {
@@ -296,7 +303,7 @@ const ClientScreen = ({navigation}) => {
       })
   }
   const getdatabase = () => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/fetch-db-info' 
+    var url =apiUrl+'/fetch-db-info' 
     const posetMethod = {
       method: 'POST',
       headers: {
@@ -320,6 +327,8 @@ const ClientScreen = ({navigation}) => {
     } else if (responseJson['message'] != null) {
       alert(JSON.stringify(responseJson['message']))
     }
+    let dbdata=responseJson["db_list"];
+    dbdata=dbdata.splice(0,0,"select database");
     setData(responseJson["db_list"]);
         
     })
@@ -359,13 +368,9 @@ const ClientScreen = ({navigation}) => {
     seteditsubmit(false);
     setmodaltitle("Add Client")
     setclientname({ value: '', error: '' });
-    seturl('');
-    setdb('');
-    setdbusername('');
-    setdbpassword('');
     settag1('');
-    settag2('');
-    settag3('');
+    // settag2('');
+    // settag3('');
     setdevicestatus(false);
     setIsDialogVisible(true);
   }
@@ -376,20 +381,31 @@ const ClientScreen = ({navigation}) => {
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
-    taglist.push(tag2);
-    taglist.push(tag3);
-    for(var i=0;i<inputData.length;i++)
+    // if(tag2!='' ||tag2!=null ||tag2!=undefined)
+    // {
+    //   taglist.push(tag2);
+    // }
+    
+    // if(tag3!='' ||tag3!=null ||tag3!=undefined)
+    // {
+    //   taglist.push(tag3);
+    // }
+    if(inputData.length!=undefined)
     {
-      let data=inputData[i];
-      taglist.push(data["text"]);
+      for(var i=0;i<inputData.length;i++)
+      {
+        let data=inputData[i];
+        taglist.push(data["text"]);
+      }
     }
     jsondata["cname"]=clientname.value;
     jsondata["url"]=dburl;
     jsondata["user"]=dbusername;
     jsondata["pwd"]=dbpassword;
     jsondata["dbname"]=db;
+    jsondata["mmtname"]=meas;
     jsondata["tlist"]=taglist;
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/client'
+    var url = 'https://staging-analytics.weradiate.com/dncserver/client'
     const putMethod = {
       method: 'POST',
       headers: {
@@ -413,6 +429,7 @@ const ClientScreen = ({navigation}) => {
           alert(JSON.stringify(responseJson['message']))
         } else {
         fetchInventory(Api);
+        settextInput([]);
         }
       })
     })
@@ -431,7 +448,44 @@ const ClientScreen = ({navigation}) => {
       settextboxshow(true);
     }
   }
-
+ const dbdropdownenaled=(itemValue)=>
+ {
+   setdb(itemValue);
+  var url ='https://staging-analytics.weradiate.com/dncserver/fetch-mmt-info' 
+  const posetMethod = {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+    },
+    body: JSON.stringify({
+      url: dburl,
+      pwd:dbpassword,
+      user:dbusername,
+      dbn:itemValue
+    }),
+  }
+  fetch(url, posetMethod)
+  .then(response => {
+  const statusCode = response.status
+  response.json().then(responseJson => {
+  if (statusCode == 403) {
+    alert('inavalid token/token expired')
+    navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
+  } else if (responseJson['message'] != null) {
+    alert(JSON.stringify(responseJson['message']))
+  }
+  let mesasurementdata=responseJson["mmt_list"];
+  mesasurementdata=mesasurementdata.splice(0,0,"select mesurement");
+  setmeasdata(responseJson["mmt_list"]);
+  
+  })
+  })
+  .catch(error => {
+    console.error(error)
+  })
+ }
   return (
     <View>
       <AppBar navigation={navigation} title={"Client Mangement"}></AppBar>
@@ -508,6 +562,7 @@ const ClientScreen = ({navigation}) => {
                 label="Enter DB URL"
                 returnKeyType="next"
                 value={dburl}
+                
                 onChangeText={text => seturl(text)}
                 autoCapitalize="none"
                 autoCompleteType="username"
@@ -533,29 +588,54 @@ const ClientScreen = ({navigation}) => {
                 errorText={password.error}
                 secureTextEntry
                 />
-                {textboxshow && <TextInput
-                label="Database Name"
-                returnKeyType="next"
-                value={db}
-                onChangeText={text => setdb(text)}
-                autoCapitalize="none"
-                autoCompleteType="username"
-                textContentType="name"
-                keyboardType="default"
-                />}
-                {pickershow && <Picker
+                 <TouchableOpacity style={{backgroundColor:'#560CCE',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
+                  <Text style={{color:'white'}}>Get Database</Text>
+                </TouchableOpacity>
+                {/*<Picker
                 selectedValue={db}
                 style={{width: '100%',height: '100%',borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
-                onValueChange={itemValue => setdb(itemValue)}
+                onValueChange={itemValue => dbdropdownenaled(itemValue)}
                 >
                 {data.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
-                </Picker>}
-                <Text>-OR-</Text>
-                <TouchableOpacity style={{backgroundColor:'#560CCE',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
-                  <Text style={{color:'white'}}>SELECT DATABASE</Text>
-                </TouchableOpacity> 
+                </Picker>
+                
+                 
+                <Picker
+                selectedValue={db}
+                style={{width: '100%',height: '100%',borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                onValueChange={itemValue => setdb(itemValue)}
+                >
+                {measdata.map((value, key) => (
+                  <Picker.Item label={value} value={value} key={key} />
+                ))}
+                </Picker> */}
+                <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 15}} >
+                  <Picker 
+                  selectedValue={db}
+                  style={{width: '100%', borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                  onValueChange={itemValue => dbdropdownenaled(itemValue)}
+                  >
+                      {data.map((value, key) => (
+                  <Picker.Item label={value} value={value} key={key} />
+                ))}
+                  </Picker>
+                  
+                </View>
+                <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 10}}>
+                  <Picker 
+                  selectedValue={meas}
+                  style={{width: '100%', borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                  onValueChange={itemValue => setmeas(itemValue)}
+                  >
+                      {measdata.map((value, key) => (
+                       <Picker.Item label={value} value={value} key={key} />
+                      ))}
+                  </Picker>
+                 
+                </View>
+                
                 <TextInput
                 label="Tag-1"
                 returnKeyType="next"
@@ -567,7 +647,7 @@ const ClientScreen = ({navigation}) => {
                 textContentType="name"
                 keyboardType="default"
                 />
-                <TextInput
+                {/* <TextInput
                 label="Tag-2"
                 returnKeyType="next"
                 value={tag2}
@@ -588,7 +668,7 @@ const ClientScreen = ({navigation}) => {
                 autoCompleteType="username"
                 textContentType="name"
                 keyboardType="default"
-                />
+                /> */}
                 {textInput.map((value,key) => {
                   return value
                 })}

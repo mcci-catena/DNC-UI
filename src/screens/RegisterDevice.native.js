@@ -4,7 +4,7 @@
 //      Function to register device for App
 // 
 // Version:
-//    V1.0.0  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 22 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -38,7 +41,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 import { useIsFocused } from "@react-navigation/native";
-
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
 const RegisterDevice = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
@@ -136,7 +140,7 @@ const RegisterDevice = ({ navigation }) => {
   
   
   const fetchtabledata =( token )=> {
-    const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
+    const url=apiUrl+'/listardev';
     
     const getMethod={
       method: 'GET',
@@ -163,8 +167,8 @@ const RegisterDevice = ({ navigation }) => {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
-            let devID=responseJson[i].devID;
+            // let deviceid=responseJson[i].deviceid;
+            // let devID=responseJson[i].devID;
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
@@ -176,13 +180,13 @@ const RegisterDevice = ({ navigation }) => {
             array.push(client);
             array.push(hwid);
             deviceArray.push(hwid);
-            deviceArray.push(deviceid);
-            deviceArray.push(devID);
+            // deviceArray.push(deviceid);
+            // deviceArray.push(devID);
             deviceArray.push(devEUI);
             deviceArray.push(idate);
             deviceArray.push(rdate);
-            deviceArray.push(mmname);
-            deviceArray.push(fdname);
+            // deviceArray.push(mmname);
+            // deviceArray.push(fdname);
             array.push(client);
             tablearray.push(array);
             deviceData.push(deviceArray)
@@ -195,7 +199,7 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -241,15 +245,11 @@ const RegisterDevice = ({ navigation }) => {
     setdatevalue(datestringvalue);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
-    setHardwareid('')
-    setdeviceid('')
-    setdevid('')
-    setdeveui('')
-    setidate('')
+    
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
+    var url = apiUrl+'/regdev'
   
     const putMethod = {
       method: 'POST',
@@ -262,11 +262,10 @@ const RegisterDevice = ({ navigation }) => {
         client: selectedValue,
         hwid: Hardwareid,
         deviceid: deviceid,
-        devID: devid,
-        devEUI: deveui,
+        devID: deveui,
+        //devEUI: deveui,
         datetime: datevalue,
-        mmname:measName,
-        fdname:fieldName
+       
       }),
     }
     console.log(putMethod);
@@ -323,12 +322,12 @@ const RegisterDevice = ({ navigation }) => {
       if(deviceData[i][0]==rowData[1])
       {
         
-        setdeviceid(deviceData[i][1]);
-        setdevid(deviceData[i][2]);
-        setdeveui(deviceData[i][3]);
-        setidate(deviceData[i][4]);
-        setmeasName(deviceData[i][6])
-        setfieldName(deviceData[i][7])
+        // setdeviceid(deviceData[i][1]);
+        // setdevid(deviceData[i][2]);
+        setdeveui(deviceData[i][1]);
+        setidate(deviceData[i][2]);
+        // setmeasName(deviceData[i][6])
+        // setfieldName(deviceData[i][7])
         dateutc = Date.parse(deviceData[i][4]);
       }
     }
@@ -359,12 +358,8 @@ const RegisterDevice = ({ navigation }) => {
   };
 
   const checkeditable = ( clientName, Hardwareid) => {
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
-      '' +
-      clientName +
-      ''
-      console.log(url);
+    var url =apiUrl+'/listfrdev/' +'' +clientName +''
+    
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -421,12 +416,8 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      itemValue +
-      ''
-    console.log(url);  
+    var url =apiUrl+'/listardev/' +'' +itemValue +''
+      
     fetch(url, {
       method: 'GET',
       headers: {
@@ -475,11 +466,7 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      tablesclient +
-      ''
+    var url =apiUrl+'/listardev/' +'' +tablesclient +''
     fetch(url, {
       method: 'GET',
       headers: {
@@ -540,12 +527,8 @@ const RegisterDevice = ({ navigation }) => {
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      client +
-      ''
-      console.log(url);
+    var url =apiUrl+'/regdev/' +'' +client +''
+ 
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -582,13 +565,9 @@ const RegisterDevice = ({ navigation }) => {
       
   const updateDevice = (client, currenthwid ) => {
     setIsDialogVisible(false);
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      oldClient +
-      ''
+    var url =apiUrl+'/regdev/' +'' +oldClient +''
     
-     console.log(url);
+    
     const putMethod = {
       method: 'PUT',
       headers: {
@@ -601,8 +580,8 @@ const RegisterDevice = ({ navigation }) => {
         nclient:client,
         nhwid: currenthwid,
         deviceid: deviceid,
-        devID: devid,
-        devEUI: deveui,
+        devID: deveui,
+        // devEUI: deveui,
         datetime: datevalue,
         mmname:measName,
         fdname:fieldName
@@ -631,7 +610,11 @@ const RegisterDevice = ({ navigation }) => {
       })
      
   }
-
+  const hardwaretextboxchange=(text)=>
+  {
+     setHardwareid(text);
+     setdeveui(text);
+  }
   return (
     <View>
       
@@ -774,14 +757,14 @@ const RegisterDevice = ({ navigation }) => {
               returnKeyType="next"
               maxLength={50}
               value={Hardwareid}
-              onChangeText={text => setHardwareid(text)}
+              onChangeText={ text => hardwaretextboxchange(text)}
               autoCapitalize="none"
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
 
-            <TextInput
+            {/* <TextInput
               label="Enter Device ID"
               returnKeyType="next"
               value={deviceid}
@@ -800,7 +783,7 @@ const RegisterDevice = ({ navigation }) => {
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
-            />
+            /> */}
             <TextInput
               label="Enter dev EUI"
               returnKeyType="next"
@@ -811,7 +794,7 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
-            <TextInput
+            {/* <TextInput
               label="Enter Meas Name"
               returnKeyType="next"
               value={measName}
@@ -830,7 +813,7 @@ const RegisterDevice = ({ navigation }) => {
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
-            />
+            /> */}
                 {show && (
         <DateTimePicker
           testID="dateTimePicker"

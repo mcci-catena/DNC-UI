@@ -4,7 +4,7 @@
 //      Function to User management
 // 
 // Version:
-//    V1.0.0  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker,ScrollView,Dimensions ,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -31,7 +34,8 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import { emailValidator } from '../helpers/emailValidator'
-import { getapiurl } from './Geturl'
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
 import { useIsFocused } from "@react-navigation/native";
 const HomeScreen = ({ navigation }) => {
 
@@ -96,7 +100,7 @@ const HomeScreen = ({ navigation }) => {
     emaildata['email']=email.value;
     emaildata['mode']='usignup';
     emaildata['status']='non-verified';
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
+    const url = apiUrl+'/send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -131,7 +135,7 @@ const HomeScreen = ({ navigation }) => {
     setEmail({ value: ''+email+'', error: '' })
   };
   const DeleteUser = (username,email) => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/delete-user/' +'' +username+''
+    var url =apiUrl+'/delete-user/' +'' +username+''
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -164,7 +168,7 @@ const HomeScreen = ({ navigation }) => {
     }
   
   const updateUser = () => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/update-user/' +'' +username.value +''
+    var url =apiUrl+'/update-user/' +'' +username.value +''
     const putMethod = {
       method: 'PUT',
       headers: {
@@ -220,7 +224,7 @@ const HomeScreen = ({ navigation }) => {
   );
 
 const fetchInventory = (token) => {
-  var url = 'https://staging-dashboard.mouserat.io/dncserver/list-user'
+  var url = apiUrl+'/list-user'
   const getMethod = {
     method: 'GET',
     headers: {
@@ -257,7 +261,7 @@ const fetchInventory = (token) => {
 }
 
 const fetchData = (token) => {
-  fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+  fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -297,7 +301,7 @@ const fetchData = (token) => {
 
   const Adduser = () => {
     setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/usignup'
+    var url = apiUrl+'/usignup';
     const putMethod = {
       method: 'POST',
       headers: {

@@ -4,7 +4,7 @@
 //      Function to devicr configuration for web
 // 
 // Version:
-//    V1.0.0  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -32,6 +35,8 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { useIsFocused } from "@react-navigation/native";
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
   const[lat,setlat]=useState('');
@@ -135,13 +140,17 @@ const Configuredevice = ({ navigation }) => {
     let widthArr=[];
     taglist=clienttaglist[itemValue];
     settaglist(taglist);
-    settaglength(taglist.length);
+   
     tableHead.push("S.NO");
     widthArr.push(50);
-    for(var i=0;i<taglist.length;i++)
+    if(taglist!=undefined)
     {
-      tableHead.push(taglist[i]);
-      widthArr.push(100);
+      settaglength(taglist.length);
+      for(var i=0;i<taglist.length;i++)
+      {
+        tableHead.push(taglist[i]);
+        widthArr.push(100);
+      }
     }
     tableHead.push("Hardware id")
     tableHead.push("Install Date")
@@ -153,7 +162,7 @@ const Configuredevice = ({ navigation }) => {
     widthArr.push(200);
     settableHead(tableHead);
     setwidthArr(widthArr);
-    const url='https://staging-dashboard.mouserat.io/dncserver/listrmdev/'+''+itemValue+'';
+    const url=apiUrl+'/listadev/'+''+itemValue+'';
     const getMethod={
       method: 'GET',
       headers: {
@@ -198,7 +207,7 @@ const Configuredevice = ({ navigation }) => {
       })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -232,7 +241,7 @@ const Configuredevice = ({ navigation }) => {
   const ReplaceDevice=()=>
   {
     setIsreplaceDialogVisible(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/rpdev/' +'' +selectedValue +''
+    var url =apiUrl+'/rpdev/' +'' +selectedValue +''
     const postMethod = {
       method: 'POST',
        headers: {
@@ -270,8 +279,8 @@ const Configuredevice = ({ navigation }) => {
   const AddDevice = () => {
     let requestdata={};
     requestdata["cname"]=selectedValue;
-    requestdata["lat"]=lat;
-    requestdata["long"]=long;
+    requestdata["lat"]=12.34;
+    requestdata["long"]=13.30;
     requestdata["id"]=deviceValue;
     requestdata["datetime"]=datestringvalue;
     for(var i=0;i<taglength;i++)
@@ -280,7 +289,7 @@ const Configuredevice = ({ navigation }) => {
       requestdata[""+taglist[i]+""]=textdata["text"];
     }
     setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/device'
+    var url = apiUrl+'/device'
     const postMethod = {
       method: 'POST',
       headers: {
@@ -310,7 +319,7 @@ const Configuredevice = ({ navigation }) => {
       })
   }
   const fetchDevicelist = selectedValue => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +'' +selectedValue +''
+    var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -332,9 +341,13 @@ const Configuredevice = ({ navigation }) => {
       let hwids1 = responseJson['hwids']
       devices.push('Select the devices')
       if(responseJson['message']!="No Devices registered under this client!"){
+        
         for (let i = 0; i < hwids1.length; i++) {
-          const activehwid = hwids1[i]
-          hwids.push(activehwid)
+          let devicedate={};
+          const activehwid = hwids1[i];
+          devicedate['hwid']=activehwid['hwid'];
+          devicedate['date']=activehwid['date'];
+          hwids.push(devicedate)
           devices.push(activehwid['hwid'])
         }
       }
@@ -372,7 +385,10 @@ const Configuredevice = ({ navigation }) => {
   };
   const removeDevice = () => {
     setshowRemoveAlert(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/rmdev/' +'' +selectedValue +''
+    const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+    const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
+    var url =apiUrl+'/rmdev/' +'' +selectedValue +''
     const postMethod = {
       method: 'PUT',
       headers: {
@@ -396,14 +412,16 @@ const Configuredevice = ({ navigation }) => {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchtabledata(selectedValue);
+      fetchDevicelist(selectedValue);
     })
     })
     .catch(error => {
       console.error(error)
     })
-    fetchDevicelist(selectedValue);
+    
   }
   const addDevicebutton = () => {
+    setdatevalue(new Date());
     for(var i=0;i<taglength;i++)
     {
       addTextInput(i);
@@ -415,7 +433,7 @@ const Configuredevice = ({ navigation }) => {
   }
   const deleteDevice = () => {
     setshowAlert(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/device/' +'' +selectedValue +''
+    var url =apiUrl+'/device/' +'' +selectedValue +''
     const postMethod = {
       method: 'DELETE',
       headers: {
@@ -457,7 +475,12 @@ const Configuredevice = ({ navigation }) => {
       fetchDevicelist(itemValue)
     }
   }
-  
+  const devicepickerenable=(itemValue)=>
+  {
+    setdeviceValue(itemValue);
+   let deviceinfo=hwid.find(x =>x.hwid ==itemValue)
+   setdatevalue(deviceinfo['date']);
+  } 
   return (
     <View>
       <AppBar navigation={navigation} title={"Configure Device"}></AppBar>
@@ -478,7 +501,7 @@ const Configuredevice = ({ navigation }) => {
           marginRight: 'auto',
           paddingVertical: 10
           }}
-          enabled={pickerhide}
+          
           onValueChange={itemValue =>pickerenabled(itemValue)}
         >
           {data.map((value, key) => (
@@ -589,7 +612,8 @@ const Configuredevice = ({ navigation }) => {
                   borderColor: '#560CCE',
                   color: '#696C6E' 
                 }}
-                onValueChange={itemValue => setdeviceValue(itemValue)}
+                
+                onValueChange={itemValue => devicepickerenable(itemValue)}
                 >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
@@ -606,7 +630,7 @@ const Configuredevice = ({ navigation }) => {
               style={{ width: '100%', height: '100%' }}
               />
             </View>
-            <TextInput
+            {/* <TextInput
               label="Enter lattitude"
               returnKeyType="next"
               value={lat}
@@ -625,7 +649,7 @@ const Configuredevice = ({ navigation }) => {
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
-            />
+            /> */}
             {textInput.map((value,key) => {
               return value
             })}
