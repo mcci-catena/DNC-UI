@@ -4,7 +4,7 @@
 //      Function to register device for App
 // 
 // Version:
-//    V1.0.0  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 22 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -38,7 +41,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 import { useIsFocused } from "@react-navigation/native";
-
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
+import {Restart} from 'fiction-expo-restart';
 const RegisterDevice = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
@@ -78,8 +83,12 @@ const RegisterDevice = ({ navigation }) => {
   const dateformatvalue = moment(date).utc().format('MM/DD/YYYY')
   const timevalue = moment(time).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
-  
+  const [deviceoption,setdeviceoption]=useState(["Select device option","devID","devEUI"])
+  const [deviceoptionselected,setdeviceoptionselected]=useState('')
+  const [deviceoptionvalueselected,setdeviceoptionvalueselected]=useState('')
+  const [deviceoptionvalue, setdeviceoptionvalue] = useState([])
   const isFocused = useIsFocused();
+  var devicevalue;
   const onChange = (event, selectedValue) => {
   
     setShow(Platform.OS === 'ios');
@@ -136,7 +145,7 @@ const RegisterDevice = ({ navigation }) => {
   
   
   const fetchtabledata =( token )=> {
-    const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
+    const url=apiUrl+'/listardev';
     
     const getMethod={
       method: 'GET',
@@ -150,11 +159,12 @@ const RegisterDevice = ({ navigation }) => {
     console.log(getMethod);
     fetch(url,getMethod ).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired');
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-        } else if (responseJson['message'] != null) {
+         if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
         console.log(JSON.stringify(responseJson))
@@ -163,7 +173,7 @@ const RegisterDevice = ({ navigation }) => {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
+            // let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
@@ -176,13 +186,13 @@ const RegisterDevice = ({ navigation }) => {
             array.push(client);
             array.push(hwid);
             deviceArray.push(hwid);
-            deviceArray.push(deviceid);
+            // deviceArray.push(deviceid);
             deviceArray.push(devID);
             deviceArray.push(devEUI);
             deviceArray.push(idate);
             deviceArray.push(rdate);
-            deviceArray.push(mmname);
-            deviceArray.push(fdname);
+            // deviceArray.push(mmname);
+            // deviceArray.push(fdname);
             array.push(client);
             tablearray.push(array);
             deviceData.push(deviceArray)
@@ -195,7 +205,7 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -204,15 +214,13 @@ const RegisterDevice = ({ navigation }) => {
       },
     })
       .then(response => {
-        const statusCode = response.status
+        const statusCode = response.status;
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           clients.push('Select the Clients')
@@ -241,15 +249,11 @@ const RegisterDevice = ({ navigation }) => {
     setdatevalue(datestringvalue);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
-    setHardwareid('')
-    setdeviceid('')
-    setdevid('')
-    setdeveui('')
-    setidate('')
+    
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
+    var url = apiUrl+'/regdev'
   
     const putMethod = {
       method: 'POST',
@@ -265,21 +269,18 @@ const RegisterDevice = ({ navigation }) => {
         devID: devid,
         devEUI: deveui,
         datetime: datevalue,
-        mmname:measName,
-        fdname:fieldName
+       
       }),
     }
     console.log(putMethod);
     fetch(url, putMethod).then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        } else if (responseJson['message'] != null) {
+          if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
         clientwisetableData();
@@ -318,18 +319,65 @@ const RegisterDevice = ({ navigation }) => {
     setoldClient(rowData[0])
     setHardwareid(rowData[1]);
     setoldhwid(rowData[1]);
+    var deviceselected;
     for(i=0;i<deviceData.length;i++)
     {
       if(deviceData[i][0]==rowData[1])
       {
         
-        setdeviceid(deviceData[i][1]);
-        setdevid(deviceData[i][2]);
-        setdeveui(deviceData[i][3]);
-        setidate(deviceData[i][4]);
-        setmeasName(deviceData[i][6])
-        setfieldName(deviceData[i][7])
-        dateutc = Date.parse(deviceData[i][4]);
+       
+        setdevid(deviceData[i][1]);
+        setdeveui(deviceData[i][2]);
+        setidate(deviceData[i][3]);
+        if(deviceData[i][1]==null ||deviceData[i][1]==undefined||deviceData[i][1]=='')
+        {
+          devicevalue=deviceData[i][2]
+          deviceselected='devEUI'
+        }
+        else if(rowData[4]==null ||rowData[4]==undefined||rowData[4]=='') 
+        {
+          devicevalue=rowData[3]
+          deviceselected='devID'
+        }
+        setdeviceoptionselected(deviceselected);
+        var url =apiUrl+'/getdev/'+rowData[0];  
+      const posetMethod = {
+       method: 'POST',
+       headers: {
+         'Content-type': 'application/json',
+         Accept: 'application/json',
+         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+       },
+       body: JSON.stringify({
+         type:deviceselected
+       }),
+     }
+   
+     fetch(url, posetMethod)
+     .then(response => {
+     const statusCode = response.status;
+     if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    } 
+     response.json().then(responseJson => {
+    if (responseJson['message'] != null) {
+       alert(JSON.stringify(responseJson['message']))
+     }
+    
+      let mesasurementdata=responseJson["device_list"];
+      mesasurementdata.push(devicevalue);
+      setdeviceoptionvalue(mesasurementdata);
+
+   
+     
+     })
+     })
+     .catch(error => {
+       console.error(error)
+     })
+    setdeviceoptionvalueselected(devicevalue);
+    dateutc = Date.parse(deviceData[i][3]);
       }
     }
   
@@ -359,12 +407,8 @@ const RegisterDevice = ({ navigation }) => {
   };
 
   const checkeditable = ( clientName, Hardwareid) => {
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
-      '' +
-      clientName +
-      ''
-      console.log(url);
+    var url =apiUrl+'/listfrdev/' +'' +clientName +''
+    
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -377,15 +421,12 @@ const RegisterDevice = ({ navigation }) => {
     fetch(url, Getmethod)
       .then(response => {
         const statusCode = response.status
-
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+        if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           console.log(JSON.stringify(responseJson));
@@ -421,12 +462,8 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      itemValue +
-      ''
-    console.log(url);  
+    var url =apiUrl+'/listardev/' +'' +itemValue +''
+      
     fetch(url, {
       method: 'GET',
       headers: {
@@ -435,15 +472,12 @@ const RegisterDevice = ({ navigation }) => {
       },
     }).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+        
         if (responseJson['message'] != null) {
           alert(JSON.stringify("test"+responseJson['message']))
         }
@@ -475,11 +509,7 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      tablesclient +
-      ''
+    var url =apiUrl+'/listardev/' +'' +tablesclient +''
     fetch(url, {
       method: 'GET',
       headers: {
@@ -488,15 +518,12 @@ const RegisterDevice = ({ navigation }) => {
       },
     }).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+        
         if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
@@ -540,12 +567,8 @@ const RegisterDevice = ({ navigation }) => {
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      client +
-      ''
-      console.log(url);
+    var url =apiUrl+'/regdev/' +'' +client +''
+ 
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -558,17 +581,14 @@ const RegisterDevice = ({ navigation }) => {
     console.log(JSON.stringify(DELETEMethod));
     fetch(url, DELETEMethod).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response
         .json()
         .then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           clientwisetableData();
@@ -582,13 +602,9 @@ const RegisterDevice = ({ navigation }) => {
       
   const updateDevice = (client, currenthwid ) => {
     setIsDialogVisible(false);
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      oldClient +
-      ''
+    var url =apiUrl+'/regdev/' +'' +oldClient +''
     
-     console.log(url);
+    
     const putMethod = {
       method: 'PUT',
       headers: {
@@ -612,15 +628,12 @@ const RegisterDevice = ({ navigation }) => {
     fetch(url, putMethod)
       .then(response => {
         const statusCode = response.status
-
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+          if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson))
           }
           clientwisetableData();
@@ -631,46 +644,80 @@ const RegisterDevice = ({ navigation }) => {
       })
      
   }
-
+  const devicedropdownenabled=(itemValue)=>
+  {
+     
+     setdeviceoptionselected(itemValue);
+    
+     var url =apiUrl+'/getdev/'+selectedValue;  
+     alert(JSON.stringify(url));
+     const posetMethod = {
+       method: 'POST',
+       headers: {
+         'Content-type': 'application/json',
+         Accept: 'application/json',
+         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+       },
+       body: JSON.stringify({
+         type:itemValue
+       }),
+     }
+   
+     fetch(url, posetMethod)
+     .then(response => {
+     const statusCode = response.status;
+     if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    } 
+     response.json().then(responseJson => {
+    if (responseJson['message'] != null) {
+       alert(JSON.stringify(responseJson['message']))
+     }
+    
+     let mesasurementdata=responseJson["device_list"];
+    
+     mesasurementdata=mesasurementdata.splice(0,0,"select device id");
+     setdeviceoptionvalue(responseJson["device_list"]);
+     
+     })
+     })
+     .catch(error => {
+       console.error(error)
+     })
+  }
+  const devicedropdownvalueenabled=(itemValue)=>
+  {
+    setdeviceoptionvalueselected(itemValue);
+    if(deviceoptionselected=="devID")
+    {
+      setdevid(itemValue)
+        
+    }
+    else{
+      setdeveui(itemValue)
+    }
+  }
   return (
     <View>
-      
-     
       <AppBar navigation={navigation} title={"Register Device"}></AppBar>
       
       
 	  <View style={{flexDirection:"row"}}>
-      <Button
-        mode="contained"
-        style={styles.button}
-        onPress={adddevicemange}
-      >
-        Add Device
-      </Button>
-	  
-	  
-      <Picker
-    selectedValue={tablesclient}
-    style={{width: '35%'}}
-    onValueChange={itemValue => clientpickerenabled({ itemValue })}
-  >
- 
-    {data.map((value,key) => (
-	  
-      <Picker.Item label={value} value={value} key={key} />
-	  
-	 
-    ))}
-  </Picker>
-  
- 
-  </View>
+      <Button mode="contained" style={styles.button} onPress={adddevicemange}>Add Device</Button>
+	    <Picker selectedValue={tablesclient} style={{width: '35%'}} onValueChange={itemValue => clientpickerenabled({ itemValue })}>
+        {data.map((value,key) => (
+	      <Picker.Item label={value} value={value} key={key} />
+	      ))}
+      </Picker>
+    </View>
   <ScrollView > 
       <View style={{ marginLeft: 'auto', marginRight: 'auto', paddingTop: 20 }}>
       
       <Table borderStyle={{borderColor: 'transparent'}}>
         <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{ margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
-        
+      </Table> 
+      <Table borderStyle={{borderColor: 'transparent'}}> 
          {
             tableData.map((rowData, index) => (
               
@@ -685,7 +732,7 @@ const RegisterDevice = ({ navigation }) => {
             ))
           }
        
-        </Table>
+       </Table> 
         
         </View>
         </ScrollView>
@@ -746,7 +793,7 @@ const RegisterDevice = ({ navigation }) => {
                 marginTop: 10,
                 marginBottom: 10,
                 alignSelf: 'center' }}>
-            <Picker
+              <Picker
               selectedValue={selectedValue}
               style={{
                 width: '100%',
@@ -754,21 +801,60 @@ const RegisterDevice = ({ navigation }) => {
                 color: '#696C6E'
               }}
               onValueChange={itemValue => setselectedValue(itemValue)}
-            >
+              >
 			
               {data.map((value,key) => (
                 <Picker.Item label={value} value={value} key={key} />
               ))}
 			 
-            </Picker>
+              </Picker>
             </View>
-           
-         <TouchableOpacity onPress={showDatepicker}>
-          <Text style={{borderWidth:1}}>{datevalue}</Text>
-        </TouchableOpacity>
+            <View style={{ width: '100%', 
+                height: 40,
+                borderRadius: 5, 
+                borderWidth: 1, 
+                borderColor: '#560CCE', 
+                overflow: 'hidden', 
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: 10,
+                marginBottom: 10,
+                alignSelf: 'center' }}>
+              <Picker
+              selectedValue={deviceoptionselected}
+              style={{width:'100%'}}
+              onValueChange={itemValue => devicedropdownenabled( itemValue )}
+              >
+                {deviceoption.map((value,key) => (
+	                <Picker.Item label={value} value={value} key={key} />
+	              ))}
+	            </Picker>
+            </View>
+            <View style={{ width: '100%', 
+                height: 40,
+                borderRadius: 5, 
+                borderWidth: 1, 
+                borderColor: '#560CCE', 
+                overflow: 'hidden', 
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: 10,
+                marginBottom: 10,
+                alignSelf: 'center' }}>
+            <Picker
+              selectedValue={deviceoptionvalueselected}
+              style={{width:'100%'}}
+              onValueChange={itemValue => devicedropdownvalueenabled( itemValue )}
+              >
+                {deviceoptionvalue.map((value,key) => (
+	                <Picker.Item label={value} value={value} key={key} />
+	              ))}
+	          </Picker>
+
+              </View>
+              
+             
         
-         
-    
             <TextInput
               label="Enter Hardware ID"
               returnKeyType="next"
@@ -780,58 +866,11 @@ const RegisterDevice = ({ navigation }) => {
               textContentType="fullStreetAddress"
               keyboardType="web-search"
             />
-
-            <TextInput
-              label="Enter Device ID"
-              returnKeyType="next"
-              value={deviceid}
-              onChangeText={text => setdeviceid(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter dev ID"
-              returnKeyType="next"
-              value={devid}
-              onChangeText={text => setdevid(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter dev EUI"
-              returnKeyType="next"
-              value={deveui}
-              onChangeText={text => setdeveui(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter Meas Name"
-              returnKeyType="next"
-              value={measName}
-              onChangeText={text => setmeasName(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter Field Name"
-              returnKeyType="next"
-              value={fieldName}
-              onChangeText={text => setfieldName(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-                {show && (
+         <TouchableOpacity onPress={showDatepicker}>
+          <Text style={{borderWidth:1}}>{datevalue}</Text>
+        </TouchableOpacity>
+           
+        {show && (
         <DateTimePicker
           testID="dateTimePicker"
           value={date}

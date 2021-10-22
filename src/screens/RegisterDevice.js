@@ -4,7 +4,7 @@
 //      Function to register device for web
 // 
 // Version:
-//    V1.0.0  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 22 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import {
   View,
@@ -38,6 +41,9 @@ import { DateTimePicker } from 'react-rainbow-components';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 import { useIsFocused } from "@react-navigation/native";
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
+import {Restart} from 'fiction-expo-restart';
 const RegisterDevice = ({ navigation }) => {
 
   let [email, setEmail] = useState({ value: '', error: '' })
@@ -65,11 +71,16 @@ const RegisterDevice = ({ navigation }) => {
   const [shouldShow, setShouldShow] = useState(true);
   const[oldClient,setoldClient]=useState('');
   const [datevalue, setdatevalue] = useState(new Date())
+  const [deviceoptionvalue, setdeviceoptionvalue] = useState([])
   const tablearray=[];
   const clients = [];
-  const [tableHead, settableHead] =useState(["S.No","clients", 'Hardware ID','Measurement Name','Field Name','Device ID', 'Dev ID','Dev EUI','Install Date','Remove Date','Action'])
+  const [tableHead, settableHead] =useState(["S.No","clients", 'Hardware ID','Dev ID','Dev EUI','DeviceId','Install Date','Remove Date','Action'])
+  const [deviceoption,setdeviceoption]=useState(["Select device option","devID","devEUI"])
+  const [deviceoptionselected,setdeviceoptionselected]=useState('')
+  const [editdevicevalue,seteditdevicevalue]=useState('')
+  const [deviceoptionvalueselected,setdeviceoptionvalueselected]=useState('')
   const [tableData, settableData] = useState([]);
-  const [widthArr, setwidthArr] = useState([50,100, 180, 180,180,180, 180, 180, 200, 200, 100]);
+  const [widthArr, setwidthArr] = useState([50,100,180,180,180,180,200, 200, 100]);
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
@@ -78,6 +89,7 @@ const RegisterDevice = ({ navigation }) => {
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
   const isFocused = useIsFocused();
+  var devicevalue;
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -101,7 +113,7 @@ const RegisterDevice = ({ navigation }) => {
     }
   }, [isFocused])
   const fetchtabledata =( token )=> {
-    const url='https://staging-dashboard.mouserat.io/dncserver/listardev';
+    const url=apiUrl+'/listardev';
     const getMethod={
       method: 'GET',
       headers: {
@@ -112,34 +124,33 @@ const RegisterDevice = ({ navigation }) => {
     }
     
     fetch(url,getMethod ).then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+       if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       for(var i=0;i<responseJson.length;i++)
       {
+       
           let j=i+1;
           let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
+            let deviceID=responseJson[i].deviceid;
             let devEUI=responseJson[i].devEUI;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
-            let mmname=responseJson[i].mmname;
-            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
-            array.push(mmname);
-            array.push(fdname);
-            array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
+            array.push(deviceID);
             array.push(idate);
             array.push(rdate);
             array.push(client);
@@ -152,7 +163,7 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -161,20 +172,16 @@ const RegisterDevice = ({ navigation }) => {
       },
     })
       .then(response => {
-        const statusCode = response.status
+        const statusCode = response.status;
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          clients.push('Select the Clients')
-          clients.push('All')
-
+          clients.push('Select Client')
           for (var i = 0; i < responseJson.length; i++) {
             const json = responseJson[i].cname
 
@@ -194,16 +201,12 @@ const RegisterDevice = ({ navigation }) => {
     setedit(false);
     setdilogtitle('Add device');
     setIsDialogVisible(true);
-    setHardwareid('')
-    setdeviceid('')
-    setdevid('')
-    setdeveui('')
     setidate('')
     
   }
   const Adddevice = () => {
     setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/regdev'
+    var url = apiUrl+'/regdev'
     const putMethod = {
       method: 'POST',
       headers: {
@@ -214,25 +217,22 @@ const RegisterDevice = ({ navigation }) => {
       body: JSON.stringify({
         client: selectedValue,
         hwid: Hardwareid,
-        deviceid: deviceid,
+        deviceid:deviceid,
         devID: devid,
-        devEUI: deveui,
+        devEUI:deveui,
         datetime: datestringvalue,
-        mmname:measName,
-        fdname:fieldName
+     
       }),
     }
  
     fetch(url, putMethod).then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        } else if (responseJson['message'] != null) {
+        if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
         clientwisetableData();
@@ -265,20 +265,76 @@ const RegisterDevice = ({ navigation }) => {
   {
     console.log(rowData);
     setedit(true);
-    
     setdilogtitle('Edit device');
     setclientName(rowData[1]);
     setoldClient(rowData[1]);
     setselectedValue(rowData[1]);
     setHardwareid(rowData[2]);
     setoldhwid(rowData[2]);
+    setdevid(rowData[3]);
+    setdeveui(rowData[4]);
     setdeviceid(rowData[5]);
-    setdevid(rowData[6]);
-    setdeveui(rowData[7]);
-    setidate(rowData[8]);
-    setmeasName(rowData[3])
-    setfieldName(rowData[4])
-    var dateutc = Date.parse(rowData[8]);
+    setidate(rowData[6]);
+    var deviceselected;
+    if((rowData[3]==null ||rowData[3]==undefined||rowData[3]=='')&&(rowData[5]==null ||rowData[5]==undefined||rowData[5]==''))
+    {
+      devicevalue=rowData[4]
+      deviceselected='devEUI'
+   }
+    else if((rowData[4]==null ||rowData[4]==undefined||rowData[4]=='')&&(rowData[5]==null ||rowData[5]==undefined||rowData[5]=='')) 
+    {
+      devicevalue=rowData[3]
+      deviceselected='devID'
+     
+      
+    }
+    else if((rowData[4]==null ||rowData[4]==undefined||rowData[4]=='')&&(rowData[3]==null ||rowData[3]==undefined||rowData[3]=='')) 
+    {
+      alert("You can't edit this device.please contact administrator");
+      return;
+      
+    }
+    setdeviceoptionselected(deviceselected);
+    
+     var url =apiUrl+'/getdev/'+rowData[1];  
+     
+     const posetMethod = {
+       method: 'POST',
+       headers: {
+         'Content-type': 'application/json',
+         Accept: 'application/json',
+         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+       },
+       body: JSON.stringify({
+         type:deviceselected
+       }),
+     }
+   
+     fetch(url, posetMethod)
+     .then(response => {
+     const statusCode = response.status;
+     if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    } 
+     response.json().then(responseJson => {
+    if (responseJson['message'] != null) {
+       alert(JSON.stringify(responseJson['message']))
+     }
+    
+      let mesasurementdata=responseJson["device_list"];
+      mesasurementdata.push(devicevalue);
+      setdeviceoptionvalue(mesasurementdata);
+
+   
+     
+     })
+     })
+     .catch(error => {
+       console.error(error)
+     })
+    setdeviceoptionvalueselected(devicevalue);
+    var dateutc = Date.parse(rowData[6]);
     const dateformatvalue = moment(dateutc).format('MM/DD/YYYY')
     const timevalue = moment(dateutc).format('HH:mm:ss')
     const datestringvalue = dateformatvalue + ',' + timevalue
@@ -289,20 +345,19 @@ const RegisterDevice = ({ navigation }) => {
 
   const createButtonAlert = ({client,hwid,idate}) =>
   {
+    
     setshowAlert(true);
     setclientName(client);
     setHardwareid(hwid);
     setidate(idate);
+    
 
   };
 
   const checkeditable = ( clientName, Hardwareid) => {
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
-      '' +
-      clientName +
-      ''
-      console.log(url);
+    
+    var url =apiUrl+'/listfrdev/' +'' +clientName +''
+      
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -315,20 +370,19 @@ const RegisterDevice = ({ navigation }) => {
     fetch(url, Getmethod)
       .then(response => {
         const statusCode = response.status
-
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+         if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           console.log(JSON.stringify(responseJson));
-          let hwids = responseJson['hwids']
+          if(responseJson['hwids']!=undefined){
+          let hwids = responseJson['hwids'];
           let result1 = false
+          
           for (let i = 0; i < hwids.length; i++) {
             const activehwid = hwids[i]
 
@@ -336,17 +390,19 @@ const RegisterDevice = ({ navigation }) => {
               result1 = true
             }
           }
+        
 
           if (result1) {
            
             
-           
+            
             setIsDialogVisible(true)
            
           } else {
             alert('This device is already assigned to a location by the Client')
             setIsDialogVisible(false)
           }
+        }
         })
       })
       .catch(error => {
@@ -363,12 +419,8 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      itemValue +
-      ''
-    console.log(url);  
+    var url =apiUrl+'/listardev/' +'' +itemValue +''
+    //alert(JSON.stringify(url))  
     fetch(url, {
       method: 'GET',
       headers: {
@@ -377,17 +429,14 @@ const RegisterDevice = ({ navigation }) => {
       },
     }).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();;
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+        
         if (responseJson['message'] != null) {
-          alert(JSON.stringify("test"+responseJson['message']))
+          alert(JSON.stringify(responseJson['message']))
         }
         console.log(JSON.stringify(responseJson[0]))
         for(var i=0;i<responseJson.length;i++)
@@ -395,22 +444,18 @@ const RegisterDevice = ({ navigation }) => {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
             let devEUI=responseJson[i].devEUI;
+            let deviceID=responseJson[i].deviceid;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
-            let mmname=responseJson[i].mmname;
-            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
-            array.push(mmname);
-            array.push(fdname);
-            array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
+            array.push(deviceID);
             array.push(idate);
             array.push(rdate);
             array.push(client);
@@ -433,12 +478,8 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token);
     }
     else{
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listardev/' +
-      '' +
-      tablesclient +
-      ''
-    console.log(url);  
+    var url =apiUrl+'/listardev/' +'' +tablesclient +''
+   
     fetch(url, {
       method: 'GET',
       headers: {
@@ -447,15 +488,12 @@ const RegisterDevice = ({ navigation }) => {
       },
     }).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+        
         if (responseJson['message'] != null) {
           alert(JSON.stringify("test"+responseJson['message']))
         }
@@ -465,22 +503,18 @@ const RegisterDevice = ({ navigation }) => {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
-            let deviceid=responseJson[i].deviceid;
             let devID=responseJson[i].devID;
             let devEUI=responseJson[i].devEUI;
+            let deviceID=responseJson[i].deviceid;
             let idate=responseJson[i].idate;
             let rdate=responseJson[i].rdate;
-            let mmname=responseJson[i].mmname;
-            let fdname=responseJson[i].fdname;
             let array=[];
             array.push(j);
             array.push(client);
             array.push(hwid);
-            array.push(mmname);
-            array.push(fdname);
-            array.push(deviceid);
             array.push(devID);
             array.push(devEUI);
+            array.push(deviceID);
             array.push(idate);
             array.push(rdate);
             array.push(client);
@@ -515,12 +549,8 @@ const RegisterDevice = ({ navigation }) => {
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
     const datestringvalue = date + ',' + time
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      client +
-      ''
-      console.log(url);
+    var url =apiUrl+'/regdev/' +'' +client +''
+    
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -533,17 +563,14 @@ const RegisterDevice = ({ navigation }) => {
     console.log(JSON.stringify(DELETEMethod));
     fetch(url, DELETEMethod).then(response => {
       const statusCode = response.status
-
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response
         .json()
         .then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+            if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           
@@ -560,13 +587,8 @@ const RegisterDevice = ({ navigation }) => {
   const updateDevice = (client, currenthwid ) => {
   
     setIsDialogVisible(false)
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/regdev/' +
-      '' +
-      oldClient +
-      ''
-    
-     console.log(url);
+    var url =apiUrl+'/regdev/' +'' +oldClient +''
+
     const putMethod = {
       method: 'PUT',
       headers: {
@@ -578,9 +600,9 @@ const RegisterDevice = ({ navigation }) => {
         hwid: oldhwid,
         nclient:client,
         nhwid: currenthwid,
-        deviceid: deviceid,
         devID: devid,
         devEUI: deveui,
+        deviceid:deviceid,
         datetime: datestringvalue,
         mmname:measName,
         fdname:fieldName
@@ -590,29 +612,94 @@ const RegisterDevice = ({ navigation }) => {
     fetch(url, putMethod)
       .then(response => {
         const statusCode = response.status
-
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+            if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson))
           }
-          //fetchtabledata(Api);
+          
         })
       })
       .catch(error => {
         console.error(error)
       })
-      
+     
         
         clientwisetableData();
      
   }
+  const devicedropdownenabled=(itemValue)=>
+  {
+    
+     
+     setdeviceoptionselected(itemValue);
+    
+     var url =apiUrl+'/getdev/'+selectedValue;  
+     const posetMethod = {
+       method: 'POST',
+       headers: {
+         'Content-type': 'application/json',
+         Accept: 'application/json',
+         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+       },
+       body: JSON.stringify({
+         type:itemValue
+       }),
+     }
+   
+     fetch(url, posetMethod)
+     .then(response => {
+     const statusCode = response.status;
+     if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    }
+     response.json().then(responseJson => {
+     if (responseJson['message'] != null) {
+       alert(JSON.stringify(responseJson['message']))
+     }
 
+  var mesasurementdata=[];
+  mesasurementdata.push("select device id");
+  if(responseJson["device_list"]!=undefined)
+  {
+    for(var i=0;i<responseJson["device_list"].length;i++)
+    {
+      mesasurementdata.push(responseJson["device_list"][i]);
+      
+    }
+  }
+  setdeviceoptionvalue(mesasurementdata);
+     
+     })
+     })
+     .catch(error => {
+       console.error(error)
+     })
+     
+  }
+  const devicedropdownvalueenabled=(itemValue)=>
+  {
+    setdeviceoptionvalueselected(itemValue);
+    if(deviceoptionselected=="devID")
+    {
+      setdevid(itemValue);
+       setHardwareid(itemValue);
+        
+    }
+    else if(deviceoptionselected=="deviceid")
+    {
+      setdeviceid(itemValue);
+      setHardwareid(itemValue);
+    }
+    else{
+      setdeveui(itemValue);
+      setHardwareid(itemValue);
+    }
+  }
   return (
     <View>
       
@@ -647,27 +734,30 @@ const RegisterDevice = ({ navigation }) => {
  
   </View>
      
-      <View style={{ marginTop:'5%', marginHorizontal: 20 }}> 
+      <View style={{ marginTop:'5%', marginHorizontal: '10%' }}> 
       <ScrollView horizontal={true} > 
+      <View>
       <Table borderStyle={{borderColor: 'transparent'}}>
      
           <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6,color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
-          <ScrollView>
-     
-          {
+      </Table>
+      <ScrollView>
+      <Table borderStyle={{borderColor: 'transparent'}}>
+         {
             tableData.map((rowData, index) => (
               <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                 {
                   rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === 10 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                    <Cell  key={cellIndex} data={cellIndex === 8 ? element(rowData, index) : cellData} style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
                   ))
                 }
               </TableWrapper>
             ))
           }
-          </ScrollView>
-       
+         
         </Table>
+        </ScrollView>
+        </View>
         </ScrollView>
         </View>
         <AwesomeAlert
@@ -675,13 +765,14 @@ const RegisterDevice = ({ navigation }) => {
           showProgress={false}
           title="Delete Device"
           message={"Are you sure want to delete "+Hardwareid+"?"}
-          closeOnTouchOutside={true}
+          closeOnTouchOutside={false}
           closeOnHardwareBackPress={false}
           showCancelButton={true}
           showConfirmButton={true}
           cancelText="cancel"
           confirmText="delete "
           confirmButtonColor="#DD6B55"
+          cancelButtonColor="blue"
           onCancelPressed={() => setshowAlert(false)}
           onConfirmPressed={() =>Deletedevice (clientName,Hardwareid,idate)}
 />
@@ -710,7 +801,7 @@ const RegisterDevice = ({ navigation }) => {
             <View>
          
             
-             
+            <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 15}} >
             <Picker
               selectedValue={selectedValue}
               style={{width: '100%'}} 
@@ -722,6 +813,30 @@ const RegisterDevice = ({ navigation }) => {
               ))}
 			 
             </Picker>
+           </View>
+           <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 15}} >
+              <Picker
+              selectedValue={deviceoptionselected}
+              style={{width:'100%'}}
+              onValueChange={itemValue => devicedropdownenabled( itemValue )}
+              >
+                {deviceoption.map((value,key) => (
+	                <Picker.Item label={value} value={value} key={key} />
+	              ))}
+	            </Picker>
+              </View>
+              <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 15}} >
+              <Picker
+              selectedValue={deviceoptionvalueselected}
+              style={{width:'100%'}}
+              onValueChange={itemValue => devicedropdownvalueenabled( itemValue )}
+              >
+                {deviceoptionvalue.map((value,key) => (
+	                <Picker.Item label={value} value={value} key={key} />
+	              ))}
+	            </Picker>
+
+              </View>
 
           <TextInput
               label="Enter Hardware ID"
@@ -741,60 +856,7 @@ const RegisterDevice = ({ navigation }) => {
             
             onChange={value =>setdatevalue(value)}
         />
-
-            <TextInput
-              label="Enter Device ID"
-              returnKeyType="next"
-              value={deviceid}
-              onChangeText={text => setdeviceid(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter dev ID"
-              returnKeyType="next"
-              value={devid}
-              onChangeText={text => setdevid(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter dev EUI"
-              returnKeyType="next"
-              value={deveui}
-              onChangeText={text => setdeveui(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-             <TextInput
-              label="Enter Measurement Name"
-              returnKeyType="next"
-              value={measName}
-              onChangeText={text => setmeasName(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter Field Name"
-              returnKeyType="next"
-              value={fieldName}
-              onChangeText={text => setfieldName(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-
-
-            </View>
+        </View>
           </Dialog.Content>
           <Dialog.Actions>
             <Button

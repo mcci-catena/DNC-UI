@@ -4,7 +4,7 @@
 //      Function to  user signup module
 // 
 // Version:
-//    V1.0.0  Thu Jul 14 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 14 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,6 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 14 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState,useEffect } from 'react'
 import {
@@ -36,7 +40,8 @@ import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
-
+import getEnvVars from './environment';
+const { apiUrl,uiversion } = getEnvVars();
 
 const UserScreen = ({ navigation }) => {
 
@@ -55,7 +60,7 @@ const UserScreen = ({ navigation }) => {
   
   const getApiversion = () => {
     
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
       headers: {
@@ -120,7 +125,7 @@ const UserScreen = ({ navigation }) => {
     emaildata['email']=email.value;
     emaildata['mode']='usignup';
     emaildata['status']='non-verified';
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
+    const url = apiUrl+'/send-otp';
     fetch(url, {
       method: 'POST',
       headers: {
@@ -176,7 +181,7 @@ const UserScreen = ({ navigation }) => {
       otpnum:otp,
       mode: "usignup"
     }
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/usignup'
+    const url = apiUrl+'/usignup';
     fetch(url, {
       method: 'POST',
       headers: {
@@ -187,8 +192,8 @@ const UserScreen = ({ navigation }) => {
     })
     .then(response => response.json())
     .then(responseJson => {
-        //alert(JSON.stringify(responseJson['message']));
-        setalertmessage(JSON.stringify(responseJson.message));
+        alert(JSON.stringify(responseJson['message']));
+        setalertmessage(JSON.stringify(responseJson['message']));
         setshowAlert(true);
         navigation.reset({
           index: 0,
@@ -275,7 +280,7 @@ const UserScreen = ({ navigation }) => {
         message={alertmessage}
         closeOnTouchOutside={true}
         closeOnHardwareBackPress={false}
-        showCancelButton={true}
+        showCancelButton={false}
         showConfirmButton={true}
         confirmText="ok "
         confirmButtonColor="#DD6B55"
@@ -290,7 +295,7 @@ const UserScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | {uiversion} | Server {version}</Text>
       </View>
       </Background>
   )

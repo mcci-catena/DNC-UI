@@ -4,7 +4,7 @@
 //      Function to Client management
 // 
 // Version:
-//    V1.0.0  Thu Jul 16 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 16 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,6 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 16 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, ScrollView,Image,Platform,TouchableOpacity,Modal,Picker} from 'react-native'
@@ -27,8 +31,9 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
-
-
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
+import {Restart} from 'fiction-expo-restart';
 
 const ClientScreen = ({navigation}) => {
   
@@ -38,6 +43,7 @@ const ClientScreen = ({navigation}) => {
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [editsubmit, seteditsubmit] = useState(false)
   const [data, setData] = useState([])
+  const [measdata, setmeasdata] = useState([])
   const [Api, setApi] = useState('')
   const tablearray=[];
   const edittablearray=[];
@@ -46,12 +52,14 @@ const ClientScreen = ({navigation}) => {
   const [pickershow, setpickershow] = useState(false);
   const [showAlert, setshowAlert] = useState(false);
   const [tableHead, settableHead] =useState(['Client id', 'Client Name','Action'])
+ 
   const [tableData, settableData] = useState([])
   const [edittableData, setedittableData] = useState([])
   const [tag1, settag1] = useState('');
-  const [tag2, settag2] = useState('');
-  const [tag3, settag3] = useState('');
-  const [dburl, seturl] = useState('');
+  // const [tag2, settag2] = useState('');
+  // const [tag3, settag3] = useState('');
+  const [dburl, seturl] = useState('http://influxdb:8086');
+  const [meas, setmeas] = useState('');
   const [clientid, setclientid] = useState();
   const [dbusername, setdbusername] = useState('');
   const [db, setdb] = useState('');
@@ -130,30 +138,28 @@ const ClientScreen = ({navigation}) => {
         setdbusername(edittableData[i][3]);
         setdbpassword(edittableData[i][4]);
         settag1(edittableData[i][6]);
-        settag2(edittableData[i][7]);
-        settag3(edittableData[i][8]);
+        // settag2(edittableData[i][7]);
+        // settag3(edittableData[i][8]);
       }
     }
     setIsDialogVisible(true);
   }
 
   const fetchInventory = (token) => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
     }).then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        } else if (responseJson['message'] != null) {
+       if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
        
@@ -165,7 +171,7 @@ const ClientScreen = ({navigation}) => {
           let editarray=[];
           editarray.push(cid);
           editarray.push(cname);
-          if(dbdata != undefined ) 
+          if(responseJson[i]['dbdata'] != undefined ) 
           {
             let url=dbdata.url;
             let user  = dbdata.user;
@@ -181,9 +187,12 @@ const ClientScreen = ({navigation}) => {
           array.push(cid);
           array.push(cname);
           array.push(cid);
+          if(responseJson[i].taglist!=undefined)
+          {
           editarray.push(taglist[0]);
           editarray.push(taglist[1]);
           editarray.push(taglist[2]);
+          }
           edittablearray.push(editarray)
           tablearray.push(array);
           setedittableData(edittablearray); 
@@ -195,7 +204,7 @@ const ClientScreen = ({navigation}) => {
   }
 
   const checkDeviceStatus = (clientid) => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/client-device-status/' + '' + clientid + ''
+    var url =apiUrl+'/client-device-status/' + '' + clientid + ''
     const DELETEMethod = {
       method: 'GET',
       headers: {
@@ -208,11 +217,12 @@ const ClientScreen = ({navigation}) => {
     fetch(url, DELETEMethod)
     .then(response => {
       const statusCode = response.status
-      response.json().then(responseJson => {
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+       if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       setdevicestatus(responseJson["devices_registered"])
@@ -224,7 +234,7 @@ const ClientScreen = ({navigation}) => {
       
   }
   const Deleteclient = (clientname) => {
-    var url ='https://staging-analytics.weradiate.com/apidbm/client/' + '' + clientname + ''
+    var url =apiUrl+'/client/' + '' + clientname + ''
     const DELETEMethod = {
       method: 'DELETE',
       headers: {
@@ -233,15 +243,15 @@ const ClientScreen = ({navigation}) => {
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
     }
-
     fetch(url, DELETEMethod)
     .then(response => {
       const statusCode = response.status
-      response.json().then(responseJson => {
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+    if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchInventory(Api);
@@ -258,8 +268,8 @@ const ClientScreen = ({navigation}) => {
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
-    taglist.push(tag2);
-    taglist.push(tag3);
+    // taglist.push(tag2);
+    // taglist.push(tag3);
     for(var i=0;i<inputData.length;i++)
     {
       let data=inputData[i];
@@ -271,7 +281,7 @@ const ClientScreen = ({navigation}) => {
     jsondata["pwd"]=dbpassword;
     jsondata["dbname"]=db;
     jsondata["tlist"]=taglist;
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/client/'+'' + clientid + ''
+    var url = apiUrl+'/client/'+'' + clientid + ''
     const putMethod = {
         method: 'PUT',
         headers: {
@@ -282,12 +292,13 @@ const ClientScreen = ({navigation}) => {
         body: JSON.stringify(jsondata),
     }
     fetch(url, putMethod).then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+      if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       } else {
         fetchInventory(Api);
@@ -296,7 +307,7 @@ const ClientScreen = ({navigation}) => {
       })
   }
   const getdatabase = () => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/fetch-db-info' 
+    var url =apiUrl+'/fetch-db-info' 
     const posetMethod = {
       method: 'POST',
       headers: {
@@ -312,15 +323,27 @@ const ClientScreen = ({navigation}) => {
     }
     fetch(url, posetMethod)
     .then(response => {
-    const statusCode = response.status
-    response.json().then(responseJson => {
+    const statusCode = response.status;
     if (statusCode == 403) {
-      alert('inavalid token/token expired')
-      navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-    } else if (responseJson['message'] != null) {
+      alert('Session expired')
+      Restart();
+    }
+    response.json().then(responseJson => {
+   if (responseJson['message'] != null) {
       alert(JSON.stringify(responseJson['message']))
     }
-    setData(responseJson["db_list"]);
+    
+    var dblist=[];
+    dblist.push("select database");
+    if(responseJson["db_list"]!=undefined)
+    {
+      for(var i=0;i<responseJson["db_list"].length;i++)
+      {
+        dblist.push(responseJson["db_list"][i]);
+        
+      }
+    }
+    setData(dblist);
         
     })
     })
@@ -335,14 +358,21 @@ const ClientScreen = ({navigation}) => {
           <Image source={require('../assets/edit.png')} fadeDuration={0} style={{ width: 20, height: 20 }}/>
         </View>
       </TouchableOpacity>
-      {/* <TouchableOpacity onPress={()=>createButtonAlert({clientname:""+cellData[1]+""})}>
+      <TouchableOpacity onPress={()=>createButtonAlert(cellData)}>
         <View >
           <Image source={require('../assets/delete.png')} fadeDuration={0} style={{ width: 20, height: 20 }}/>
         </View>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
-
+  const createButtonAlert = (cellData) =>
+  {
+    alert(JSON.stringify(cellData))
+    setclientname({ value: ''+cellData[1]+'', error: '' })
+    setclientid(cellData[0])
+    setshowAlert(true);
+    
+  };
   const clientsubmitmange=()=>
   {
     if(editsubmit)
@@ -359,13 +389,9 @@ const ClientScreen = ({navigation}) => {
     seteditsubmit(false);
     setmodaltitle("Add Client")
     setclientname({ value: '', error: '' });
-    seturl('');
-    setdb('');
-    setdbusername('');
-    setdbpassword('');
     settag1('');
-    settag2('');
-    settag3('');
+    // settag2('');
+    // settag3('');
     setdevicestatus(false);
     setIsDialogVisible(true);
   }
@@ -376,20 +402,31 @@ const ClientScreen = ({navigation}) => {
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
-    taglist.push(tag2);
-    taglist.push(tag3);
-    for(var i=0;i<inputData.length;i++)
+    // if(tag2!='' ||tag2!=null ||tag2!=undefined)
+    // {
+    //   taglist.push(tag2);
+    // }
+    
+    // if(tag3!='' ||tag3!=null ||tag3!=undefined)
+    // {
+    //   taglist.push(tag3);
+    // }
+    if(inputData.length!=undefined)
     {
-      let data=inputData[i];
-      taglist.push(data["text"]);
+      for(var i=0;i<inputData.length;i++)
+      {
+        let data=inputData[i];
+        taglist.push(data["text"]);
+      }
     }
     jsondata["cname"]=clientname.value;
     jsondata["url"]=dburl;
     jsondata["user"]=dbusername;
     jsondata["pwd"]=dbpassword;
     jsondata["dbname"]=db;
+    jsondata["mmtname"]=meas;
     jsondata["tlist"]=taglist;
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/client'
+    var url = apiUrl+'/client'
     const putMethod = {
       method: 'POST',
       headers: {
@@ -401,18 +438,17 @@ const ClientScreen = ({navigation}) => {
     }
 
     fetch(url, putMethod).then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        } else if (responseJson['message'] != null) {
+        if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         } else {
         fetchInventory(Api);
+        settextInput([]);
         }
       })
     })
@@ -431,14 +467,62 @@ const ClientScreen = ({navigation}) => {
       settextboxshow(true);
     }
   }
-
+ const dbdropdownenaled=(itemValue)=>
+ {
+   setdb(itemValue);
+  var url =apiUrl+'/fetch-mmt-info' 
+  const posetMethod = {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+    },
+    body: JSON.stringify({
+      url: dburl,
+      pwd:dbpassword,
+      user:dbusername,
+      dbn:itemValue
+    }),
+  }
+  fetch(url, posetMethod)
+  .then(response => {
+  const statusCode = response.status;
+  if (statusCode == 403) {
+    alert('Session expired')
+    Restart();
+  }
+  response.json().then(responseJson => {
+   if (responseJson['message'] != null) {
+    alert(JSON.stringify(responseJson['message']))
+  }
+ 
+  
+  var mesasurementdata=[];
+  mesasurementdata.push("select mesurement");
+  if(responseJson["mmt_list"]!=undefined)
+  {
+    for(var i=0;i<responseJson["mmt_list"].length;i++)
+    {
+      mesasurementdata.push(responseJson["mmt_list"][i]);
+      
+    }
+  }
+  setmeasdata(mesasurementdata);
+  
+  })
+  })
+  .catch(error => {
+    console.error(error)
+  })
+ }
   return (
     <View>
       <AppBar navigation={navigation} title={"Client Mangement"}></AppBar>
       
         <Button mode="contained"  style={styles.button} onPress={Adduserdilogvisible}>Add Client</Button>
         <ScrollView  >
-        <View style={{ marginTop:'5%', marginHorizontal: 20 }}> 
+        <View style={{ marginTop:'5%', marginHorizontal: 20,width: '40%', marginLeft:'30%', }}> 
          
             <Table borderStyle={{borderColor: 'transparent'}}>
               <Row data={tableHead} style={styles.head}  textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
@@ -447,7 +531,7 @@ const ClientScreen = ({navigation}) => {
                   <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
                     {
                       rowData.map((cellData, cellIndex) => (
-                        <Cell  key={cellIndex} data={cellIndex === 2 ? element(rowData, index) : cellData} textStyle={styles.text}/>
+                        <Cell  key={cellIndex} data={cellIndex === 2 ? element(rowData, index) : cellData}  textStyle={styles.text}/>
                       ))
                     }
                   </TableWrapper>
@@ -461,7 +545,7 @@ const ClientScreen = ({navigation}) => {
         <AwesomeAlert
         show={showAlert}
         howProgress={false}
-        itle="Delete Client"
+        title="Delete Client"
         message={"Are you sure want to delete "+clientname.value+"?"}
         closeOnTouchOutside={false}
         closeOnHardwareBackPress={false}
@@ -508,6 +592,7 @@ const ClientScreen = ({navigation}) => {
                 label="Enter DB URL"
                 returnKeyType="next"
                 value={dburl}
+                
                 onChangeText={text => seturl(text)}
                 autoCapitalize="none"
                 autoCompleteType="username"
@@ -533,29 +618,54 @@ const ClientScreen = ({navigation}) => {
                 errorText={password.error}
                 secureTextEntry
                 />
-                {textboxshow && <TextInput
-                label="Database Name"
-                returnKeyType="next"
-                value={db}
-                onChangeText={text => setdb(text)}
-                autoCapitalize="none"
-                autoCompleteType="username"
-                textContentType="name"
-                keyboardType="default"
-                />}
-                {pickershow && <Picker
+                 <TouchableOpacity style={{backgroundColor:'#560CCE',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
+                  <Text style={{color:'white'}}>Get Database</Text>
+                </TouchableOpacity>
+                {/*<Picker
                 selectedValue={db}
                 style={{width: '100%',height: '100%',borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
-                onValueChange={itemValue => setdb(itemValue)}
+                onValueChange={itemValue => dbdropdownenaled(itemValue)}
                 >
                 {data.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
-                </Picker>}
-                <Text>-OR-</Text>
-                <TouchableOpacity style={{backgroundColor:'#560CCE',alignItems: "center", padding: 10,borderRadius:25}} onPress={databasebutton}>
-                  <Text style={{color:'white'}}>SELECT DATABASE</Text>
-                </TouchableOpacity> 
+                </Picker>
+                
+                 
+                <Picker
+                selectedValue={db}
+                style={{width: '100%',height: '100%',borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                onValueChange={itemValue => setdb(itemValue)}
+                >
+                {measdata.map((value, key) => (
+                  <Picker.Item label={value} value={value} key={key} />
+                ))}
+                </Picker> */}
+                <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 15}} >
+                  <Picker 
+                  selectedValue={db}
+                  style={{width: '100%', borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                  onValueChange={itemValue => dbdropdownenaled(itemValue)}
+                  >
+                      {data.map((value, key) => (
+                  <Picker.Item label={value} value={value} key={key} />
+                ))}
+                  </Picker>
+                  
+                </View>
+                <View style={{width: '100%', flex: 1, flexDirection: 'row', marginVertical: 10}}>
+                  <Picker 
+                  selectedValue={meas}
+                  style={{width: '100%', borderRadius: 5,borderWidth: 1, borderColor: '#560CCE',color: '#696C6E' }}
+                  onValueChange={itemValue => setmeas(itemValue)}
+                  >
+                      {measdata.map((value, key) => (
+                       <Picker.Item label={value} value={value} key={key} />
+                      ))}
+                  </Picker>
+                 
+                </View>
+                
                 <TextInput
                 label="Tag-1"
                 returnKeyType="next"
@@ -567,7 +677,7 @@ const ClientScreen = ({navigation}) => {
                 textContentType="name"
                 keyboardType="default"
                 />
-                <TextInput
+                {/* <TextInput
                 label="Tag-2"
                 returnKeyType="next"
                 value={tag2}
@@ -588,7 +698,7 @@ const ClientScreen = ({navigation}) => {
                 autoCompleteType="username"
                 textContentType="name"
                 keyboardType="default"
-                />
+                /> */}
                 {textInput.map((value,key) => {
                   return value
                 })}
@@ -621,7 +731,7 @@ const styles = StyleSheet.create({
     margin: 20
   },
   button: {
-    width: '40%',
+    width: '20%',
     marginVertical: 10,
     paddingVertical: 2,
     marginLeft: 'auto',
