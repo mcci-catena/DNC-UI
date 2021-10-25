@@ -11,8 +11,8 @@ import { Platform } from "react-native";
 const ENV = {
  
  url: {
-   apiUrl: "https://staging-dashboard.mouserat.io/dncserver",
-   uiversion: "UI V1.0.1_5",
+   apiUrl: "https://dashboard.mouserat.io/dncserver",
+   uiversion: "UI V1.0.0",
    
  }
 
