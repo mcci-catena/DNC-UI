@@ -34,8 +34,6 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import { emailValidator } from '../helpers/emailValidator'
-import getEnvVars from './environment';
-const { apiUrl } = getEnvVars();
 import { useIsFocused } from "@react-navigation/native";
 import {Restart} from 'fiction-expo-restart';
 const HomeScreen = ({ navigation }) => {
@@ -62,20 +60,21 @@ const HomeScreen = ({ navigation }) => {
   const [alertmessage, setalertmessage] = useState('');
   const isFocused = useIsFocused();
   const [otp, setotp] = useState('');
-  
+  const [apiUrl,setapiUrl]=useState('');
   const getApitoken = async () => {
     try {
       
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
       const usertype = await AsyncStorage.getItem('usertype')
+      const apiUrl = await AsyncStorage.getItem('apiUrl')
+    
+      setapiUrl(apiUrl)
       if (token !== null && uname !== null) {
         setApi(token)
-        
-     
-        fetchInventory(token);
+        fetchInventory(token,apiUrl);
         checkuser(usertype);
-        fetchData(token);
+        fetchData(token,apiUrl);
         
       }
     
@@ -159,7 +158,7 @@ const HomeScreen = ({ navigation }) => {
           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          fetchInventory(Api);
+          fetchInventory(Api,apiUrl);
         })
       })
       .catch(error => {
@@ -195,7 +194,7 @@ const HomeScreen = ({ navigation }) => {
         alert(JSON.stringify(responseJson['message']))
       }
       setaddUserdilog(false);
-      fetchInventory(Api);
+      fetchInventory(Api,apiUrl);
       })
     })
     .catch(error => {
@@ -225,7 +224,7 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 
-const fetchInventory = (token) => {
+const fetchInventory = (token,apiUrl) => {
   var url = apiUrl+'/list-user'
   const getMethod = {
     method: 'GET',
@@ -263,7 +262,7 @@ const fetchInventory = (token) => {
   })
 }
 
-const fetchData = (token) => {
+const fetchData = (token,apiUrl) => {
   fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
@@ -335,7 +334,7 @@ const fetchData = (token) => {
       
     })
     })
-    fetchInventory(Api);
+    fetchInventory(Api,apiUrl);
   }
 
   return (

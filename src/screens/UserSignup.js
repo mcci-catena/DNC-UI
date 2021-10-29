@@ -41,7 +41,7 @@ import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import getEnvVars from './environment';
-const { apiUrl,uiversion } = getEnvVars();
+const { uiversion } = getEnvVars();
 
 const UserScreen = ({ navigation }) => {
 
@@ -56,9 +56,9 @@ const UserScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [otp, setotp] = useState('');
   const [version,setversion]=useState('');
-
+  const [apiUrl,setapiUrl]=useState('');
   
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
     const url = apiUrl+'/version'
     const postMethod= {
@@ -96,7 +96,10 @@ const UserScreen = ({ navigation }) => {
 
 
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver");
+    getApiversion("https://"+geturl[2]+"/dncserver");
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
@@ -190,17 +193,17 @@ const UserScreen = ({ navigation }) => {
       },
       body: JSON.stringify(data),
     })
-    .then(response => response.json())
-    .then(responseJson => {
-        alert(JSON.stringify(responseJson['message']));
-        setalertmessage(JSON.stringify(responseJson['message']));
-        setshowAlert(true);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'LoginScreen' }],
-        })
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 200) {
+        alert("Successfully User Created");
+        navigation.navigate('LoginScreen')
+      }
+      response.json().then(responseJson => {
+         alert(JSON.stringify(responseJson['message']));
+        
       })
-      
+    })
     .catch(error => {
       console.error(error)
     })

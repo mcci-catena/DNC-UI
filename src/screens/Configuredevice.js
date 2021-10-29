@@ -35,11 +35,7 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { useIsFocused } from "@react-navigation/native";
-import getEnvVars from './environment';
-import { ExitToApp } from '@material-ui/icons'
-import { cleanData } from 'jquery'
 import { theme } from '../core/theme'
-const { apiUrl } = getEnvVars();
 import {Restart} from 'fiction-expo-restart';
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
@@ -80,6 +76,7 @@ const Configuredevice = ({ navigation }) => {
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([]);
   const [textInput, settextInput] = useState([]);
+  const[apiUrl,setapiUrl]=useState('');
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   const isFocused = useIsFocused();
@@ -94,11 +91,13 @@ const Configuredevice = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
-      const usertype = await AsyncStorage.getItem('usertype')
+      const usertype = await AsyncStorage.getItem('usertype');
+      const apiUrl = await AsyncStorage.getItem('apiUrl');
+      setapiUrl(apiUrl);
       if (token !== null && uname !== null) {
         setApi(token)
         setuname(uname.replace(/['"]+/g, ''))
-        fetchClientlist(token);
+        fetchClientlist(token,apiUrl);
       }
       if (usertype == 'Client') {
         
@@ -120,18 +119,13 @@ const Configuredevice = ({ navigation }) => {
     settextInput(textarray);
   }
   const addValues = (text, index) => {
-    
     let dataArray = inputData;
-    
     let checkBool = false;
     if (dataArray.length !== 0){
       dataArray.forEach(element => {
-        
-        if (element.index === index ){
-          
-           
-          element.text = text;
-          checkBool = true;
+      if (element.index === index ){
+        element.text = text;
+        checkBool = true;
         }
       });
     }
@@ -224,7 +218,7 @@ const Configuredevice = ({ navigation }) => {
       })
       })
   }
-  const fetchClientlist = token => {
+  const fetchClientlist = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
@@ -557,6 +551,7 @@ const Configuredevice = ({ navigation }) => {
         datetime: datestringvalue,
       }),
     }
+    
     fetch(url, postMethod)
     .then(response => {
       const statusCode = response.status;

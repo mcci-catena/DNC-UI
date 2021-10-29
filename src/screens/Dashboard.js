@@ -27,14 +27,17 @@ import React, { useState,useEffect } from 'react'
 import { View, Text } from 'react-native';
 import AppBar from '../components/AppBar'
 import getEnvVars from './environment';
-const { apiUrl,uiversion } = getEnvVars();
-
+const { uiversion } = getEnvVars();
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const Dashboard=({navigation})=> {
   const [version,setversion]=useState('');
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    getApiversion("https://"+geturl[2]+"/dncserver");
   }, [])
-  const getApiversion = () => {
+ 
+  const getApiversion = (apiUrl) => {
     const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
@@ -44,6 +47,7 @@ const Dashboard=({navigation})=> {
       },
       
     }
+    
    
     fetch(url,postMethod)
     .then(response => {

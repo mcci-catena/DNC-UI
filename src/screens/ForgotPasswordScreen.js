@@ -33,7 +33,7 @@ import { emailValidator } from '../helpers/emailValidator'
 import {  View,Text } from 'react-native'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import getEnvVars from './environment';
-const { apiUrl,uiversion } = getEnvVars();
+const { uiversion } = getEnvVars();
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState({ value: '', error: '' })
   const [otpshow, setotpshow] = useState(false);
@@ -42,12 +42,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [otpvalue, setotpvalue] = useState('');
   const [password, setpassword] = useState('');
   const [version,setversion]=useState('');
-
+  const [apiUrl,setapiUrl]=useState('');
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver");
+    getApiversion("https://"+geturl[2]+"/dncserver");
+   
   }, [])
   
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
     const url = apiUrl+'/version'
     const postMethod= {
@@ -102,11 +106,13 @@ const ForgotPasswordScreen = ({ navigation }) => {
       .then(response => response.json())
       .then(responseJson => {
         console.log(responseJson)
-        setotpshow(false);
+        
         setalertmessage(JSON.stringify(responseJson.message));
         setotpalert(true);
         if(responseJson.message=="Password updated successfully!")
         {
+          alert("Password updated successfully!")
+          setotpshow(false);
           navigation.reset({
             index: 0,
             routes: [{ name: 'LoginScreen' }],

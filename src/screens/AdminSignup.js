@@ -37,7 +37,7 @@ import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import getEnvVars from './environment';
 
-const { apiUrl,uiversion } = getEnvVars();
+const { uiversion } = getEnvVars();
 const RegisterScreen = ({ navigation }) => {
  
   const [Username, setUsername] = useState({ value: '', error: '' })
@@ -51,9 +51,9 @@ const RegisterScreen = ({ navigation }) => {
   const [showAlert, setshowAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [version,setversion]=useState('');
-
+  const [apiUrl,setapiUrl]=useState('');
   
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
     const url =apiUrl+ '/version'
     const postMethod= {
@@ -88,7 +88,10 @@ const RegisterScreen = ({ navigation }) => {
 
 
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver");
+    getApiversion("https://"+geturl[2]+"/dncserver");
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
@@ -181,17 +184,19 @@ const RegisterScreen = ({ navigation }) => {
         mode: "asignup"
       }),
     })
-    .then(response => response.json())
-    .then(responseJson => {
-      
-   
-      setalertmessage(JSON.stringify(responseJson.message));
-      setshowAlert(true);
-      
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 200) {
+        alert("Successfully Adminuser Created");
+        navigation.navigate('LoginScreen')
+      }
+      response.json().then(responseJson => {
+         alert(JSON.stringify(responseJson['message']));
+        
       })
+    })
+    .catch(error => {
+      console.error(error)
     })
    
   }

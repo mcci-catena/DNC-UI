@@ -35,17 +35,23 @@ import { theme } from '../core/theme'
 import { nameValidator } from '../helpers/nameValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import getEnvVars from './environment';
-const { apiUrl,uiversion } = getEnvVars();
+const { uiversion } = getEnvVars();
 const LoginScreen = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
   const [version,setversion]=useState('');
+  const [apiUrl,setapiUrl]=useState('');
+  
 
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver")
+    getApiversion("https://"+geturl[2]+"/dncserver");
+   
   }, [])
 
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
     
     const url = apiUrl+"/version"
@@ -107,6 +113,7 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem('token', tokenValue)
         await AsyncStorage.setItem('uname', unameValue)
         await AsyncStorage.setItem('usertype', usertype)
+        await AsyncStorage.setItem('apiUrl', apiUrl)
       } catch (e) {
         console.log(e)
       }
