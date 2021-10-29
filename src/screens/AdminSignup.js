@@ -4,7 +4,7 @@
 //      Function to Admin user signup module
 // 
 // Version:
-//    V1.0.0  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,6 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 13 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState,useEffect } from 'react'
 import { View, StyleSheet, TouchableOpacity,Modal,ActivityIndicator } from 'react-native'
@@ -31,7 +35,9 @@ import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
+import getEnvVars from './environment';
 
+const { uiversion } = getEnvVars();
 const RegisterScreen = ({ navigation }) => {
  
   const [Username, setUsername] = useState({ value: '', error: '' })
@@ -45,11 +51,11 @@ const RegisterScreen = ({ navigation }) => {
   const [showAlert, setshowAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [version,setversion]=useState('');
-
+  const [apiUrl,setapiUrl]=useState('');
   
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    const url =apiUrl+ '/version'
     const postMethod= {
       method: 'GET',
       headers: {
@@ -67,7 +73,7 @@ const RegisterScreen = ({ navigation }) => {
         }
         response.json().then(responseJson => {
         
-         if(responseJson!=null){
+         if(responseJson!=null||responseJson!=undefined){
          let versionarray=responseJson.split(' ');
          setversion(versionarray[4])
         }
@@ -82,7 +88,10 @@ const RegisterScreen = ({ navigation }) => {
 
 
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver");
+    getApiversion("https://"+geturl[2]+"/dncserver");
     setTimeout(() => {
         setIsLoading(false);
     }, 500);
@@ -112,7 +121,7 @@ const RegisterScreen = ({ navigation }) => {
     emaildata['email']=email.value;
     emaildata['mode']='asignup';
     emaildata['status']='non-verified';
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/send-otp'
+    const url = apiUrl+'/send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -159,7 +168,7 @@ const RegisterScreen = ({ navigation }) => {
     }
     
 
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/asignup'
+    const url = apiUrl+'/asignup'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -175,17 +184,19 @@ const RegisterScreen = ({ navigation }) => {
         mode: "asignup"
       }),
     })
-    .then(response => response.json())
-    .then(responseJson => {
-      
-   
-      setalertmessage(JSON.stringify(responseJson.message));
-      setshowAlert(true);
-      
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 200) {
+        alert("Successfully Adminuser Created");
+        navigation.navigate('LoginScreen')
+      }
+      response.json().then(responseJson => {
+         alert(JSON.stringify(responseJson['message']));
+        
       })
+    })
+    .catch(error => {
+      console.error(error)
     })
    
   }
@@ -264,7 +275,7 @@ const RegisterScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC |{uiversion}| Server {version}</Text>
       </View>
     </Background>
   )

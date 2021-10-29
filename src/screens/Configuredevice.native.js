@@ -4,7 +4,7 @@
 //      Function to devicr configuration for App
 // 
 // Version:
-//    V1.0.0  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,7 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -32,10 +35,13 @@ import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useIsFocused } from "@react-navigation/native";
+import getEnvVars from './environment';
+const { apiUrl } = getEnvVars();
+import {Restart} from 'fiction-expo-restart';
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
-  const[lat,setlat]=useState('');
-  const[long,setlong]=useState('');
+  const[lat,setlat]=useState('12.44');
+  const[long,setlong]=useState('24.44');
   let [Hardwareid, setHardwareid] = useState('')
   const [datevalue, setdatevalue] = useState(new Date())
   const [isDialogVisible, setIsDialogVisible] = useState(false)
@@ -185,7 +191,7 @@ const addValues = (text, index) => {
        widthArr.push(200);
        settableHead(tableHead);
        setwidthArr(widthArr);
-      const url='https://staging-dashboard.mouserat.io/dncserver/listrmdev/'+''+itemValue+'';
+      const url=apiUrl+'/listadev/'+''+itemValue+'';
       const getMethod={
         method: 'GET',
         headers: {
@@ -197,11 +203,12 @@ const addValues = (text, index) => {
   
       fetch(url,getMethod ).then(response => {
         const statusCode = response.status
-  
+        if (statusCode == 403) {
+          alert('Session expired');
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-          } else if (responseJson['message'] != null) {
+      if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
    
@@ -240,7 +247,7 @@ const addValues = (text, index) => {
       })
     }
   const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -248,15 +255,13 @@ const addValues = (text, index) => {
       },
     })
       .then(response => {
-        const statusCode = response.status
+        const statusCode = response.status;
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+          if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
           clients.push('Select the Clients')
@@ -278,12 +283,11 @@ const addValues = (text, index) => {
 const ReplaceDevice=()=>
 {
   setIsreplaceDialogVisible(false);
-  var url =
-  'https://staging-dashboard.mouserat.io/dncserver/rpdev/' +
-  '' +
-  selectedValue +
-  ''
-alert(JSON.stringify(datestringvalue));
+  const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+  const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+  const datestringvalue = dateformatvalue + ',' + timevalue
+  var url =apiUrl+'/rpdev/' +'' +selectedValue +''
+
 const postMethod = {
   method: 'POST',
   headers: {
@@ -300,15 +304,13 @@ const postMethod = {
 
 fetch(url, postMethod)
   .then(response => {
-    const statusCode = response.status
+    const statusCode = response.status;
+    if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    }
     response.json().then(responseJson => {
-      if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'LoginScreen' }],
-        })
-      } else if (responseJson['message'] != null) {
+       if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchDevicelist(selectedValue);
@@ -325,8 +327,8 @@ fetch(url, postMethod)
       
       let requestdata={};
       requestdata["cname"]=selectedValue;
-      requestdata["lat"]=lat;
-      requestdata["long"]=long;
+      requestdata["lat"]=12.33;
+      requestdata["long"]=34.44;
       requestdata["id"]=deviceValue;
       requestdata["datetime"]=datestringvalue;
       for(var i=0;i<taglength;i++)
@@ -336,7 +338,7 @@ fetch(url, postMethod)
       }
       
       setIsDialogVisible(false)
-      var url = 'https://staging-dashboard.mouserat.io/dncserver/device'
+      var url = apiUrl+'/device';
 
       const postMethod = {
         method: 'POST',
@@ -350,15 +352,13 @@ fetch(url, postMethod)
 
       fetch(url, postMethod)
         .then(response => {
-          const statusCode = response.status
+          const statusCode = response.status;
+          if (statusCode == 403) {
+            alert('Session expired')
+            Restart();
+          }
           response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
+             if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
             fetchtabledata(selectedValue);
@@ -374,11 +374,7 @@ fetch(url, postMethod)
 
   const fetchDevicelist = selectedValue => {
     
-    var url =
-      'https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +
-      '' +
-      selectedValue +
-      ''
+    var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
      
     const Getmethod = {
       method: 'GET',
@@ -391,15 +387,13 @@ fetch(url, postMethod)
 
     fetch(url, Getmethod)
       .then(response => {
-        const statusCode = response.status
+        const statusCode = response.status;
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
         response.json().then(responseJson => {
-          if (statusCode == 403) {
-            alert('inavalid token/token expired')
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'LoginScreen' }],
-            })
-          } else if (responseJson['message'] != null) {
+           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
          
@@ -409,9 +403,11 @@ fetch(url, postMethod)
           if(responseJson['message']!="No Devices registered under this client!")
           {
           for (let i = 0; i < hwids1.length; i++) {
-            const activehwid = hwids1[i]
-            hwids.push(activehwid)
-
+            let devicedate={};
+            const activehwid = hwids1[i];
+            devicedate['hwid']=activehwid['hwid'];
+            devicedate['date']=activehwid['date'];
+            hwids.push(devicedate)
             devices.push(activehwid['hwid'])
           }
         }
@@ -462,12 +458,10 @@ const element = (cellData, index) => (
   const removeDevice = () => {
     
     setshowRemoveAlert(false);
-    var url =
-    'https://staging-dashboard.mouserat.io/dncserver/rmdev/' +
-    '' +
-    selectedValue +
-    ''
-
+    var url =apiUrl+'/rmdev/' +'' +selectedValue +''
+    const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+    const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
   const postMethod = {
     method: 'PUT',
     headers: {
@@ -483,17 +477,15 @@ const element = (cellData, index) => (
 
   fetch(url, postMethod)
     .then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+        
        
-         else if (responseJson['message'] != null) {
+         if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
         fetchtabledata(selectedValue);
@@ -517,11 +509,7 @@ const element = (cellData, index) => (
   }
   const deleteDevice = () => {
     setshowAlert(false);
-    var url =
-        'https://staging-dashboard.mouserat.io/dncserver/device/' +
-        '' +
-        selectedValue +
-        ''
+    var url =apiUrl+'/device/' +'' +selectedValue +''
    
       const postMethod = {
         method: 'DELETE',
@@ -537,15 +525,13 @@ const element = (cellData, index) => (
      
       fetch(url, postMethod)
         .then(response => {
-          const statusCode = response.status
+          const statusCode = response.status;
+          if (statusCode == 403) {
+            alert('Session expired')
+            Restart();
+          }
           response.json().then(responseJson => {
-            if (statusCode == 403) {
-              alert('inavalid token/token expired')
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'LoginScreen' }],
-              })
-            } else if (responseJson['message'] != null) {
+           if (responseJson['message'] != null) {
               alert(JSON.stringify(responseJson['message']))
             }
             fetchtabledata(selectedValue);
@@ -570,6 +556,12 @@ const pickerenabled=(itemValue) =>
     fetchDevicelist(itemValue)
     }
 }
+const devicepickerenable=(itemValue)=>
+{
+  setdeviceValue(itemValue);
+ let deviceinfo=hwid.find(x =>x.hwid ==itemValue)
+ setdatevalue(deviceinfo['date']);
+} 
   return (
     <View>
       <AppBar navigation={navigation} title={"Configure Device"}></AppBar>
@@ -603,7 +595,7 @@ const pickerenabled=(itemValue) =>
         <Picker
                 selectedValue={selectedValue}
                 style={{width: '100%'}}
-                enabled={pickerhide}
+                
                 onValueChange={itemValue =>pickerenabled(itemValue)}
               >
                 {data.map((value, key) => (
@@ -737,7 +729,7 @@ const pickerenabled=(itemValue) =>
                   height: 40,
                   color: '#696C6E'
                 }}
-                onValueChange={itemValue => setdeviceValue(itemValue)}
+                onValueChange={itemValue => devicepickerenable(itemValue)}
               >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
@@ -746,7 +738,7 @@ const pickerenabled=(itemValue) =>
               </View>
               
           
-              <TextInput
+              {/* <TextInput
               label="Enter lattitude"
               returnKeyType="next"
               value={lat}
@@ -765,7 +757,7 @@ const pickerenabled=(itemValue) =>
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
-            />
+            /> */}
               {textInput.map((value,key) => {
           return value
         })}

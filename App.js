@@ -1,24 +1,3 @@
-// Module: App.js
-// 
-// Function:
-//      To initiate the application
-// 
-// Version:
-//    V1.0.0  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
-// 
-//  Copyright notice:
-//       This file copyright (C) 2021 by
-//       MCCI Corporation
-//       3520 Krums Corners Road
-//       Ithaca, NY 14850
-//       An unpublished work. All rights reserved.
-// 
-//       This file is proprietary information, and may not be disclosed or
-//       copied without the prior permission of MCCI Corporation.
-// 
-//  Author:
-//       muthup, MCCI July 2021
-
 import React from 'react'
 import { Provider } from 'react-native-paper'
 import { NavigationContainer } from '@react-navigation/native'
@@ -26,7 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack'
 import { theme } from './src/core/theme'
 import {LoginScreen,AdminSignup,ForgotPasswordScreen,Dashboard,UserSignup,UserScreen,ClientScreen,
   RegisterDevice,Configuredevice,
- Changepassword,
 } from './src/screens'
 import {createDrawerNavigator} from '@react-navigation/drawer';
 
@@ -54,7 +32,6 @@ const Homestackscreen=({navigation}) =>(
       <Homestack.Screen name="UserSignup" component={UserSignup} />
       <Homestack.Screen name="ClientScreen" component={ClientScreen} />
       <Homestack.Screen name="Configuredevice" component={Configuredevice} />
-      <Homestack.Screen name="Changepassword" component={Changepassword} />
       <Homestack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />   
   
     </Homestack.Navigator>
@@ -62,13 +39,12 @@ const Homestackscreen=({navigation}) =>(
 
 const ConfigureDevicestackScreen=({navigation}) =>(
     <Configuredevicestack.Navigator 
- 
+    initialRouteName="Configuredevice"
     screenOptions={{
     headerShown: false
     }}>
       <Configuredevicestack.Screen name="Configuredevice" component={Configuredevice} />
       <Configuredevicestack.Screen name="Dashboard" component={Dashboard} />
-      <Configuredevicestack.Screen name="Changepassword" component={Changepassword} />
       <Configuredevicestack.Screen name="ClientScreen" component={ClientScreen} />
       <Configuredevicestack.Screen name="UserScreen" component={UserScreen} />
       <Configuredevicestack.Screen name="RegisterDevice" component={RegisterDevice} />  
@@ -84,7 +60,6 @@ const ClientstackScreen=({navigation}) =>(
     }}>
       <Clientscreenstack.Screen name="ClientScreen" component={ClientScreen} />
       <Clientscreenstack.Screen name="Dashboard" component={Dashboard} />
-      <Clientscreenstack.Screen name="Changepassword" component={Changepassword} />
       <Clientscreenstack.Screen name="Configuredevice" component={Configuredevice} />
       <Clientscreenstack.Screen name="UserScreen" component={UserScreen} />
       <Clientscreenstack.Screen name="RegisterDevice" component={RegisterDevice} />  
@@ -99,7 +74,6 @@ const UserstackScreen=({navigation}) =>(
       <UserScreenstack.Screen name="UserScreen" component={UserScreen} />
       <UserScreenstack.Screen name="ClientScreen" component={ClientScreen} />
       <UserScreenstack.Screen name="Dashboard" component={Dashboard} />
-      <UserScreenstack.Screen name="Changepassword" component={Changepassword} />
       <UserScreenstack.Screen name="Configuredevice" component={Configuredevice} />
       <UserScreenstack.Screen name="RegisterDevice" component={RegisterDevice} />  
     </UserScreenstack.Navigator>
@@ -114,7 +88,6 @@ const RegisterDevicestackScreen=({navigation}) =>(
       <Registerdevicestack.Screen name="UserScreen" component={UserScreen} />
       <Registerdevicestack.Screen name="ClientScreen" component={ClientScreen} />
       <Registerdevicestack.Screen name="Dashboard" component={Dashboard} />
-      <Registerdevicestack.Screen name="Changepassword" component={Changepassword} />
       <Registerdevicestack.Screen name="Configuredevice" component={Configuredevice} />
 
     </Registerdevicestack.Navigator>

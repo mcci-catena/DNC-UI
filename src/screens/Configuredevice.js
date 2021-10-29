@@ -4,7 +4,7 @@
 //      Function to devicr configuration for web
 // 
 // Version:
-//    V1.0.0  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,10 +18,13 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
-
+// 
+//  Revision history:
+//       1.01 Wed July 17 2021 10:30:00 muthup
+//       Module created.
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image} from 'react-native'
-import TextInput from '../components/TextInput'
+import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image,TextInput} from 'react-native'
+// import TextInput from '../components/TextInput'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
@@ -32,6 +35,8 @@ import { Table, TableWrapper, Row, Cell } from 'react-native-table-component';
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { useIsFocused } from "@react-navigation/native";
+import { theme } from '../core/theme'
+import {Restart} from 'fiction-expo-restart';
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
   const[lat,setlat]=useState('');
@@ -43,7 +48,10 @@ const Configuredevice = ({ navigation }) => {
   const [newdeviceValue, setnewdeviceValue] = useState('')
   const [data, setData] = useState([])
   const [replacedata, setreplaceData] = useState([])
+  const [olddata, setolddata] = useState([]);
   const [selectedValue, setselectedValue] = useState('')
+  const [dilogtitle, setdilogtitle] = useState('ADD DEVICE INFORMATION');
+  const [editdevice, seteditdevice] = useState(false);
   const [deviceValue, setdeviceValue] = useState('')
   const [Api, setApi] = useState('')
   const [uname, setuname] = useState('')
@@ -56,7 +64,7 @@ const Configuredevice = ({ navigation }) => {
   const removedevices = []
   const hwids = []
   const [pickerhide, setpickerhide] = useState(true)
-  const [tablehide, settablehide] = useState(true)
+  const [tablehide, settablehide] = useState(false)
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
@@ -68,9 +76,11 @@ const Configuredevice = ({ navigation }) => {
   const [tableData, settableData] = useState([]);
   const [widthArr, setwidthArr] = useState([]);
   const [textInput, settextInput] = useState([]);
+  const[apiUrl,setapiUrl]=useState('');
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   const isFocused = useIsFocused();
+  
   useEffect(() => {
     if(isFocused){
       getApitoken();
@@ -81,19 +91,19 @@ const Configuredevice = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
-      const usertype = await AsyncStorage.getItem('usertype')
+      const usertype = await AsyncStorage.getItem('usertype');
+      const apiUrl = await AsyncStorage.getItem('apiUrl');
+      setapiUrl(apiUrl);
       if (token !== null && uname !== null) {
         setApi(token)
         setuname(uname.replace(/['"]+/g, ''))
-        fetchClientlist(token);
+        fetchClientlist(token,apiUrl);
       }
       if (usertype == 'Client') {
-        setpickerhide(false);
+        
         setShouldShow(false);
       }
-      else{
-        settablehide(false);
-      }
+      settablehide(false);
       
     } catch (e) {
       console.log(e)
@@ -102,8 +112,10 @@ const Configuredevice = ({ navigation }) => {
   let textarray = [];
   const addTextInput = (index) => {
     let labelvalue=taglist[index]
-    textarray.push(<TextInput key={index}  label={labelvalue}
-    onChangeText={(text) => addValues(text,index)} />);
+    textarray.push(<View style={styles.textboxview}>
+      <Text style={styles.textboxtextview}>{labelvalue +" :"}</Text>
+      <TextInput key={index} style={styles.input} label={labelvalue}
+    onChangeText={(text) => addValues(text,index)} /></View>);
     settextInput(textarray);
   }
   const addValues = (text, index) => {
@@ -111,9 +123,9 @@ const Configuredevice = ({ navigation }) => {
     let checkBool = false;
     if (dataArray.length !== 0){
       dataArray.forEach(element => {
-        if (element.index === index ){
-          element.text = text;
-          checkBool = true;
+      if (element.index === index ){
+        element.text = text;
+        checkBool = true;
         }
       });
     }
@@ -124,7 +136,10 @@ const Configuredevice = ({ navigation }) => {
       dataArray.push({'text':text,'index':index});
       setinputData(dataArray);
     }
+    
+    
   }
+  
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
@@ -135,13 +150,17 @@ const Configuredevice = ({ navigation }) => {
     let widthArr=[];
     taglist=clienttaglist[itemValue];
     settaglist(taglist);
-    settaglength(taglist.length);
+   
     tableHead.push("S.NO");
     widthArr.push(50);
-    for(var i=0;i<taglist.length;i++)
+    if(taglist!=undefined)
     {
-      tableHead.push(taglist[i]);
-      widthArr.push(100);
+      settaglength(taglist.length);
+      for(var i=0;i<taglist.length;i++)
+      {
+        tableHead.push(taglist[i]);
+        widthArr.push(100);
+      }
     }
     tableHead.push("Hardware id")
     tableHead.push("Install Date")
@@ -153,7 +172,7 @@ const Configuredevice = ({ navigation }) => {
     widthArr.push(200);
     settableHead(tableHead);
     setwidthArr(widthArr);
-    const url='https://staging-dashboard.mouserat.io/dncserver/listrmdev/'+''+itemValue+'';
+    const url=apiUrl+'/listadev/'+''+itemValue+'';
     const getMethod={
       method: 'GET',
       headers: {
@@ -163,11 +182,13 @@ const Configuredevice = ({ navigation }) => {
       },
     }
     fetch(url,getMethod ).then(response => {
-    const statusCode = response.status
+    const statusCode = response.status;
+    if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    }
     response.json().then(responseJson => {
-      if (statusCode == 403) {
-        alert('inavalid token/token expired')
-      } else if (responseJson['message'] != null) {
+      if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       removedevices.push('Select the device')
@@ -197,8 +218,8 @@ const Configuredevice = ({ navigation }) => {
       })
       })
   }
-  const fetchClientlist = token => {
-    fetch('https://staging-dashboard.mouserat.io/dncserver/clients', {
+  const fetchClientlist = (token,apiUrl) => {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
@@ -207,14 +228,15 @@ const Configuredevice = ({ navigation }) => {
     })
     .then(response => {
       const statusCode = response.status
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      } 
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-        } else if (responseJson['message'] != null) {
+        if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
-        clients.push('Select the Clients')
+        clients.push('Select Client')
         let taglist={}
         for (var i = 0; i < responseJson.length; i++) {
           const json = responseJson[i].cname
@@ -232,7 +254,10 @@ const Configuredevice = ({ navigation }) => {
   const ReplaceDevice=()=>
   {
     setIsreplaceDialogVisible(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/rpdev/' +'' +selectedValue +''
+    const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+    const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
+    var url =apiUrl+'/rpdev/' +'' +selectedValue +''
     const postMethod = {
       method: 'POST',
        headers: {
@@ -249,12 +274,13 @@ const Configuredevice = ({ navigation }) => {
 
     fetch(url, postMethod)
     .then(response => {
-      const statusCode = response.status
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
       response.json().then(responseJson => {
-        if (statusCode == 403) {
-          alert('inavalid token/token expired')
-          navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-        } else if (responseJson['message'] != null) {
+          if (responseJson['message'] != null) {
           alert(JSON.stringify(responseJson['message']))
         }
         fetchtabledata(selectedValue);
@@ -268,37 +294,64 @@ const Configuredevice = ({ navigation }) => {
  }
   
   const AddDevice = () => {
-    let requestdata={};
-    requestdata["cname"]=selectedValue;
-    requestdata["lat"]=lat;
-    requestdata["long"]=long;
-    requestdata["id"]=deviceValue;
-    requestdata["datetime"]=datestringvalue;
-    for(var i=0;i<taglength;i++)
-    {  
-      let textdata=inputData[i];
-      requestdata[""+taglist[i]+""]=textdata["text"];
-    }
-    setIsDialogVisible(false)
-    var url = 'https://staging-dashboard.mouserat.io/dncserver/device'
-    const postMethod = {
-      method: 'POST',
-      headers: {
+    
+      if(editdevice)
+      {
+        let requestdata={};
+        let newd={};
+        let otherd={};
+        requestdata['hwid']=deviceValue;
+
+        for(var i=0;i<taglength;i++)
+      {  
+        let textdata=inputData[i];
+        
+        let oldtags=olddata[0]['tags'];
+        
+        if(textdata !=undefined)
+        {
+          for(var j=0;j<taglength;j++)
+          {
+            
+            if(textdata.index==oldtags[j].index)
+            {
+              newd[""+taglist[j]+""]=textdata["text"];
+            }
+          }
+        
+        }
+       
+        otherd[""+taglist[i]+""]=oldtags[i].text;
+      
+      }
+      requestdata['newd']=newd;
+      requestdata['otherd']=otherd;
+      
+      setIsDialogVisible(false)
+      var url = apiUrl+'/device/'+selectedValue
+      const postMethod = {
+        method: 'PUT',
+        headers: {
         'Content-type': 'application/json',
         Accept: 'application/json',
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify(requestdata),
-    }
+        },
+        body: JSON.stringify(requestdata),
+      }
 
-    fetch(url, postMethod)
-    .then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      fetch(url, postMethod)
+      .then(response => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      if(statusCode == 200)
+      {
+        alert('Updated Successfully')
+      }
+      response.json().then(responseJson => {
+       if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchtabledata(selectedValue);
@@ -308,9 +361,62 @@ const Configuredevice = ({ navigation }) => {
       .catch(error => {
         console.error(error)
       })
+    }
+    else{
+      let requestdata={};
+      requestdata["cname"]=selectedValue;
+      requestdata["lat"]=12.34;
+      requestdata["long"]=13.30;
+      requestdata["id"]=deviceValue;
+      requestdata["datetime"]=datestringvalue;
+      for(var i=0;i<taglength;i++)
+      {  
+        let textdata=inputData[i];
+        
+        if(textdata==undefined)
+        {
+          alert("Please fill the all information");
+          return;
+        }
+        else{
+          requestdata[""+taglist[i]+""]=textdata["text"];
+        }
+        
+      }
+      setIsDialogVisible(false)
+      var url = apiUrl+'/device'
+      const postMethod = {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+        },
+        body: JSON.stringify(requestdata),
+      }
+  
+      fetch(url, postMethod)
+      .then(response => {
+        const statusCode = response.status;
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();
+        }
+        response.json().then(responseJson => {
+         if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
+        }
+        fetchtabledata(selectedValue);
+        fetchDevicelist(selectedValue);
+        })
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    }
   }
   const fetchDevicelist = selectedValue => {
-    var url ='https://staging-dashboard.mouserat.io/dncserver/listfrdev/' +'' +selectedValue +''
+    var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -321,20 +427,25 @@ const Configuredevice = ({ navigation }) => {
     }
     fetch(url, Getmethod)
     .then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       let hwids1 = responseJson['hwids']
       devices.push('Select the devices')
       if(responseJson['message']!="No Devices registered under this client!"){
+        
         for (let i = 0; i < hwids1.length; i++) {
-          const activehwid = hwids1[i]
-          hwids.push(activehwid)
+          let devicedate={};
+          const activehwid = hwids1[i];
+          devicedate['hwid']=activehwid['hwid'];
+          devicedate['date']=activehwid['date'];
+          hwids.push(devicedate)
           devices.push(activehwid['hwid'])
         }
       }
@@ -347,16 +458,27 @@ const Configuredevice = ({ navigation }) => {
     })
   }
   const element = (cellData, index) => (
+  
     <View style={{flexDirection:'row'}}>
-      <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+""})}>
+      <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
         <View style={{ paddingRight: 10 }} >
-          <Image  source={require('../assets/remove.png')}  fadeDuration={0}  style={{ width: 20, height: 20 }}/>
+          <Text style={{color:'blue'}}>Remove</Text>
         </View>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() =>replaceDevice({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
+      <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Replace</Text>
+      </View>
+      </TouchableOpacity>
       <TouchableOpacity onPress={()=>createButtonAlert({hwid:""+cellData[taglength+1]+""})}>
-        <View >
-          <Image  source={require('../assets/delete.png')}  fadeDuration={0}  style={{ width: 20, height: 20 }}/>
-        </View>
+      <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Delete</Text>
+      </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>editclicked(cellData)}>
+      <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Edit</Text>
+      </View>
       </TouchableOpacity>
     </View>
   );
@@ -365,14 +487,58 @@ const Configuredevice = ({ navigation }) => {
     setshowAlert(true);
     setHardwareid(hwid);
   };
-  const createRemoveButtonAlert = ({hwid}) =>
+  const editclicked=(cellData)=>
   {
-    setshowRemoveAlert(true);
-    setHardwareid(hwid);
+    setdilogtitle("EDIT DEVICE INFORMATION");
+    seteditdevice(true);
+    setdatevalue(cellData[taglength+2]);
+    setdeviceValue(cellData[taglength+1])
+    textarray=[];
+    settextInput(textarray);
+    let olddata=[];
+    let olddataset={};
+    olddataset['Hardwareid']=cellData[taglength+1];
+    olddataset['Date']=cellData[taglength+1];
+    let tags=[];
+     for(var i=0;i<taglength;i++)
+    {
+      
+      tags.push({index:i,text:cellData[i+1]})
+      let index=i;
+      let labelvalue=taglist[i]
+      textarray.push(<View style={styles.textboxview}>
+        <Text style={styles.textboxtextview}>{labelvalue +" :"}</Text>
+        <TextInput key={index} style={styles.input} defaultValue={cellData[i+1]} label={labelvalue}
+      onChangeText={(text) => addValues(text,index)} /></View>);
+      settextInput(textarray);
+    }
+    olddataset['tags']=tags;
+    
+    olddata.push(olddataset);
+    setolddata(olddata)
+    setIsDialogVisible(true)
+    
+  }
+  const createRemoveButtonAlert = ({hwid,removedate}) =>
+  {
+    
+    if(removedate===null)
+    {
+      setshowRemoveAlert(true);
+      setHardwareid(hwid);
+      
+    }
+    else{
+      alert("This device was already removed");
+    }  
+    
   };
   const removeDevice = () => {
     setshowRemoveAlert(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/rmdev/' +'' +selectedValue +''
+    const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+    const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
+    var url =apiUrl+'/rmdev/' +'' +selectedValue +''
     const postMethod = {
       method: 'PUT',
       headers: {
@@ -385,37 +551,54 @@ const Configuredevice = ({ navigation }) => {
         datetime: datestringvalue,
       }),
     }
+    
     fetch(url, postMethod)
     .then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      }else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+      if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchtabledata(selectedValue);
+      fetchDevicelist(selectedValue);
     })
     })
     .catch(error => {
       console.error(error)
     })
-    fetchDevicelist(selectedValue);
+    
   }
   const addDevicebutton = () => {
+    setdatevalue(new Date());
+    textarray=[];
+    seteditdevice(false);
+    setdilogtitle("ADD DEVICE INFORMATION");
     for(var i=0;i<taglength;i++)
     {
       addTextInput(i);
     }
     setIsDialogVisible(true)
   }
-  const replaceDevice = () => {
-    setIsreplaceDialogVisible(true)
+  const replaceDevice = ({hwid,removedate}) => {
+    
+    
+    if(removedate===null)
+    {
+      setdeviceValue(hwid);
+      setIsreplaceDialogVisible(true);
+      
+    }
+    else{
+      alert("This device was already removed");
+    } 
   }
   const deleteDevice = () => {
     setshowAlert(false);
-    var url ='https://staging-dashboard.mouserat.io/dncserver/device/' +'' +selectedValue +''
+    var url =apiUrl+'/device/' +'' +selectedValue +''
     const postMethod = {
       method: 'DELETE',
       headers: {
@@ -430,12 +613,13 @@ const Configuredevice = ({ navigation }) => {
     
     fetch(url, postMethod)
     .then(response => {
-      const statusCode = response.status
-      response.json().then(responseJson => {
+      const statusCode = response.status;
       if (statusCode == 403) {
-        alert('inavalid token/token expired')
-        navigation.reset({index: 0,routes: [{ name: 'LoginScreen' }],})
-      } else if (responseJson['message'] != null) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+      if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchtabledata(selectedValue);
@@ -457,14 +641,19 @@ const Configuredevice = ({ navigation }) => {
       fetchDevicelist(itemValue)
     }
   }
-  
+  const devicepickerenable=(itemValue)=>
+  {
+    setdeviceValue(itemValue);
+   let deviceinfo=hwid.find(x =>x.hwid ==itemValue)
+   setdatevalue(deviceinfo['date']);
+  } 
   return (
     <View>
       <AppBar navigation={navigation} title={"Configure Device"}></AppBar>
       <View>
         <View style={{flexDirection:"row"}}>
-          <Button mode="contained"  style={styles.button} onPress={() => addDevicebutton()}>New Device</Button>
-          <Button mode="contained"  style={styles.button} onPress={() => replaceDevice()}>Replace Device</Button>
+          <Button mode="contained"  style={styles.button} onPress={() => addDevicebutton()}>Add Device</Button>
+          
         </View>
         <View style={{ width: '20%',overflow: 'hidden', marginLeft: 'auto',marginRight: 'auto',marginTop: 10,marginBottom: 20 }}>
           <Picker
@@ -478,7 +667,7 @@ const Configuredevice = ({ navigation }) => {
           marginRight: 'auto',
           paddingVertical: 10
           }}
-          enabled={pickerhide}
+          
           onValueChange={itemValue =>pickerenabled(itemValue)}
         >
           {data.map((value, key) => (
@@ -512,7 +701,7 @@ const Configuredevice = ({ navigation }) => {
           showProgress={false}
           title="Remove Device"
           message={"Are you sure want to remove "+Hardwareid+"?"}
-          closeOnTouchOutside={true}
+          closeOnTouchOutside={false}
           closeOnHardwareBackPress={false}
           showCancelButton={true}
           showConfirmButton={true}
@@ -527,7 +716,7 @@ const Configuredevice = ({ navigation }) => {
           showProgress={false}
           title="Delete Device"
           message={"Are you sure want to delete "+Hardwareid+"?"}
-          closeOnTouchOutside={true}
+          closeOnTouchOutside={false}
           closeOnHardwareBackPress={false}
           showCancelButton={true}
           showConfirmButton={true}
@@ -560,7 +749,7 @@ const Configuredevice = ({ navigation }) => {
               borderRadius: 40,
             }}
             >
-            ADD DEVICE INFORMATION
+            {dilogtitle}
             </Dialog.Title>
             <Dialog.Content
               style={{
@@ -578,7 +767,7 @@ const Configuredevice = ({ navigation }) => {
               marginTop: 10,
               marginBottom: 10,
               alignSelf: 'center' }}>
-              <Picker
+             {!editdevice&& <Picker
                
                 selectedValue={deviceValue}
                 style={{
@@ -589,12 +778,25 @@ const Configuredevice = ({ navigation }) => {
                   borderColor: '#560CCE',
                   color: '#696C6E' 
                 }}
-                onValueChange={itemValue => setdeviceValue(itemValue)}
+                
+                onValueChange={itemValue => devicepickerenable(itemValue)}
                 >
                 {device.map((value, key) => (
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
-              </Picker>
+              </Picker>}
+
+              {editdevice&&<TextInput
+              label="Enter lattitude"
+              returnKeyType="next"
+              value={deviceValue}
+              style={styles.input}
+              disabled={true}
+              autoCapitalize="none"
+              autoCompleteType="street-address"
+              textContentType="fullStreetAddress"
+              keyboardType="web-search"
+            />}
             </View>
 
             <View style={{borderRadius: 5, borderWidth: 1, borderColor: '#560CCE',marginTop: 15,marginBottom: 10,}}>
@@ -606,7 +808,7 @@ const Configuredevice = ({ navigation }) => {
               style={{ width: '100%', height: '100%' }}
               />
             </View>
-            <TextInput
+            {/* <TextInput
               label="Enter lattitude"
               returnKeyType="next"
               value={lat}
@@ -625,7 +827,7 @@ const Configuredevice = ({ navigation }) => {
               autoCompleteType="street-address"
               textContentType="fullStreetAddress"
               keyboardType="web-search"
-            />
+            /> */}
             {textInput.map((value,key) => {
               return value
             })}
@@ -703,6 +905,7 @@ const Configuredevice = ({ navigation }) => {
           borderColor: '#560CCE',
           color: '#696C6E' 
           }}
+          disabled={true}
           onValueChange={itemValue => setdeviceValue(itemValue)}
         >
         {replacedata.map((value, key) => (
@@ -756,7 +959,7 @@ const styles = StyleSheet.create({
     display: 'flex',
   },
   button: {
-    width: '40%',
+    width: '20%',
     marginVertical: 10,
     paddingVertical: 2,
     marginLeft: 'auto',
@@ -802,5 +1005,23 @@ const styles = StyleSheet.create({
     flex: 1,
     marginVertical: 10
   },
+  input: {
+    width: '100%',
+    height: 40,
+    //borderColor: '#560CCE',
+    borderColor: theme.colors.primary,
+    
+    borderWidth: 2,
+    padding: 10,
+    backgroundColor: theme.colors.surface,
+  },
+  textboxview:{
+    width: '100%',
+    marginVertical: 12,
+    flexDirection:'column'
+  },
+  textboxtextview:{
+    color:theme.colors.primary
+  }
 })
 export default Configuredevice

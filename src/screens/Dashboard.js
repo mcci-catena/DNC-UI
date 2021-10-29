@@ -4,7 +4,7 @@
 //      Function to home screen
 // 
 // Version:
-//    V1.0.0  Thu Jul 15 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 15 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,18 +18,27 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 15 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState,useEffect } from 'react'
 import { View, Text } from 'react-native';
 import AppBar from '../components/AppBar'
-
+import getEnvVars from './environment';
+const { uiversion } = getEnvVars();
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const Dashboard=({navigation})=> {
   const [version,setversion]=useState('');
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    getApiversion("https://"+geturl[2]+"/dncserver");
   }, [])
-  const getApiversion = () => {
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+ 
+  const getApiversion = (apiUrl) => {
+    const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
       headers: {
@@ -38,6 +47,7 @@ const Dashboard=({navigation})=> {
       },
       
     }
+    
    
     fetch(url,postMethod)
     .then(response => {
@@ -67,7 +77,7 @@ const Dashboard=({navigation})=> {
       <Text style={{alignItems:'center',justifyContent:"center",fontSize:30,color:'blue'}}>Welcome to DNC</Text>
     </View>
     <View style={{ bottom:0, alignItems: 'center' }}>
-      <Text style={{ color: '#560CCE', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
+      <Text style={{ color: '#560CCE', fontSize: 11, fontWeight: 'bold' }}>DNC | {uiversion}| Server {version}</Text>
     </View>
   </View>
 

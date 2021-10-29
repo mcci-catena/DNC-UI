@@ -4,7 +4,7 @@
 //      Function to login module
 // 
 // Version:
-//    V1.0.0  Thu Jul 12 2021 10:30:00  muthup   Edit level 1
+//    V2.02  Thu Jul 12 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -18,6 +18,10 @@
 // 
 //  Author:
 //       muthup, MCCI July 2021
+// 
+//  Revision history:
+//       1.01 Wed July 12 2021 10:30:00 muthup
+//       Module created.
 
 import React, { useState,useEffect } from 'react'
 import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'
@@ -30,19 +34,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { theme } from '../core/theme'
 import { nameValidator } from '../helpers/nameValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
-
+import getEnvVars from './environment';
+const { uiversion } = getEnvVars();
 const LoginScreen = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
   const [version,setversion]=useState('');
+  const [apiUrl,setapiUrl]=useState('');
+  
 
   useEffect(() => {
-    getApiversion();
+    let sampleurl=JSON.stringify(window.location.href)
+    let geturl=sampleurl.split('/')
+    setapiUrl("https://"+geturl[2]+"/dncserver")
+    getApiversion("https://"+geturl[2]+"/dncserver");
+   
   }, [])
 
-  const getApiversion = () => {
+  const getApiversion = (apiUrl) => {
     
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/version'
+    
+    const url = apiUrl+"/version"
+    
     const postMethod= {
       method: 'GET',
       headers: {
@@ -52,9 +65,11 @@ const LoginScreen = ({ navigation }) => {
       
     }
    
-    fetch(url,postMethod)
-    .then(response => {
+  fetch(url,postMethod)
+  .then(response => {
+      
       const statusCode = response.status
+      
       if (statusCode == 502) {
         alert('Please turn on server')
       }
@@ -70,6 +85,7 @@ const LoginScreen = ({ navigation }) => {
         console.error(error)
     })
     
+   
   }
 
   const onLoginPressed = () => {
@@ -97,13 +113,14 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem('token', tokenValue)
         await AsyncStorage.setItem('uname', unameValue)
         await AsyncStorage.setItem('usertype', usertype)
+        await AsyncStorage.setItem('apiUrl', apiUrl)
       } catch (e) {
         console.log(e)
       }
     }
 
    
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/login'
+    const url = apiUrl+"/login";
     const postMethod= {
       method: 'POST',
       headers: {
@@ -128,6 +145,7 @@ const LoginScreen = ({ navigation }) => {
         let usertype = ''
         const result = 'Invalid username/password'
         if (responseJson.message == result ||responseJson.message=='User not exists') {
+           
             navigation.reset({
               index: 0,
               routes: [{ name: 'LoginScreen' }],
@@ -168,7 +186,7 @@ const LoginScreen = ({ navigation }) => {
 
   const onSignupPressed = () => {
    
-    const url = 'https://staging-dashboard.mouserat.io/dncserver/signup'
+    const url = apiUrl+"/signup";
     fetch(url, {
       method: 'GET',
       headers: {
@@ -199,7 +217,11 @@ const LoginScreen = ({ navigation }) => {
         console.error(error)
     })
   }
-
+  const handleKeyDown=(e) =>  {
+    if(e.nativeEvent.key == "Enter"){
+      onLoginPressed();
+    }
+}
 
   return (
   
@@ -226,6 +248,7 @@ const LoginScreen = ({ navigation }) => {
         error={!!password.error}
         errorText={password.error}
         secureTextEntry={true}
+        onKeyPress={e=>handleKeyDown(e)}
         />
         <View style={styles.forgotPassword}>
           <TouchableOpacity
@@ -242,7 +265,7 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-          <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | UI V1.0.0 | Server {version}</Text>
+          <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | {uiversion}| Server {version}</Text>
         </View>
      
     </Background>
