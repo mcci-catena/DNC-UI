@@ -201,6 +201,11 @@ const RegisterDevice = ({ navigation }) => {
   {
     setedit(false);
     setdilogtitle('Add device');
+    if(deviceoptionselected!=='')
+    {
+      setHardwareid('');
+      devicedropdownenabled(deviceoptionselected);
+    }
     setIsDialogVisible(true);
     setidate('')
     
