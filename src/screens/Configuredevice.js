@@ -572,6 +572,11 @@ const Configuredevice = ({ navigation }) => {
     
   }
   const addDevicebutton = () => {
+    if(selectedValue=='')
+    {
+      alert("Please Select Client")
+    }
+    else{
     setdatevalue(new Date());
     textarray=[];
     seteditdevice(false);
@@ -581,6 +586,7 @@ const Configuredevice = ({ navigation }) => {
       addTextInput(i);
     }
     setIsDialogVisible(true)
+  }
   }
   const replaceDevice = ({hwid,removedate}) => {
     
@@ -633,11 +639,11 @@ const Configuredevice = ({ navigation }) => {
   const pickerenabled=(itemValue) =>
   {
     setselectedValue(itemValue);
-    if(itemValue!="Select the Clients")
+    if(itemValue!=="Select Client")
     {
-      fetchtabledata(itemValue);
-      settablehide(true);
-      fetchDevicelist(itemValue)
+     fetchtabledata(itemValue);
+     settablehide(true);
+     fetchDevicelist(itemValue)
     }
   }
   const devicepickerenable=(itemValue)=>
@@ -808,7 +814,7 @@ const Configuredevice = ({ navigation }) => {
               style={{ width: '100%', height: '100%' }}
               />
             </View>
-           
+
             {textInput.map((value,key) => {
               return value
             })}
@@ -989,9 +995,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 40,
-    //borderColor: '#560CCE',
     borderColor: theme.colors.primary,
-    
     borderWidth: 2,
     padding: 10,
     backgroundColor: theme.colors.surface,
