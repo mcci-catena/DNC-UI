@@ -24,7 +24,6 @@
 //       Module created.
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image,TextInput} from 'react-native'
-// import TextInput from '../components/TextInput'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
@@ -802,32 +801,14 @@ const Configuredevice = ({ navigation }) => {
             <View style={{borderRadius: 5, borderWidth: 1, borderColor: '#560CCE',marginTop: 15,marginBottom: 10,}}>
               <DateTimePicker
               value={datevalue}
+              disabled={true}
               minDate={new Date(2018, 0, 4)}
               maxDate={new Date(3020, 0, 4)}
               onChange={value =>setdatevalue(value)}
               style={{ width: '100%', height: '100%' }}
               />
             </View>
-            {/* <TextInput
-              label="Enter lattitude"
-              returnKeyType="next"
-              value={lat}
-              onChangeText={text => setlat(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter longtitude"
-              returnKeyType="next"
-              value={long}
-              onChangeText={text => setlong(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            /> */}
+           
             {textInput.map((value,key) => {
               return value
             })}
