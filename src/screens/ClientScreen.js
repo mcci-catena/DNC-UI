@@ -32,7 +32,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import {Restart} from 'fiction-expo-restart';
-import { set } from 'react-native-reanimated';
 
 const ClientScreen = ({navigation}) => {
   
@@ -539,10 +538,11 @@ const ClientScreen = ({navigation}) => {
       
         <Button mode="contained"  style={styles.button} onPress={Adduserdilogvisible}>Add Client</Button>
         <ScrollView  >
-        <View style={{ marginTop:'5%', marginHorizontal: 20,width: '60%', marginLeft:'20%', }}> 
-         
+        <View style={{ marginHorizontal: 'auto' }}>  
+        <ScrollView horizontal={true} > 
             <Table borderStyle={{borderColor: 'transparent'}}>
               <Row data={tableHead} style={styles.head}  widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
+              <ScrollView>
               {
                 tableData.map((rowData, index) => (
                   <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
@@ -554,9 +554,9 @@ const ClientScreen = ({navigation}) => {
                   </TableWrapper>
                 ))
               }
-              
+              </ScrollView>
             </Table>
-          
+            </ScrollView>
         </View>
         </ScrollView>
         <AwesomeAlert
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
     margin: 20
   },
   button: {
-    width: '20%',
+    width: Platform.OS === 'web' ? '20%' : '40%',
     marginVertical: 10,
     paddingVertical: 2,
     marginLeft: 'auto',
