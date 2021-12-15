@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: otpValidator.js
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Fri July 14 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 export function otpValidator(name) {
   if (!name || name.length <= 0) return "OTP can't be empty."

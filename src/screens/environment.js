@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: environment.js
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Mon Oct 18 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 import Constants from "expo-constants";
 import { Platform } from "react-native";

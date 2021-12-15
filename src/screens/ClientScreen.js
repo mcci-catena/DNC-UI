@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: ClientScreen.js
 // 
 // Function:
@@ -24,7 +25,7 @@
 //       Module created.
 //       1.02 Tue Dec 01 2021 10:30:00 muthup
 //       Fixed issues #2 #3 #4 #5 #6 #7
-//
+###############################################################################*/
 
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, ScrollView,Image,Platform,TouchableOpacity,Modal,Picker} from 'react-native'

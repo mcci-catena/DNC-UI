@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: Registerdevice
 // 
 // Function:
@@ -22,6 +23,8 @@
 //  Revision history:
 //       1.01 Wed July 22 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
+
 import React, { useState, useEffect } from 'react'
 import {
   View,

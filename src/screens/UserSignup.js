@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: UserSignup
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Wed July 14 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import {
@@ -89,7 +91,7 @@ const UserScreen = ({ navigation }) => {
   }
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl=JSON.stringify(window.location.href)
+    let sampleurl="https://staging-dashboard.mouserat.io"
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver");
     getApiversion("https://"+geturl[2]+"/dncserver");

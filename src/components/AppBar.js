@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: AppBar.js
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Wed Thu July 13 2021 10:30:00 muthup
 //       Module created.import React, { useState } from 'react'
+###############################################################################*/
 
 import React, { useState } from 'react'
 import { View,Dimensions} from 'react-native';

@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: Dashboard.js
 // 
 // Function:
@@ -24,7 +25,7 @@
 //       Module created.
 //       1.02 Tue Dec 01 2021 10:30:00 muthup
 //       Fixed issues #2 #3 #4 #5 #6 #7
-//
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import { View, Text } from 'react-native';
@@ -36,7 +37,7 @@ const Dashboard=({navigation})=> {
   const [version,setversion]=useState('');
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl=JSON.stringify(window.location.href)
+    let sampleurl="https://staging-dashboard.mouserat.io"
     let geturl=sampleurl.split('/')
     getApiversion("https://"+geturl[2]+"/dncserver");
   }, [])

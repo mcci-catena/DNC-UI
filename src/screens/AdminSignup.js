@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: AdminSignup.js
 // 
 // Function:
@@ -24,7 +25,7 @@
 //       Module created.
 //       1.02 Tue Dec 01 2021 10:30:00 muthup
 //       Fixed issues #2 #3 #4 #5 #6 #7
-//
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import { View, StyleSheet, TouchableOpacity,Modal,ActivityIndicator } from 'react-native'
@@ -89,7 +90,7 @@ const RegisterScreen = ({ navigation }) => {
   }
   //UseEffect used to execute first this function then only other function works
   useEffect(() => {
-    let sampleurl=JSON.stringify(window.location.href)
+    let sampleurl="https://staging-dashboard.mouserat.io"
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver");
     getApiversion("https://"+geturl[2]+"/dncserver");

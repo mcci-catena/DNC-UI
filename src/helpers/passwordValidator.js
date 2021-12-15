@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: passwordValidator.js
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Fri July 14 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 export function passwordValidator(password) {
   if (!password || password.length <= 0) {

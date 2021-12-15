@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: Logo.js
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Thu July 13 2021 12:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 import React from 'react'
 import { Image, StyleSheet } from 'react-native'
