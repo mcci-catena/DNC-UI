@@ -70,6 +70,7 @@ const ClientScreen = ({navigation}) => {
   const [modaltitle, setmodaltitle] = useState('');
   const [apiUrl,setapiUrl]=useState('');
   const anc='';
+
   //To add Textinput dynamicallay
   const addTextInput = (index) => {
     let textarray = [];
@@ -81,6 +82,7 @@ const ClientScreen = ({navigation}) => {
       onChangeText={(text) => addValues(text, index)} />);
     settextInput(textarray);
   }
+
   //To get values from TextInput
   const addValues = (text, index) => {
     let dataArray = inputData;
@@ -101,6 +103,7 @@ const ClientScreen = ({navigation}) => {
       setinputData(dataArray);
     }
   }
+
   //To get api token and session data
   const getApitoken = async () => {
     try {
@@ -117,10 +120,11 @@ const ClientScreen = ({navigation}) => {
       console.log(e)
     }
   }
-
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     getApitoken()
   }, [])
+
   //To get edit rows data in table
   const editIconclicked=(rowData,index) =>{
     setdevicestatus(false);
@@ -153,6 +157,7 @@ const ClientScreen = ({navigation}) => {
     }
     setIsDialogVisible(true);
   }
+
   //To get client list
   const fetchInventory = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
@@ -224,6 +229,7 @@ const ClientScreen = ({navigation}) => {
       })
     })
   }
+
   //To delete the client 
   const Deleteclient = (clientname) => {
     var url =apiUrl+'/client/' + '' + clientname + ''
@@ -254,6 +260,8 @@ const ClientScreen = ({navigation}) => {
     })
     setshowAlert(false);
   }
+
+  //To update the client 
   const updateclient = () => {
     setIsDialogVisible(false)
     let jsondata={};
@@ -289,6 +297,7 @@ const ClientScreen = ({navigation}) => {
       })
       })
   }
+
   //To get DB list
   const getdatabase = () => {
     var url =apiUrl+'/fetch-db-info' 
@@ -332,6 +341,7 @@ const ClientScreen = ({navigation}) => {
       console.error(error)
     })
   }
+
   //To showing delete and edit icon in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row' }}>
@@ -347,6 +357,7 @@ const ClientScreen = ({navigation}) => {
       </TouchableOpacity>
     </View>
   );
+
   //To shows alert
   const createButtonAlert = (cellData) =>
   {
@@ -354,6 +365,7 @@ const ClientScreen = ({navigation}) => {
     setclientid(cellData[0])
     setshowAlert(true);
   };
+
   //To get dilog submit option
   const clientsubmitmange=()=>
   {
@@ -365,6 +377,7 @@ const ClientScreen = ({navigation}) => {
       Addclient();
     }
   }
+
   //To dilog box hide/show purpose 
   const Adduserdilogvisible=() =>
   {
@@ -375,6 +388,7 @@ const ClientScreen = ({navigation}) => {
     setdevicestatus(true);
     setIsDialogVisible(true);
   }
+
   // Add client data to server
   const Addclient = () => {
     setIsDialogVisible(false);
@@ -437,9 +451,10 @@ const ClientScreen = ({navigation}) => {
       settextboxshow(true);
     }
   }
+
   //For dropdown option purpose
- const dbdropdownenaled=(itemValue)=>
- {
+  const dbdropdownenaled=(itemValue)=>
+  {
     setdb(itemValue);
     var url =apiUrl+'/fetch-mmt-info' 
     const posetMethod = {

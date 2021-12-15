@@ -85,6 +85,7 @@ const Configuredevice = ({ navigation }) => {
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   const isFocused = useIsFocused();
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     if(isFocused){
@@ -92,6 +93,7 @@ const Configuredevice = ({ navigation }) => {
       setselectedValue('');
     }
   }, [isFocused])
+
   //To get server api token from Async storage
   const getApitoken = async () => {
     try {
@@ -115,6 +117,7 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
+
   //To add textinput dynamically
   let textarray = [];
   const addTextInput = (index) => {
@@ -125,6 +128,7 @@ const Configuredevice = ({ navigation }) => {
     onChangeText={(text) => addValues(text,index)} /></View>);
     settextInput(textarray);
   }
+
   //To get values from synamic textinput 
   const addValues = (text, index) => {
     let dataArray = inputData;
@@ -149,6 +153,7 @@ const Configuredevice = ({ navigation }) => {
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
+
   //To fetch configure device table data
   const fetchtabledata = (itemValue) => {
     var taglist=[];
@@ -224,6 +229,7 @@ const Configuredevice = ({ navigation }) => {
       })
       })
   }
+
   //To fetch clientlist
   const fetchClientlist = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
@@ -258,6 +264,7 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //To replace device 
   const ReplaceDevice=()=>
   {
@@ -298,8 +305,8 @@ const Configuredevice = ({ navigation }) => {
   .catch(error => {
     console.error(error)
   })
-  
   }
+
   //To add device for configure
   const AddDevice = () => {
       if(editdevice)
@@ -413,6 +420,7 @@ const Configuredevice = ({ navigation }) => {
         })
     }
   }
+
   //To fetch device list
   const fetchDevicelist = selectedValue => {
     var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
@@ -456,6 +464,7 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //To action column in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
@@ -486,6 +495,7 @@ const Configuredevice = ({ navigation }) => {
     setshowAlert(true);
     setHardwareid(hwid);
   };
+
   //To set values while edit icon clicked
   const editclicked=(cellData)=>
   {
@@ -513,12 +523,11 @@ const Configuredevice = ({ navigation }) => {
       settextInput(textarray);
     }
     olddataset['tags']=tags;
-    
     olddata.push(olddataset);
     setolddata(olddata)
     setIsDialogVisible(true)
-    
   }
+  
   //To shows alert while remove button clicked
   const createRemoveButtonAlert = ({hwid,removedate}) =>
   {
@@ -531,6 +540,7 @@ const Configuredevice = ({ navigation }) => {
       alert("This device was already removed");
     }  
   };
+
   //To remove the device
   const removeDevice = () => {
     setshowRemoveAlert(false);
@@ -571,6 +581,7 @@ const Configuredevice = ({ navigation }) => {
     })
     
   }
+
   //To add the device
   const addDevicebutton = () => {
     if(selectedValue=='')
@@ -589,6 +600,7 @@ const Configuredevice = ({ navigation }) => {
     setIsDialogVisible(true)
   }
   }
+
   //To replace the device
   const replaceDevice = ({hwid,removedate}) => {
     if(removedate===null)
@@ -601,6 +613,7 @@ const Configuredevice = ({ navigation }) => {
       alert("This device was already removed");
     } 
   }
+
   //To delete the device
   const deleteDevice = () => {
     setshowAlert(false);
@@ -636,6 +649,7 @@ const Configuredevice = ({ navigation }) => {
     })
     fetchDevicelist(selectedValue);
   }
+
   //To client dropdown option purpose
   const pickerenabled=(itemValue) =>
   {
@@ -647,6 +661,7 @@ const Configuredevice = ({ navigation }) => {
      fetchDevicelist(itemValue)
     }
   }
+  
   //To device dropdoen option purpose
   const devicepickerenable=(itemValue)=>
   {

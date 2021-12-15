@@ -35,12 +35,14 @@ const { uiversion } = getEnvVars();
 
 const Dashboard=({navigation})=> {
   const [version,setversion]=useState('');
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl="https://staging-dashboard.mouserat.io"
+    let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     getApiversion("https://"+geturl[2]+"/dncserver");
   }, [])
+
   //To fetch the api token values 
   const getApiversion = (apiUrl) => {
     const url = apiUrl+'/version'

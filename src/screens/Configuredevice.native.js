@@ -84,6 +84,7 @@ const Configuredevice = ({ navigation }) => {
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   let textarray = [];
+
   //To get api token from session
   const getApitoken = async () => {
     try {
@@ -105,6 +106,7 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
+  //This function is used to fetch and update the values before execute other function
   const isFocused = useIsFocused();
     useEffect(() => {
     if(isFocused){
@@ -112,6 +114,7 @@ const Configuredevice = ({ navigation }) => {
       setselectedValue('');
     }
   }, [isFocused])
+
   //To add Textinput dynamically
   const addTextInput = (index) => {
     let labelvalue=taglist[index]
@@ -121,6 +124,7 @@ const Configuredevice = ({ navigation }) => {
     onChangeText={(text) => addValues(text,index)} /></View>);
     settextInput(textarray);
   }
+
   //To get values from dynamic textinput
   const addValues = (text, index) => {
     let dataArray = inputData;
@@ -144,6 +148,7 @@ const Configuredevice = ({ navigation }) => {
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
+
   //To get datepicker value
   const onChange = (event, selectedValue) => {
     setShow(Platform.OS === 'ios');
@@ -167,6 +172,7 @@ const Configuredevice = ({ navigation }) => {
   const showDatepicker = () => {
       showMode('date');
   };
+
   //To fetch table data
   const fetchtabledata = (itemValue) => {
     var taglist=[];
@@ -241,6 +247,7 @@ const Configuredevice = ({ navigation }) => {
         })
         })
     }
+
     //To fetch client list
     const fetchClientlist = (token,apiUrl) => {
       fetch(apiUrl+'/clients', {
@@ -275,6 +282,7 @@ const Configuredevice = ({ navigation }) => {
         console.error(error)
       })
     }
+
     //To Replace the device
     const ReplaceDevice=()=>
     {
@@ -315,8 +323,8 @@ const Configuredevice = ({ navigation }) => {
     .catch(error => {
       console.error(error)
     })
-    
-   }
+    }
+
   //To configure the device
   const AddDevice = () => {
     if(editdevice)
@@ -428,6 +436,7 @@ const Configuredevice = ({ navigation }) => {
       })
     }
   }
+
   //To fetch device list
   const fetchDevicelist = selectedValue => {
     var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
@@ -470,6 +479,7 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //To Add action columns in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
@@ -500,6 +510,8 @@ const Configuredevice = ({ navigation }) => {
     setshowAlert(true);
     setHardwareid(hwid);
   };
+
+  //To get edit row details
   const editclicked=(cellData)=>
   {
     setdilogtitle("EDIT DEVICE INFORMATION");
@@ -529,6 +541,8 @@ const Configuredevice = ({ navigation }) => {
     setolddata(olddata)
     setIsDialogVisible(true)
   }
+
+  //To show remove button alert
   const createRemoveButtonAlert = ({hwid,removedate}) =>
   {
     if(removedate===null)
@@ -540,6 +554,8 @@ const Configuredevice = ({ navigation }) => {
       alert("This device was already removed");
     }  
   };
+
+  //To remove the device 
   const removeDevice = () => {
     setshowRemoveAlert(false);
     const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
@@ -577,6 +593,8 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
+  //To get last register device information
   const addDevicebutton = () => {
     if(selectedValue=='')
       {
@@ -594,6 +612,8 @@ const Configuredevice = ({ navigation }) => {
         setIsDialogVisible(true)
       }
   }
+
+  //To replace the device
   const replaceDevice = ({hwid,removedate}) => {
     if(removedate===null)
     {
@@ -604,6 +624,8 @@ const Configuredevice = ({ navigation }) => {
       alert("This device was already removed");
     } 
   }
+  
+  //To delete the device
   const deleteDevice = () => {
     setshowAlert(false);
     var url =apiUrl+'/device/' +'' +selectedValue +''

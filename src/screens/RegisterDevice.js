@@ -5,7 +5,7 @@
 //      Function to register device for web
 // 
 // Version:
-//    V2.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Thu Jul 22 2021 10:30:00  muthup   Edit level 1
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -23,6 +23,8 @@
 //  Revision history:
 //       1.01 Wed July 22 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
 ###############################################################################*/
 
 import React, { useState, useEffect } from 'react'
@@ -92,6 +94,7 @@ const RegisterDevice = ({ navigation }) => {
   const datestringvalue = dateformatvalue + ',' + timevalue
   const isFocused = useIsFocused();
   var devicevalue;
+  
   //To get api token
   const getApitoken = async () => {
     try {
@@ -110,6 +113,7 @@ const RegisterDevice = ({ navigation }) => {
       console.log(e)
     }
   }
+  
   //UseEffect used to execute first this function then only other function works
   useEffect(() => {
     if(isFocused){
@@ -117,6 +121,7 @@ const RegisterDevice = ({ navigation }) => {
       settablesclient('');
     }
   }, [isFocused])
+  
   //To fetch table data
   const fetchtabledata =( token,apiUrl )=> {
     const url=apiUrl+'/listardev';
@@ -165,6 +170,7 @@ const RegisterDevice = ({ navigation }) => {
       })
     })
   }
+  
   //To fetch clientlist
   const fetchClientlist = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
@@ -198,6 +204,7 @@ const RegisterDevice = ({ navigation }) => {
       console.error(error)
     })
   }
+  
   //To add device manage
   const adddevicemange=()=>
   {
@@ -211,6 +218,7 @@ const RegisterDevice = ({ navigation }) => {
     setIsDialogVisible(true);
     setidate('')
   }
+  
   //To add device
   const Adddevice = () => {
     setIsDialogVisible(false)
@@ -246,6 +254,7 @@ const RegisterDevice = ({ navigation }) => {
       })
     })
   }
+  
   //To action column property in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
@@ -269,6 +278,7 @@ const RegisterDevice = ({ navigation }) => {
   </TouchableOpacity>
   </View>
   );
+  
   //To get row values from register device table
   const editIconclicked=(rowData,index) =>
   {
@@ -340,6 +350,8 @@ const RegisterDevice = ({ navigation }) => {
     setdatevalue(datestringvalue);
     checkeditable(rowData[1] ,rowData[2])
   }
+
+  //To create alert
   const createButtonAlert = ({client,hwid,idate}) =>
   {
     setshowAlert(true);
@@ -391,6 +403,8 @@ const RegisterDevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
+  //To client picker enabled 
   const clientpickerenabled=({ itemValue })=>
   {
     settablesclient( itemValue);
@@ -447,6 +461,8 @@ const RegisterDevice = ({ navigation }) => {
       })
     }
   }
+
+  //To get clientwise table data
   const clientwisetableData = () => {
     if(tablesclient=='All' ||tablesclient =='Select the Clients' ||tablesclient==undefined||tablesclient==null)
     {
@@ -502,24 +518,24 @@ const RegisterDevice = ({ navigation }) => {
     })
   }
   }
-  
-   const submitmangement=() =>
-   {
-     
-     if(edit)
-     {
-       console.log("onedit");
-       updateDevice(selectedValue,Hardwareid);
-     }
-     else
-     {
-      
-      console.log("Adddevice");
-       Adddevice();
-     }
-   }
+
+  //To check submit option 
+  const submitmangement=() =>
+  {
+      if(edit)
+      {
+        console.log("onedit");
+        updateDevice(selectedValue,Hardwareid);
+      }
+      else
+      {
+        console.log("Adddevice");
+        Adddevice();
+      }
+  }
+
+  //To delete the device  
   const Deletedevice = ( client, hwid, idate ) => {
-    
     setshowAlert(false);
     const date = moment(idate).format('MM/DD/YYYY')
     const time = moment(idate).format('HH:mm:ss')
@@ -558,11 +574,11 @@ const RegisterDevice = ({ navigation }) => {
     })
     
   }
-      
+
+  //To update the device    
   const updateDevice = (client, currenthwid ) => {
-  
     setIsDialogVisible(false)
-    var url =apiUrl+'/regdev/' +'' +oldClient +''
+    var url =apiUrl+'/regdev/' +'' +oldClient +'';
 
     const putMethod = {
       method: 'PUT',
@@ -583,7 +599,7 @@ const RegisterDevice = ({ navigation }) => {
         fdname:fieldName
       }),
     }
-   console.log(JSON.stringify(putMethod));
+    console.log(JSON.stringify(putMethod));
     fetch(url, putMethod)
       .then(response => {
         const statusCode = response.status
@@ -601,61 +617,55 @@ const RegisterDevice = ({ navigation }) => {
       .catch(error => {
         console.error(error)
       })
-     
-        
-        clientwisetableData();
-     
+      clientwisetableData();
   }
+
+  //To get the device data
   const devicedropdownenabled=(itemValue)=>
   {
-    
-     
-     setdeviceoptionselected(itemValue);
-    
-     var url =apiUrl+'/getdev/'+selectedValue;  
-     const posetMethod = {
-       method: 'POST',
-       headers: {
-         'Content-type': 'application/json',
-         Accept: 'application/json',
-         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-       },
-       body: JSON.stringify({
-         type:itemValue
-       }),
-     }
-   
-     fetch(url, posetMethod)
-     .then(response => {
-     const statusCode = response.status;
-     if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
+    setdeviceoptionselected(itemValue);
+    var url =apiUrl+'/getdev/'+selectedValue;  
+    const posetMethod = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      body: JSON.stringify({
+        type:itemValue
+      }),
     }
-     response.json().then(responseJson => {
-     if (responseJson['message'] != null) {
+    fetch(url, posetMethod)
+      .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+      if (responseJson['message'] != null) {
        alert(JSON.stringify(responseJson['message']))
-     }
-
-  var mesasurementdata=[];
-  mesasurementdata.push("select device id");
-  if(responseJson["device_list"]!=undefined)
-  {
-    for(var i=0;i<responseJson["device_list"].length;i++)
-    {
-      mesasurementdata.push(responseJson["device_list"][i]);
+      }
+      var mesasurementdata=[];
+      mesasurementdata.push("select device id");
+      if(responseJson["device_list"]!=undefined)
+      {
+        for(var i=0;i<responseJson["device_list"].length;i++)
+        {
+          mesasurementdata.push(responseJson["device_list"][i]);
       
-    }
-  }
-  setdeviceoptionvalue(mesasurementdata);
-     
+        }
+      }
+      setdeviceoptionvalue(mesasurementdata);
      })
      })
      .catch(error => {
        console.error(error)
      })
-     
   }
+  
+  //To get the device data
   const devicedropdownvalueenabled=(itemValue)=>
   {
     setdeviceoptionvalueselected(itemValue);

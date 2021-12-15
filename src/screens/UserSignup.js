@@ -60,8 +60,8 @@ const UserScreen = ({ navigation }) => {
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
   
+  //To get api token
   const getApiversion = (apiUrl) => {
-    
     const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
@@ -69,29 +69,28 @@ const UserScreen = ({ navigation }) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      
     }
-   
     fetch(url,postMethod)
-      .then(response => {
-        const statusCode = response.status
-        if (statusCode == 502) {
-          alert('Please turn on server')
+    .then(response => {
+      const statusCode = response.status
+      if (statusCode == 502) {
+        alert('Please turn on server')
+      }
+      response.json().then(responseJson => {
+        if(responseJson!=null){
+          let versionarray=responseJson.split(' ');
+          setversion(versionarray[4])
         }
-        response.json().then(responseJson => {
-          if(responseJson!=null){
-            let versionarray=responseJson.split(' ');
-            setversion(versionarray[4])
-          }
-        })
       })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl="https://staging-dashboard.mouserat.io"
+    let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver");
     getApiversion("https://"+geturl[2]+"/dncserver");
@@ -99,7 +98,8 @@ const UserScreen = ({ navigation }) => {
         setIsLoading(false);
     }, 500);
   }, []);
-  
+
+  //This part for showing load spinner
   if(isLoading){
     return(
       <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
@@ -109,6 +109,7 @@ const UserScreen = ({ navigation }) => {
    
     );
   }
+
   //To Send otp
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
@@ -144,7 +145,8 @@ const UserScreen = ({ navigation }) => {
     })
     setTimeout(() => {setspinner(false)}, 500);
   }
-
+  
+  //To send the signup request
   const onSignUpPressed = () => {
     if(shouldShow!=true)
     {

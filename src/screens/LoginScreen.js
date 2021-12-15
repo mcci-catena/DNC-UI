@@ -47,14 +47,16 @@ const LoginScreen = ({ navigation }) => {
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
   const { checkusertype,initializeusertype } = React.useContext(AuthContext);
+  
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl="https://staging-dashboard.mouserat.io"
+    let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver")
     getApiversion("https://"+geturl[2]+"/dncserver");
     initializeusertype();
   }, [])
+  
   //To get the api token
   const getApiversion = (apiUrl) => {
     const url = apiUrl+"/version"
@@ -84,6 +86,7 @@ const LoginScreen = ({ navigation }) => {
         console.error(error)
     })
   }
+  
   //To verify the login authentication
   const onLoginPressed = () => {
     const emailError = nameValidator(email.value)
@@ -167,8 +170,8 @@ const LoginScreen = ({ navigation }) => {
       .catch(error => {
         console.error(error)
       })
-      
   }
+  
   //To get type user need to signup
   const onSignupPressed = () => {
    

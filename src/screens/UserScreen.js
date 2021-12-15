@@ -23,6 +23,8 @@
 //  Revision history:
 //       1.01 Wed July 17 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
 ###############################################################################*/
 
 import React, { useState, useEffect } from 'react'
@@ -64,10 +66,10 @@ const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [otp, setotp] = useState('');
   const [apiUrl,setapiUrl]=useState('');
+  
   //To get api token
   const getApitoken = async () => {
     try {
-      
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
       const usertype = await AsyncStorage.getItem('usertype')
@@ -86,12 +88,14 @@ const HomeScreen = ({ navigation }) => {
       console.log(e)
     }
   }
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     if(isFocused){
     getApitoken();
     }
   }, [isFocused])
+
   //To send otp
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
@@ -138,6 +142,7 @@ const HomeScreen = ({ navigation }) => {
     setUsername({ value: ''+username+'', error: '' })
     setEmail({ value: ''+email+'', error: '' })
   };
+
   //To delete the user
   const DeleteUser = (username,email) => {
     var url =apiUrl+'/delete-user/' +'' +username+''
@@ -170,7 +175,8 @@ const HomeScreen = ({ navigation }) => {
         console.error(error)
       })
       setshowAlert(false);
-    }
+  }
+
   //To update the user
   const updateUser = () => {
     var url =apiUrl+'/update-user/' +'' +username.value +''
@@ -206,6 +212,7 @@ const HomeScreen = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //To set value while edit icon clicked
   const editIconclicked=(rowData,index) =>
   {
@@ -215,6 +222,7 @@ const HomeScreen = ({ navigation }) => {
   setoldEmail(rowData[1]);
   setaddUserdilog(true);
   }
+
   //To add action column in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
@@ -230,6 +238,7 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+
   //To fetch user table data
   const fetchInventory = (token,apiUrl) => {
     var url = apiUrl+'/list-user'
@@ -267,6 +276,7 @@ const HomeScreen = ({ navigation }) => {
       })
     })
   }
+
   //To fetch client list
   const fetchData = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
@@ -298,6 +308,7 @@ const HomeScreen = ({ navigation }) => {
       console.error(error)
     })
   }
+  
   const adduserbutton=() =>
   {
     setUsername({ value: '', error: '' });
@@ -306,6 +317,7 @@ const HomeScreen = ({ navigation }) => {
     setselectedValue('');
     setIsDialogVisible(true);
   }
+
   //To add user
   const Adduser = () => {
     setIsDialogVisible(false)

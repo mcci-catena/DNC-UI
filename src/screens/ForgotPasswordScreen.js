@@ -48,14 +48,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [password, setpassword] = useState('');
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl="https://staging-dashboard.mouserat.io"
+    let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver");
     getApiversion("https://"+geturl[2]+"/dncserver");
    
   }, [])
+
   //To get the api token
   const getApiversion = (apiUrl) => {
     const url = apiUrl+'/version'
@@ -83,8 +85,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     .catch(error => {
       console.error(error)
     })
-    
   }
+
   //To reset the password
   const ResetPassword = () => {
     var emaildata={};
@@ -121,6 +123,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //To send otp
   const ResetPasswordotp = () => {
     var emaildata={};
@@ -149,6 +152,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       console.error(error)
     })
   }
+
   //This function executed while send bytton pressed
   const sendPressed = () => {
     const emailError = emailValidator(email.value)
@@ -164,8 +168,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     {
       ResetPasswordotp();
     }
-      
   }
+
   return (
     <Background>
       <BackButton goBack={navigation.goBack} />

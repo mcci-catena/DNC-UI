@@ -88,9 +88,10 @@ const RegisterScreen = ({ navigation }) => {
       })
     
   }
+
   //UseEffect used to execute first this function then only other function works
   useEffect(() => {
-    let sampleurl="https://staging-dashboard.mouserat.io"
+    let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver");
     getApiversion("https://"+geturl[2]+"/dncserver");
@@ -98,6 +99,7 @@ const RegisterScreen = ({ navigation }) => {
         setIsLoading(false);
     }, 500);
   }, []);
+
   //This part for showing load spinner
   if(isLoading){
     return(
@@ -108,6 +110,7 @@ const RegisterScreen = ({ navigation }) => {
    
     );
   }
+
   //Sent otp to user mail id
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
@@ -146,6 +149,7 @@ const RegisterScreen = ({ navigation }) => {
       })
       setTimeout(() => {setspinner(false)}, 500);
   }
+
   //Send signup data to server
   const onSignUpPressed = () => {
     if(shouldShow!=true)
