@@ -1,5 +1,5 @@
-## About DNC Server
-Generic DNC-UI is a user interface for managing devices and clients.
+## About DNC UI
+Generic DNC UI is an user interface for managing devices and clients.
 
 ## Release History
 
