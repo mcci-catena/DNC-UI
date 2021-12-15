@@ -22,6 +22,7 @@
 //  Revision history:
 //       1.01 Wed July 17 2021 10:30:00 muthup
 //       Module created.
+
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker,ScrollView,Dimensions ,Image} from 'react-native'
 import TextInput from '../components/TextInput'
@@ -61,6 +62,7 @@ const HomeScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
   const [otp, setotp] = useState('');
   const [apiUrl,setapiUrl]=useState('');
+  //To get api token
   const getApitoken = async () => {
     try {
       
@@ -82,13 +84,13 @@ const HomeScreen = ({ navigation }) => {
       console.log(e)
     }
   }
-
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     if(isFocused){
     getApitoken();
     }
   }, [isFocused])
-
+  //To send otp
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
     if (emailError) {
@@ -134,6 +136,7 @@ const HomeScreen = ({ navigation }) => {
     setUsername({ value: ''+username+'', error: '' })
     setEmail({ value: ''+email+'', error: '' })
   };
+  //To delete the user
   const DeleteUser = (username,email) => {
     var url =apiUrl+'/delete-user/' +'' +username+''
     const DELETEMethod = {
@@ -166,7 +169,7 @@ const HomeScreen = ({ navigation }) => {
       })
       setshowAlert(false);
     }
-  
+  //To update the user
   const updateUser = () => {
     var url =apiUrl+'/update-user/' +'' +username.value +''
     const putMethod = {
@@ -201,6 +204,7 @@ const HomeScreen = ({ navigation }) => {
       console.error(error)
     })
   }
+  //To set value while edit icon clicked
   const editIconclicked=(rowData,index) =>
   {
   setPassword({ value:'', error: '' })
@@ -209,6 +213,7 @@ const HomeScreen = ({ navigation }) => {
   setoldEmail(rowData[1]);
   setaddUserdilog(true);
   }
+  //To add action column in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
       <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
@@ -223,76 +228,74 @@ const HomeScreen = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
-
-const fetchInventory = (token,apiUrl) => {
-  var url = apiUrl+'/list-user'
-  const getMethod = {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
-    },
-  }
-  fetch(url, getMethod).then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
+  //To fetch user table data
+  const fetchInventory = (token,apiUrl) => {
+    var url = apiUrl+'/list-user'
+    const getMethod = {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
+      },
     }
-    response.json().then(responseJson => {
-      if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    for(var i=0;i<responseJson.length;i++)
-    {
-      let user=responseJson[i].uname;
-      let email=responseJson[i].email;
-      let cid=responseJson[i].cid;
-      let array=[];
-      array.push(user);
-      array.push(email);
-      array.push(cid);
-      tablearray.push(array);
-         
-    }
-    settableData(tablearray);
+    fetch(url, getMethod).then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+        }
+        for(var i=0;i<responseJson.length;i++)
+        {
+          let user=responseJson[i].uname;
+          let email=responseJson[i].email;
+          let cid=responseJson[i].cid;
+          let array=[];
+          array.push(user);
+          array.push(email);
+          array.push(cid);
+          tablearray.push(array);
+        }
+        settableData(tablearray);
      
-  })
-  })
-}
-
-const fetchData = (token,apiUrl) => {
-  fetch(apiUrl+'/clients', {
+      })
+    })
+  }
+  //To fetch client list
+  const fetchData = (token,apiUrl) => {
+    fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
-  })
-  .then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
-    }
-    response.json().then(responseJson => {
-    if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    clients.push('Select Client')
-    for (var i = 0; i < responseJson.length; i++) {
-      const json = responseJson[i].cname
-      clients.push(json)
-    }
-    setData(clients)
     })
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+        }
+        clients.push('Select Client')
+        for (var i = 0; i < responseJson.length; i++) {
+          const json = responseJson[i].cname
+          clients.push(json)
+        }
+        setData(clients)
+      })
     })
     .catch(error => {
       console.error(error)
     })
   }
-
   const adduserbutton=() =>
   {
     setUsername({ value: '', error: '' });
@@ -301,7 +304,7 @@ const fetchData = (token,apiUrl) => {
     setselectedValue('');
     setIsDialogVisible(true);
   }
-
+  //To add user
   const Adduser = () => {
     setIsDialogVisible(false)
     var url = apiUrl+'/usignup';

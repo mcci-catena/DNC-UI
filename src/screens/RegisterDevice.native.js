@@ -41,8 +41,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AppBar from '../components/AppBar';
 import { useIsFocused } from "@react-navigation/native";
-import getEnvVars from './environment';
-const { apiUrl } = getEnvVars();
 import {Restart} from 'fiction-expo-restart';
 const RegisterDevice = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
@@ -86,6 +84,7 @@ const RegisterDevice = ({ navigation }) => {
   const [deviceoption,setdeviceoption]=useState(["Select device option","devID","devEUI"])
   const [deviceoptionselected,setdeviceoptionselected]=useState('')
   const [deviceoptionvalueselected,setdeviceoptionvalueselected]=useState('')
+  const[apiUrl,setapiUrl]=useState('');
   const [deviceoptionvalue, setdeviceoptionvalue] = useState([])
   const isFocused = useIsFocused();
   var devicevalue;
@@ -123,10 +122,12 @@ const RegisterDevice = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token')
       const uname = await AsyncStorage.getItem('uname')
+      const apiUrl = await AsyncStorage.getItem('apiUrl');
+      setapiUrl(apiUrl);
       if (token !== null && uname !== null) {
         setApi(token)
-        fetchClientlist(token);
-        fetchtabledata(token);
+        fetchClientlist(apiUrl,token);
+        fetchtabledata(apiUrl,token);
         setuname(uname.replace(/['"]+/g, ''))
         
       }
@@ -144,7 +145,7 @@ const RegisterDevice = ({ navigation }) => {
   }, [isFocused])
   
   
-  const fetchtabledata =( token )=> {
+  const fetchtabledata =( apiUrl,token )=> {
     const url=apiUrl+'/listardev';
     
     const getMethod={
@@ -204,7 +205,8 @@ const RegisterDevice = ({ navigation }) => {
       })
     })
   }
-  const fetchClientlist = token => {
+  const fetchClientlist = (apiUrl,token) => {
+    
     fetch(apiUrl+'/clients', {
       method: 'GET',
       headers: {
@@ -459,7 +461,7 @@ const RegisterDevice = ({ navigation }) => {
     if(itemValue=='All' ||itemValue =='Select the Clients')
     {
       let token=Api
-      fetchtabledata(token);
+      fetchtabledata(apiUrl,token);
     }
     else{
     var url =apiUrl+'/listardev/' +'' +itemValue +''
@@ -506,7 +508,7 @@ const RegisterDevice = ({ navigation }) => {
     if(tablesclient=='All' ||tablesclient =='Select the Clients' ||tablesclient==undefined||tablesclient==null)
     {
       let token=Api
-      fetchtabledata(token);
+      fetchtabledata(apiUrl,token);
     }
     else{
     var url =apiUrl+'/listardev/' +'' +tablesclient +''

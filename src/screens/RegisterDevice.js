@@ -89,6 +89,7 @@ const RegisterDevice = ({ navigation }) => {
   const datestringvalue = dateformatvalue + ',' + timevalue
   const isFocused = useIsFocused();
   var devicevalue;
+  //To get api token
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -106,13 +107,14 @@ const RegisterDevice = ({ navigation }) => {
       console.log(e)
     }
   }
-
+  //UseEffect used to execute first this function then only other function works
   useEffect(() => {
     if(isFocused){
       getApitoken();
       settablesclient('');
     }
   }, [isFocused])
+  //To fetch table data
   const fetchtabledata =( token,apiUrl )=> {
     const url=apiUrl+'/listardev';
     const getMethod={
@@ -136,33 +138,31 @@ const RegisterDevice = ({ navigation }) => {
       }
       for(var i=0;i<responseJson.length;i++)
       {
-       
-          let j=i+1;
-          let client  = responseJson[i].client;
-            let hwid=responseJson[i].hwid;
-            let devID=responseJson[i].devID;
-            let deviceID=responseJson[i].deviceid;
-            let devEUI=responseJson[i].devEUI;
-            let idate=responseJson[i].idate;
-            let rdate=responseJson[i].rdate;
-            let array=[];
-            array.push(j);
-            array.push(client);
-            array.push(hwid);
-            array.push(devID);
-            array.push(devEUI);
-            array.push(deviceID);
-            array.push(idate);
-            array.push(rdate);
-            array.push(client);
-            tablearray.push(array);
-            
-        }
-
-        settableData(tablearray);
+        let j=i+1;
+        let client  = responseJson[i].client;
+        let hwid=responseJson[i].hwid;
+        let devID=responseJson[i].devID;
+        let deviceID=responseJson[i].deviceid;
+        let devEUI=responseJson[i].devEUI;
+        let idate=responseJson[i].idate;
+        let rdate=responseJson[i].rdate;
+        let array=[];
+        array.push(j);
+        array.push(client);
+        array.push(hwid);
+        array.push(devID);
+        array.push(devEUI);
+        array.push(deviceID);
+        array.push(idate);
+        array.push(rdate);
+        array.push(client);
+        tablearray.push(array);
+      }
+      settableData(tablearray);
       })
     })
   }
+  //To fetch clientlist
   const fetchClientlist = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
       method: 'GET',
@@ -172,31 +172,30 @@ const RegisterDevice = ({ navigation }) => {
         Authorization: 'Bearer ' + token.replace(/['"]+/g, '') + '',
       },
     })
-      .then(response => {
-        const statusCode = response.status;
-        if (statusCode == 403) {
-          alert('Session expired')
-          Restart();
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
         }
-        response.json().then(responseJson => {
-           if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          clients.push('Select Client')
-          for (var i = 0; i < responseJson.length; i++) {
-            const json = responseJson[i].cname
-
-            clients.push(json)
-          }
-
-          setData(clients)
+        clients.push('Select Client')
+        for (var i = 0; i < responseJson.length; i++) {
+          const json = responseJson[i].cname
+          clients.push(json)
+        }
+        setData(clients)
          
-        })
       })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
+  //To add device manage
   const adddevicemange=()=>
   {
     setedit(false);
@@ -208,8 +207,8 @@ const RegisterDevice = ({ navigation }) => {
     }
     setIsDialogVisible(true);
     setidate('')
-    
   }
+  //To add device
   const Adddevice = () => {
     setIsDialogVisible(false)
     var url = apiUrl+'/regdev'
@@ -230,7 +229,6 @@ const RegisterDevice = ({ navigation }) => {
      
       }),
     }
- 
     fetch(url, putMethod).then(response => {
       const statusCode = response.status;
       if (statusCode == 403) {
@@ -245,6 +243,7 @@ const RegisterDevice = ({ navigation }) => {
       })
     })
   }
+  //To action column property in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row'}}>
     <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
@@ -267,6 +266,7 @@ const RegisterDevice = ({ navigation }) => {
   </TouchableOpacity>
   </View>
   );
+  //To get row values from register device table
   const editIconclicked=(rowData,index) =>
   {
     console.log(rowData);
@@ -286,25 +286,20 @@ const RegisterDevice = ({ navigation }) => {
     {
       devicevalue=rowData[4]
       deviceselected='devEUI'
-   }
+    }
     else if((rowData[4]==null ||rowData[4]==undefined||rowData[4]=='')&&(rowData[5]==null ||rowData[5]==undefined||rowData[5]=='')) 
     {
       devicevalue=rowData[3]
       deviceselected='devID'
-     
-      
     }
     else if((rowData[4]==null ||rowData[4]==undefined||rowData[4]=='')&&(rowData[3]==null ||rowData[3]==undefined||rowData[3]=='')) 
     {
       alert("You can't edit this device.please contact administrator");
       return;
-      
     }
     setdeviceoptionselected(deviceselected);
-    
-     var url =apiUrl+'/getdev/'+rowData[1];  
-     
-     const posetMethod = {
+    var url =apiUrl+'/getdev/'+rowData[1];  
+    const posetMethod = {
        method: 'POST',
        headers: {
          'Content-type': 'application/json',
@@ -314,31 +309,26 @@ const RegisterDevice = ({ navigation }) => {
        body: JSON.stringify({
          type:deviceselected
        }),
-     }
-   
-     fetch(url, posetMethod)
-     .then(response => {
-     const statusCode = response.status;
-     if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
-    } 
-     response.json().then(responseJson => {
-    if (responseJson['message'] != null) {
-       alert(JSON.stringify(responseJson['message']))
-     }
-    
+    }
+    fetch(url, posetMethod)
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      } 
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
       let mesasurementdata=responseJson["device_list"];
       mesasurementdata.push(devicevalue);
       setdeviceoptionvalue(mesasurementdata);
-
-   
-     
-     })
-     })
-     .catch(error => {
-       console.error(error)
-     })
+    })
+    })
+    .catch(error => {
+      console.error(error)
+    })
     setdeviceoptionvalueselected(devicevalue);
     var dateutc = Date.parse(rowData[6]);
     const dateformatvalue = moment(dateutc).format('MM/DD/YYYY')
@@ -346,24 +336,16 @@ const RegisterDevice = ({ navigation }) => {
     const datestringvalue = dateformatvalue + ',' + timevalue
     setdatevalue(datestringvalue);
     checkeditable(rowData[1] ,rowData[2])
- 
   }
-
   const createButtonAlert = ({client,hwid,idate}) =>
   {
-    
     setshowAlert(true);
     setclientName(client);
     setHardwareid(hwid);
     setidate(idate);
-    
-
   };
-
   const checkeditable = ( clientName, Hardwareid) => {
-    
     var url =apiUrl+'/listfrdev/' +'' +clientName +''
-      
     const Getmethod = {
       method: 'GET',
       headers: {
@@ -372,48 +354,39 @@ const RegisterDevice = ({ navigation }) => {
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
     }
-
     fetch(url, Getmethod)
-      .then(response => {
-        const statusCode = response.status
-        if (statusCode == 403) {
-          alert('Session expired')
-          Restart();
+    .then(response => {
+      const statusCode = response.status
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
         }
-        response.json().then(responseJson => {
-         if (responseJson['message'] != null) {
-            alert(JSON.stringify(responseJson['message']))
-          }
-          console.log(JSON.stringify(responseJson));
-          if(responseJson['hwids']!=undefined){
+        console.log(JSON.stringify(responseJson));
+        if(responseJson['hwids']!=undefined){
           let hwids = responseJson['hwids'];
           let result1 = false
-          
           for (let i = 0; i < hwids.length; i++) {
             const activehwid = hwids[i]
-
             if (activehwid['hwid'] == Hardwareid) {
               result1 = true
             }
           }
-        
-
           if (result1) {
-           
-            
-            
             setIsDialogVisible(true)
-           
           } else {
             alert('This device is already assigned to a location by the Client')
             setIsDialogVisible(false)
           }
         }
-        })
       })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
   const clientpickerenabled=({ itemValue })=>
   {
@@ -425,28 +398,27 @@ const RegisterDevice = ({ navigation }) => {
       fetchtabledata(token,apiUrl);
     }
     else{
-    var url =apiUrl+'/listardev/' +'' +itemValue +''
-  
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-    }).then(response => {
-      const statusCode = response.status
-      if (statusCode == 403) {
-        alert('Session expired')
-        Restart();;
-      }
-      response.json().then(responseJson => {
-        
-        if (responseJson['message'] != null) {
-          alert(JSON.stringify(responseJson['message']))
+      var url =apiUrl+'/listardev/' +'' +itemValue +''
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+        },
+      })
+      .then(response => {
+        const statusCode = response.status
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart();;
         }
-        console.log(JSON.stringify(responseJson[0]))
-        for(var i=0;i<responseJson.length;i++)
-        {
+        response.json().then(responseJson => {
+          if (responseJson['message'] != null) {
+            alert(JSON.stringify(responseJson['message']))
+          }
+          console.log(JSON.stringify(responseJson[0]))
+          for(var i=0;i<responseJson.length;i++)
+          {
             let j=i+1;
             let client  = responseJson[i].client;
             let hwid=responseJson[i].hwid;
@@ -466,32 +438,26 @@ const RegisterDevice = ({ navigation }) => {
             array.push(rdate);
             array.push(client);
             tablearray.push(array);
-            
-        }
-
-        settableData(tablearray);
+          }
+          settableData(tablearray);
+        })
       })
-    })
     }
   }
   const clientwisetableData = () => {
-
-     
- 
     if(tablesclient=='All' ||tablesclient =='Select the Clients' ||tablesclient==undefined||tablesclient==null)
     {
       let token=Api
       fetchtabledata(token,apiUrl);
     }
     else{
-    var url =apiUrl+'/listardev/' +'' +tablesclient +''
-    
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
+      var url =apiUrl+'/listardev/' +'' +tablesclient +''
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+        },
     }).then(response => {
       const statusCode = response.status
       if (statusCode == 403) {
@@ -847,14 +813,14 @@ const RegisterDevice = ({ navigation }) => {
           <TextInput
               label="Enter Hardware ID"
               returnKeyType="next"
-              maxLength={50}
+              maxLength={20}
               value={Hardwareid}
               onChangeText={text => setHardwareid(text)}
               autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
+              autoCompleteType="username"
+              textContentType="name"
+              keyboardType="default"
+          />
               <DateTimePicker
             value={datevalue}
             minDate={new Date(2018, 0, 4)}

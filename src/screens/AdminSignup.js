@@ -1,10 +1,10 @@
-// Module: AdminSignup
+// Module: AdminSignup.js
 // 
 // Function:
-//      Function to Admin user signup module
+//      Function to export AdminSignup page 
 // 
 // Version:
-//    V2.02  Thu Jul 13 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,8 +20,11 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 13 2021 10:30:00 muthup
+//       1.01 Fri July 14 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+//
 
 import React, { useState,useEffect } from 'react'
 import { View, StyleSheet, TouchableOpacity,Modal,ActivityIndicator } from 'react-native'
@@ -36,10 +39,10 @@ import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import getEnvVars from './environment';
-
 const { uiversion } = getEnvVars();
+
 const RegisterScreen = ({ navigation }) => {
- 
+  //Declare the use state variable
   const [Username, setUsername] = useState({ value: '', error: '' })
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
@@ -53,8 +56,8 @@ const RegisterScreen = ({ navigation }) => {
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
   
+  //Function for get apiserver version
   const getApiversion = (apiUrl) => {
-    
     const url =apiUrl+ '/version'
     const postMethod= {
       method: 'GET',
@@ -64,7 +67,6 @@ const RegisterScreen = ({ navigation }) => {
       },
       
     }
-   
     fetch(url,postMethod)
       .then(response => {
         const statusCode = response.status
@@ -85,8 +87,7 @@ const RegisterScreen = ({ navigation }) => {
       })
     
   }
-
-
+  //UseEffect used to execute first this function then only other function works
   useEffect(() => {
     let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
@@ -96,7 +97,7 @@ const RegisterScreen = ({ navigation }) => {
         setIsLoading(false);
     }, 500);
   }, []);
-
+  //This part for showing load spinner
   if(isLoading){
     return(
       <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
@@ -106,7 +107,7 @@ const RegisterScreen = ({ navigation }) => {
    
     );
   }
-
+  //Sent otp to user mail id
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
     if (emailError) {
@@ -144,17 +145,14 @@ const RegisterScreen = ({ navigation }) => {
       })
       setTimeout(() => {setspinner(false)}, 500);
   }
-  
+  //Send signup data to server
   const onSignUpPressed = () => {
-    
     if(shouldShow!=true)
     {
-
       setalertmessage("Please verify your email");
       setshowAlert(true);
       stop;
     }
-    
     const UsernameError = nameValidator(Username.value)
     const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
@@ -166,8 +164,6 @@ const RegisterScreen = ({ navigation }) => {
       setOrgname({ ...Orgname, error: OrgnameError })
       return
     }
-    
-
     const url = apiUrl+'/asignup'
     fetch(url, {
       method: 'POST',
@@ -203,7 +199,6 @@ const RegisterScreen = ({ navigation }) => {
 
   return (
     <Background>
-      
       <Header>Create Admin Account</Header>
         <TextInput
         label="Organization Name"
@@ -280,7 +275,7 @@ const RegisterScreen = ({ navigation }) => {
     </Background>
   )
 }
-
+//Defined style sheet for admin signup screen
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',

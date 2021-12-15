@@ -1,10 +1,10 @@
-// Module: Configuredevice
+// Module: Configuredevice.native.js
 // 
 // Function:
-//      Function to devicr configuration for App
+//      Function to device configuration for app
 // 
 // Version:
-//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,8 +20,12 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 17 2021 10:30:00 muthup
+//       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+//
+
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image,TextInput} from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
@@ -79,6 +83,7 @@ const Configuredevice = ({ navigation }) => {
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   let textarray = [];
+  //To get api token from session
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -92,40 +97,38 @@ const Configuredevice = ({ navigation }) => {
         fetchClientlist(token,apiUrl)
       }
       if (usertype == 'Client') {
-
         setShouldShow(false);
-        
       }
       settablehide(false);
-      
-      
-    } catch (e) {
+      } catch (e) {
       console.log(e)
     }
   }
-const isFocused = useIsFocused();
-useEffect(() => {
-  if(isFocused){
-    getApitoken();
-    setselectedValue('');
-  }
-}, [isFocused])
-const addTextInput = (index) => {
-  let labelvalue=taglist[index]
-  textarray.push(<View style={styles.textboxview}>
+  const isFocused = useIsFocused();
+    useEffect(() => {
+    if(isFocused){
+      getApitoken();
+      setselectedValue('');
+    }
+  }, [isFocused])
+  //To add Textinput dynamically
+  const addTextInput = (index) => {
+    let labelvalue=taglist[index]
+    textarray.push(<View style={styles.textboxview}>
     <Text style={styles.textboxtextview}>{labelvalue +" :"}</Text>
     <TextInput key={index} style={styles.input} label={labelvalue}
-  onChangeText={(text) => addValues(text,index)} /></View>);
-  settextInput(textarray);
-}
-const addValues = (text, index) => {
-  let dataArray = inputData;
-  let checkBool = false;
-  if (dataArray.length !== 0){
-    dataArray.forEach(element => {
-    if (element.index === index ){
-      element.text = text;
-      checkBool = true;
+    onChangeText={(text) => addValues(text,index)} /></View>);
+    settextInput(textarray);
+  }
+  //To get values from dynamic textinput
+  const addValues = (text, index) => {
+    let dataArray = inputData;
+    let checkBool = false;
+    if (dataArray.length !== 0){
+      dataArray.forEach(element => {
+      if (element.index === index ){
+        element.text = text;
+        checkBool = true;
       }
     });
   }
@@ -136,79 +139,71 @@ const addValues = (text, index) => {
     dataArray.push({'text':text,'index':index});
     setinputData(dataArray);
   }
-  
-  
-}
- 
+  }
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
-  
-    const onChange = (event, selectedValue) => {
-  
-      setShow(Platform.OS === 'ios');
-      
-      if (mode == 'date') {
-        const currentDate = selectedValue || new Date();
-        setDate(currentDate);
-        setMode('time');
-        setShow(Platform.OS !== 'ios'); 
-      } else {
-        const selectedTime = selectedValue || new Date();
-        setTime(selectedTime);
-        setShow(Platform.OS === 'ios'); 
-        setMode('date'); 
-      }
-      setdatevalue(datestringvalue);
-    };
-    const showMode = (currentMode) => {
-      setShow(true);
-      setMode(currentMode);
-      
-    };
-  
-    const showDatepicker = () => {
+  //To get datepicker value
+  const onChange = (event, selectedValue) => {
+    setShow(Platform.OS === 'ios');
+    if (mode == 'date') {
+      const currentDate = selectedValue || new Date();
+      setDate(currentDate);
+      setMode('time');
+      setShow(Platform.OS !== 'ios'); 
+    } else {
+      const selectedTime = selectedValue || new Date();
+      setTime(selectedTime);
+      setShow(Platform.OS === 'ios'); 
+      setMode('date'); 
+    }
+    setdatevalue(datestringvalue);
+  };
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+  const showDatepicker = () => {
       showMode('date');
-      
-    };
-    const fetchtabledata = (itemValue) => {
-      var taglist=[];
-      let tableHead=[];
-      let widthArr=[];
-      taglist=clienttaglist[itemValue];
-      settaglist(taglist);
-     
-      tableHead.push("S.NO");
-      widthArr.push(50);
-      if(taglist!=undefined)
+  };
+  //To fetch table data
+  const fetchtabledata = (itemValue) => {
+    var taglist=[];
+    let tableHead=[];
+    let widthArr=[];
+    taglist=clienttaglist[itemValue];
+    settaglist(taglist);
+    tableHead.push("S.NO");
+    widthArr.push(50);
+    if(taglist!=undefined)
+    {
+      settaglength(taglist.length);
+      for(var i=0;i<taglist.length;i++)
       {
-        settaglength(taglist.length);
-        for(var i=0;i<taglist.length;i++)
-        {
-          tableHead.push(taglist[i]);
-          widthArr.push(100);
-        }
+        tableHead.push(taglist[i]);
+        widthArr.push(100);
       }
-      tableHead.push("Hardware id")
-      tableHead.push("Install Date")
-      tableHead.push("Remove Date")
-      tableHead.push("Action")
-      widthArr.push(200);
-      widthArr.push(200);
-      widthArr.push(200);
-      widthArr.push(200);
-      settableHead(tableHead);
-      setwidthArr(widthArr);
-      const url=apiUrl+'/listadev/'+''+itemValue+'';
-      const getMethod={
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-        },
-      }
-      fetch(url,getMethod ).then(response => {
+    }
+    tableHead.push("Hardware id")
+    tableHead.push("Install Date")
+    tableHead.push("Remove Date")
+    tableHead.push("Action")
+    widthArr.push(200);
+    widthArr.push(200);
+    widthArr.push(200);
+    widthArr.push(200);
+    settableHead(tableHead);
+    setwidthArr(widthArr);
+    const url=apiUrl+'/listadev/'+''+itemValue+'';
+    const getMethod={
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+    }
+    fetch(url,getMethod ).then(response => {
       const statusCode = response.status;
       if (statusCode == 403) {
         alert('Session expired')
@@ -245,6 +240,7 @@ const addValues = (text, index) => {
         })
         })
     }
+    //To fetch client list
     const fetchClientlist = (token,apiUrl) => {
       fetch(apiUrl+'/clients', {
         method: 'GET',
@@ -263,7 +259,7 @@ const addValues = (text, index) => {
           if (responseJson['message'] != null) {
             alert(JSON.stringify(responseJson['message']))
           }
-          clients.push('Select Client')
+          clients.push('Select the Clients')
           let taglist={}
           for (var i = 0; i < responseJson.length; i++) {
             const json = responseJson[i].cname
@@ -278,6 +274,7 @@ const addValues = (text, index) => {
         console.error(error)
       })
     }
+    //To Replace the device
     const ReplaceDevice=()=>
     {
       setIsreplaceDialogVisible(false);
@@ -319,43 +316,235 @@ const addValues = (text, index) => {
     })
     
    }
-   const AddDevice = () => {
-    
+  //To configure the device
+  const AddDevice = () => {
     if(editdevice)
     {
-      alert(JSON.stringify("muthu"));
       let requestdata={};
       let newd={};
       let otherd={};
       requestdata['hwid']=deviceValue;
-
       for(var i=0;i<taglength;i++)
-    {  
-      let textdata=inputData[i];
-      
-      let oldtags=olddata[0]['tags'];
-      
-      if(textdata !=undefined)
-      {
-        for(var j=0;j<taglength;j++)
+      {  
+        let textdata=inputData[i];
+        let oldtags=olddata[0]['tags'];
+        if(textdata !=undefined)
         {
-          
-          if(textdata.index==oldtags[j].index)
+          for(var j=0;j<taglength;j++)
           {
-            newd[""+taglist[j]+""]=textdata["text"];
+            if(textdata.index==oldtags[j].index)
+            {
+              newd[""+taglist[j]+""]=textdata["text"];
+            }
           }
         }
-      
+        otherd[""+taglist[i]+""]=oldtags[i].text;
       }
-     
-      otherd[""+taglist[i]+""]=oldtags[i].text;
-    
+      requestdata['newd']=newd;
+      requestdata['otherd']=otherd;
+      setIsDialogVisible(false)
+      var url = apiUrl+'/device/'+selectedValue
+      const postMethod = {
+        method: 'PUT',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      body: JSON.stringify(requestdata),
+      }
+      console.log(JSON.stringify(postMethod))
+      fetch(url, postMethod)
+      .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      if(statusCode == 200)
+      {
+        alert('Updated Successfully')
+      }
+      response.json().then(responseJson => {
+      if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+      }
+      fetchtabledata(selectedValue);
+      fetchDevicelist(selectedValue);
+    })
+    })
+    .catch(error => {
+      console.error(error)
+    })
     }
-    requestdata['newd']=newd;
-    requestdata['otherd']=otherd;
-    
-    setIsDialogVisible(false)
-    var url = apiUrl+'/device/'+selectedValue
+    else{
+      let requestdata={};
+      requestdata["cname"]=selectedValue;
+      requestdata["lat"]=12.34;
+      requestdata["long"]=13.30;
+      requestdata["id"]=deviceValue;
+      requestdata["datetime"]=datestringvalue;
+      for(var i=0;i<taglength;i++)
+      {  
+        let textdata=inputData[i];
+        if(textdata==undefined)
+        {
+          alert("Please fill the all information");
+          return;
+        }
+        else{
+          requestdata[""+taglist[i]+""]=textdata["text"];
+        }
+      }
+      setIsDialogVisible(false)
+      var url = apiUrl+'/device'
+      const postMethod = {
+        method: 'POST',
+        headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+        },
+        body: JSON.stringify(requestdata),
+      }
+      fetch(url, postMethod)
+      .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
+        }
+        fetchtabledata(selectedValue);
+        fetchDevicelist(selectedValue);
+      })
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    }
+  }
+  //To fetch device list
+  const fetchDevicelist = selectedValue => {
+    var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
+    const Getmethod = {
+      method: 'GET',
+      headers: {
+      'Content-type': 'application/json',
+      Accept: 'application/json',
+      Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+    }
+    fetch(url, Getmethod)
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
+      }
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
+        }
+        let hwids1 = responseJson['hwids']
+        devices.push('Select the devices')
+        if(responseJson['message']!="No Devices registered under this client!"){
+        for (let i = 0; i < hwids1.length; i++) {
+          let devicedate={};
+          const activehwid = hwids1[i];
+          devicedate['hwid']=activehwid['hwid'];
+          devicedate['date']=activehwid['date'];
+          hwids.push(devicedate)
+          devices.push(activehwid['hwid'])
+        }
+      }
+      setdevice(devices)
+      sethwid(hwids)
+    })
+    })
+    .catch(error => {
+      console.error(error)
+    })
+  }
+  //To Add action columns in table
+  const element = (cellData, index) => (
+    <View style={{flexDirection:'row'}}>
+      <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
+        <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Remove</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() =>replaceDevice({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
+        <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Replace</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>createButtonAlert({hwid:""+cellData[taglength+1]+""})}>
+        <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Delete</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={()=>editclicked(cellData)}>
+        <View style={{ paddingRight: 10 }} >
+          <Text style={{color:'blue'}}>Edit</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+  const createButtonAlert = ({hwid}) =>
+  {
+    setshowAlert(true);
+    setHardwareid(hwid);
+  };
+  const editclicked=(cellData)=>
+  {
+    setdilogtitle("EDIT DEVICE INFORMATION");
+    seteditdevice(true);
+    setdatevalue(cellData[taglength+2]);
+    setdeviceValue(cellData[taglength+1])
+    textarray=[];
+    settextInput(textarray);
+    let olddata=[];
+    let olddataset={};
+    olddataset['Hardwareid']=cellData[taglength+1];
+    olddataset['Date']=cellData[taglength+1];
+    let tags=[];
+    for(var i=0;i<taglength;i++)
+    {
+      tags.push({index:i,text:cellData[i+1]})
+      let index=i;
+      let labelvalue=taglist[i]
+      textarray.push(<View style={styles.textboxview}>
+        <Text style={styles.textboxtextview}>{labelvalue +" :"}</Text>
+        <TextInput key={index} style={styles.input} defaultValue={cellData[i+1]} label={labelvalue}
+      onChangeText={(text) => addValues(text,index)} /></View>);
+      settextInput(textarray);
+    }
+    olddataset['tags']=tags;
+    olddata.push(olddataset);
+    setolddata(olddata)
+    setIsDialogVisible(true)
+  }
+  const createRemoveButtonAlert = ({hwid,removedate}) =>
+  {
+    if(removedate===null)
+    {
+      setshowRemoveAlert(true);
+      setHardwareid(hwid);
+    }
+    else{
+      alert("This device was already removed");
+    }  
+  };
+  const removeDevice = () => {
+    setshowRemoveAlert(false);
+    const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
+    const timevalue = moment(new Date()).utc().format('HH:mm:ss')
+    const datestringvalue = dateformatvalue + ',' + timevalue
+    var url =apiUrl+'/rmdev/' +'' +selectedValue +''
     const postMethod = {
       method: 'PUT',
       headers: {
@@ -363,65 +552,11 @@ const addValues = (text, index) => {
       Accept: 'application/json',
       Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
-      body: JSON.stringify(requestdata),
+      body: JSON.stringify({
+        hwid: Hardwareid,
+        datetime: datestringvalue,
+      }),
     }
-    console.log(JSON.stringify(postMethod))
-    fetch(url, postMethod)
-    .then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
-    }
-    if(statusCode == 200)
-    {
-      alert('Updated Successfully')
-    }
-    response.json().then(responseJson => {
-     if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    fetchtabledata(selectedValue);
-    fetchDevicelist(selectedValue);
-    })
-    })
-    .catch(error => {
-      console.error(error)
-    })
-  }
-  else{
-    let requestdata={};
-    requestdata["cname"]=selectedValue;
-    requestdata["lat"]=12.34;
-    requestdata["long"]=13.30;
-    requestdata["id"]=deviceValue;
-    requestdata["datetime"]=datestringvalue;
-    for(var i=0;i<taglength;i++)
-    {  
-      let textdata=inputData[i];
-      
-      if(textdata==undefined)
-      {
-        alert("Please fill the all information");
-        return;
-      }
-      else{
-        requestdata[""+taglist[i]+""]=textdata["text"];
-      }
-      
-    }
-    setIsDialogVisible(false)
-    var url = apiUrl+'/device'
-    const postMethod = {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-      body: JSON.stringify(requestdata),
-    }
-
     fetch(url, postMethod)
     .then(response => {
       const statusCode = response.status;
@@ -430,255 +565,93 @@ const addValues = (text, index) => {
         Restart();
       }
       response.json().then(responseJson => {
-       if (responseJson['message'] != null) {
+      if (responseJson['message'] != null) {
         alert(JSON.stringify(responseJson['message']))
       }
       fetchtabledata(selectedValue);
       fetchDevicelist(selectedValue);
-      })
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
-}
-const fetchDevicelist = selectedValue => {
-  var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
-  const Getmethod = {
-    method: 'GET',
-    headers: {
+  const addDevicebutton = () => {
+    if(selectedValue=='')
+      {
+        alert("Please Select Client")
+      }
+      else{
+        setdatevalue(new Date());
+        textarray=[];
+        seteditdevice(false);
+        setdilogtitle("ADD DEVICE INFORMATION");
+        for(var i=0;i<taglength;i++)
+        {
+          addTextInput(i);
+        }
+        setIsDialogVisible(true)
+      }
+  }
+  const replaceDevice = ({hwid,removedate}) => {
+    if(removedate===null)
+    {
+      setdeviceValue(hwid);
+      setIsreplaceDialogVisible(true);
+    }
+    else{
+      alert("This device was already removed");
+    } 
+  }
+  const deleteDevice = () => {
+    setshowAlert(false);
+    var url =apiUrl+'/device/' +'' +selectedValue +''
+    const postMethod = {
+      method: 'DELETE',
+      headers: {
       'Content-type': 'application/json',
       Accept: 'application/json',
       Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
     },
-  }
-  fetch(url, Getmethod)
-  .then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
+    body: JSON.stringify({
+      hwid: Hardwareid,
+    }),
     }
-    response.json().then(responseJson => {
-      if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    let hwids1 = responseJson['hwids']
-    devices.push('Select the devices')
-    if(responseJson['message']!="No Devices registered under this client!"){
-      
-      for (let i = 0; i < hwids1.length; i++) {
-        let devicedate={};
-        const activehwid = hwids1[i];
-        devicedate['hwid']=activehwid['hwid'];
-        devicedate['date']=activehwid['date'];
-        hwids.push(devicedate)
-        devices.push(activehwid['hwid'])
+    fetch(url, postMethod)
+    .then(response => {
+      const statusCode = response.status;
+      if (statusCode == 403) {
+        alert('Session expired')
+        Restart();
       }
-    }
-    setdevice(devices)
-    sethwid(hwids)
+      response.json().then(responseJson => {
+        if (responseJson['message'] != null) {
+          alert(JSON.stringify(responseJson['message']))
+        }
+        fetchtabledata(selectedValue);
     })
-  })
-  .catch(error => {
-    console.error(error)
-  })
-}
-const element = (cellData, index) => (
-
-  <View style={{flexDirection:'row'}}>
-    <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
-      <View style={{ paddingRight: 10 }} >
-        <Text style={{color:'blue'}}>Remove</Text>
-      </View>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() =>replaceDevice({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
-    <View style={{ paddingRight: 10 }} >
-        <Text style={{color:'blue'}}>Replace</Text>
-    </View>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={()=>createButtonAlert({hwid:""+cellData[taglength+1]+""})}>
-    <View style={{ paddingRight: 10 }} >
-        <Text style={{color:'blue'}}>Delete</Text>
-    </View>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={()=>editclicked(cellData)}>
-    <View style={{ paddingRight: 10 }} >
-        <Text style={{color:'blue'}}>Edit</Text>
-    </View>
-    </TouchableOpacity>
-  </View>
-);
-const createButtonAlert = ({hwid}) =>
-{
-  setshowAlert(true);
-  setHardwareid(hwid);
-};
-const editclicked=(cellData)=>
-{
-  setdilogtitle("EDIT DEVICE INFORMATION");
-  seteditdevice(true);
-  setdatevalue(cellData[taglength+2]);
-  setdeviceValue(cellData[taglength+1])
-  textarray=[];
-  settextInput(textarray);
-  let olddata=[];
-  let olddataset={};
-  olddataset['Hardwareid']=cellData[taglength+1];
-  olddataset['Date']=cellData[taglength+1];
-  let tags=[];
-   for(var i=0;i<taglength;i++)
-  {
-    
-    tags.push({index:i,text:cellData[i+1]})
-    let index=i;
-    let labelvalue=taglist[i]
-    textarray.push(<View style={styles.textboxview}>
-      <Text style={styles.textboxtextview}>{labelvalue +" :"}</Text>
-      <TextInput key={index} style={styles.input} defaultValue={cellData[i+1]} label={labelvalue}
-    onChangeText={(text) => addValues(text,index)} /></View>);
-    settextInput(textarray);
-  }
-  olddataset['tags']=tags;
-  
-  olddata.push(olddataset);
-  setolddata(olddata)
-  setIsDialogVisible(true)
-  
-}
-const createRemoveButtonAlert = ({hwid,removedate}) =>
-{
-  
-  if(removedate===null)
-  {
-    setshowRemoveAlert(true);
-    setHardwareid(hwid);
-    
-  }
-  else{
-    alert("This device was already removed");
-  }  
-  
-};
-const removeDevice = () => {
-  setshowRemoveAlert(false);
-  const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
-  const timevalue = moment(new Date()).utc().format('HH:mm:ss')
-  const datestringvalue = dateformatvalue + ',' + timevalue
-  var url =apiUrl+'/rmdev/' +'' +selectedValue +''
-  const postMethod = {
-    method: 'PUT',
-    headers: {
-    'Content-type': 'application/json',
-    Accept: 'application/json',
-    Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-    },
-    body: JSON.stringify({
-      hwid: Hardwareid,
-      datetime: datestringvalue,
-    }),
-  }
-  fetch(url, postMethod)
-  .then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
-    }
-    response.json().then(responseJson => {
-    if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    fetchtabledata(selectedValue);
+    })
+    .catch(error => {
+      console.error(error)
+    })
     fetchDevicelist(selectedValue);
-  })
-  })
-  .catch(error => {
-    console.error(error)
-  })
-  
-}
-const addDevicebutton = () => {
-  if(selectedValue=='')
-    {
-      alert("Please Select Client")
+  }
+  const pickerenabled=(itemValue) =>
+  {
+    setselectedValue(itemValue);
+    if(itemValue!="Select Client")
+   {
+      fetchtabledata(itemValue);
+      settablehide(true);
+      fetchDevicelist(itemValue)
     }
-    else{
-  setdatevalue(new Date());
-  textarray=[];
-  seteditdevice(false);
-  setdilogtitle("ADD DEVICE INFORMATION");
-  for(var i=0;i<taglength;i++)
-  {
-    addTextInput(i);
   }
-  setIsDialogVisible(true)
-}
-}
-const replaceDevice = ({hwid,removedate}) => {
-  
-  
-  if(removedate===null)
+  const devicepickerenable=(itemValue)=>
   {
-    setdeviceValue(hwid);
-    setIsreplaceDialogVisible(true);
-    
-  }
-  else{
-    alert("This device was already removed");
+    setdeviceValue(itemValue);
+    let deviceinfo=hwid.find(x =>x.hwid ==itemValue)
+  setdatevalue(deviceinfo['date']);
   } 
-}
-const deleteDevice = () => {
-  setshowAlert(false);
-  var url =apiUrl+'/device/' +'' +selectedValue +''
-  const postMethod = {
-    method: 'DELETE',
-    headers: {
-    'Content-type': 'application/json',
-    Accept: 'application/json',
-    Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-    },
-    body: JSON.stringify({
-      hwid: Hardwareid,
-    }),
-  }
-  
-  fetch(url, postMethod)
-  .then(response => {
-    const statusCode = response.status;
-    if (statusCode == 403) {
-      alert('Session expired')
-      Restart();
-    }
-    response.json().then(responseJson => {
-    if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
-    }
-    fetchtabledata(selectedValue);
-  })
-  })
-  .catch(error => {
-    console.error(error)
-  })
-  fetchDevicelist(selectedValue);
-}
-
-const pickerenabled=(itemValue) =>
-{
-  setselectedValue(itemValue);
-  if(itemValue!="Select Client")
-  {
-    fetchtabledata(itemValue);
-    settablehide(true);
-    fetchDevicelist(itemValue)
-  }
-}
-const devicepickerenable=(itemValue)=>
-{
-  setdeviceValue(itemValue);
- let deviceinfo=hwid.find(x =>x.hwid ==itemValue)
- setdatevalue(deviceinfo['date']);
-} 
   return (
     <View>
       <AppBar navigation={navigation} title={"Configure Device"}></AppBar>
@@ -686,7 +659,6 @@ const devicepickerenable=(itemValue)=>
         <View style={{flexDirection:"row"}}>
             <Button mode="contained"  style={styles.button} onPress={() => addDevicebutton()}>Add Device</Button>
         </View>
-       
         <View style={{ width: '50%',borderRadius: 10, borderWidth: 1, borderColor: '#560CCE', overflow: 'hidden', marginLeft: 'auto',marginRight: 'auto',marginTop: 10, marginBottom: 20 }}>
           <Picker selectedValue={selectedValue} style={{width: '100%'}} onValueChange={itemValue =>pickerenabled(itemValue)}>
                 {data.map((value, key) => (
@@ -695,32 +667,22 @@ const devicepickerenable=(itemValue)=>
           </Picker>
         </View>
         <View style={{ paddingLeft: 10, paddingRight: 10 }}>   
-        <ScrollView> 
-        <ScrollView horizontal={true} > 
-        {tablehide && (   <Table borderStyle={{borderColor: 'transparent'}}>
-     
-          <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
-          
-     
-          {
-            tableData.map((rowData, index) => (
-              // #F7F6E7
+          <ScrollView> 
+            <ScrollView horizontal={true} > 
+              {tablehide && (   <Table borderStyle={{borderColor: 'transparent'}}>
+              <Row data={tableHead} style={styles.head} widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase' }}/>
+              {tableData.map((rowData, index) => (
               <TableWrapper key={index}   style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
-                {
-                  rowData.map((cellData, cellIndex) => (
-                    <Cell  key={cellIndex} data={cellIndex === taglength+4 ? element(rowData, index): cellData}  style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
-                  ))
+                {rowData.map((cellData, cellIndex) => (
+                <Cell  key={cellIndex} data={cellIndex === taglength+4 ? element(rowData, index): cellData}  style={{width:widthArr[cellIndex]}}textStyle={styles.text}  />
+                ))
                 }
               </TableWrapper>
-            ))
-          }
-          
-       
-        </Table>)}
-        </ScrollView>
-        </ScrollView>
+              ))}
+              </Table>)}
+            </ScrollView>
+          </ScrollView>
         </View>
-
         <AwesomeAlert
           show={showRemoveAlert}
           showProgress={false}
@@ -791,164 +753,134 @@ const devicepickerenable=(itemValue)=>
             onChange={onChange}
             />        
             )} 
+            <TouchableOpacity onPress={showDatepicker}>
+              <Text style={{borderWidth:1}}>{datestringvalue}</Text>
+            </TouchableOpacity>
+        </View>
+        <View style={{ width: '100%', 
+          height: 40,
+          borderRadius: 5, 
+          borderWidth: 1, 
+          borderColor: '#560CCE', 
+          overflow: 'hidden', 
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          marginTop: 10,
+          marginBottom: 10,
+          alignSelf: 'center' }}>
+          {!editdevice&& <Picker
+          selectedValue={deviceValue}
+          style={{
+          width: '100%',
+          height: 40,
+          color: '#696C6E'
+          }}
+          onValueChange={itemValue => devicepickerenable(itemValue)}
+          >
+            {device.map((value, key) => (
+              <Picker.Item label={value} value={value} key={key} />
+            ))}
+          </Picker>}
+          {editdevice&&<TextInput
+            label="Enter lattitude"
+            returnKeyType="next"
+            value={deviceValue}
+            style={styles.input}
+            disabled={true}
+            autoCapitalize="none"
+            autoCompleteType="street-address"
+            textContentType="fullStreetAddress"
+            keyboardType="web-search"
+          />}
+        </View>
+        {textInput.map((value,key) => {
+          return value
+        })}
+      </Dialog.Content>
+      <Dialog.Actions>
+        <Button
+          mode="contained"
+          style={styles.dialogbutton}
+          onPress={AddDevice}
+        >
+          Submit
+        </Button>
+        <Button
+          mode="contained"
+          style={styles.dialogbutton}
+          onPress={() => setIsDialogVisible(false)}
+        >
+          Cancel
+        </Button>
+      </Dialog.Actions>
+      </ScrollView>
+      </Dialog.ScrollArea>
+    </Dialog>
+    </Portal>
+    <Portal>
+      <Dialog
+        style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
+        visible={isreplaceDialogVisible}
+        onDismiss={() => setIsreplaceDialogVisible(false)}
+      >
+        <Dialog.Title style={{marginLeft: 'auto',marginRight: 'auto',}}>Replace Device Information</Dialog.Title>
+        <Dialog.Content style={{marginLeft: 'auto',marginRight: 'auto',width:'80%'}}>
+          {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+          />
+          )} 
           <TouchableOpacity onPress={showDatepicker}>
             <Text style={{borderWidth:1}}>{datestringvalue}</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={{ width: '100%', 
-                height: 40,
-                borderRadius: 5, 
-                borderWidth: 1, 
-                borderColor: '#560CCE', 
-                overflow: 'hidden', 
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                marginTop: 10,
-                marginBottom: 10,
-                alignSelf: 'center' }}>
-             {!editdevice&& <Picker
-                //  enabled={false}
-                selectedValue={deviceValue}
-                style={{
-                  width: '100%',
-                  height: 40,
-                  color: '#696C6E'
-                }}
-                onValueChange={itemValue => devicepickerenable(itemValue)}
-              >
-                {device.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>}
-              {editdevice&&<TextInput
-              label="Enter lattitude"
-              returnKeyType="next"
-              value={deviceValue}
-              style={styles.input}
-              disabled={true}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />}
-              </View>
-            {textInput.map((value,key) => {
-          return value
-        })}
-         
-              
-            </Dialog.Content>
-
-            
-            <Dialog.Actions>
-              <Button
-                mode="contained"
-                style={styles.dialogbutton}
-                onPress={AddDevice}
-              >
-                Submit
-              </Button>
-              <Button
-                mode="contained"
-                style={styles.dialogbutton}
-                onPress={() => setIsDialogVisible(false)}
-              >
-                Cancel
-              </Button>
-            </Dialog.Actions>
-            
-
-            </ScrollView>
-            </Dialog.ScrollArea>
-          </Dialog>
-        </Portal>
-
-        
-
-        <Portal>
-          <Dialog
-            style={{ width: Platform.OS === 'web' ? '40%' : '80%', marginLeft:Platform.OS === 'web' ? '30%' : '10%' ,backgroundColor: '#F7F6E7'}}
-            visible={isreplaceDialogVisible}
-            onDismiss={() => setIsreplaceDialogVisible(false)}
+          <Picker
+            selectedValue={deviceValue}
+            style={{
+              width: '100%'
+              }}
+              onValueChange={itemValue => setdeviceValue(itemValue)}
           >
-            <Dialog.Title
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-            >
-              Replace Device Information
-            </Dialog.Title>
-            <Dialog.Content
-              style={{
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                width:'80%'
-              }}
-            >
-              
-        
-              {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode={mode}
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )} 
-      <TouchableOpacity onPress={showDatepicker}>
-          
-          <Text style={{borderWidth:1}}>{datestringvalue}</Text>
-        </TouchableOpacity>
-
-              <Picker
-                selectedValue={deviceValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => setdeviceValue(itemValue)}
-              >
-                {replacedata.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-              <Picker
-              
-                selectedValue={newdeviceValue}
-                style={{
-                  width: '100%'
-                }}
-                onValueChange={itemValue => setnewdeviceValue(itemValue)}
-              >
-                {device.map((value, key) => (
-                  <Picker.Item label={value} value={value} key={key} />
-                ))}
-              </Picker>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button
-                mode="contained"
-                style={styles.button}
-                onPress={ReplaceDevice}
-              >
-                Submit
-              </Button>
-
-              <Button
-                mode="contained"
-                style={styles.button}
-                onPress={() => setIsreplaceDialogVisible(false)}
-              >
-                Cancel
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
-      </View>
+            {replacedata.map((value, key) => (
+              <Picker.Item label={value} value={value} key={key} />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={newdeviceValue}
+            style={{
+              width: '100%'
+            }}
+            onValueChange={itemValue => setnewdeviceValue(itemValue)}
+          >
+            {device.map((value, key) => (
+              <Picker.Item label={value} value={value} key={key} />
+            ))}
+          </Picker>
+        </Dialog.Content>
+      <Dialog.Actions>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={ReplaceDevice}
+        >
+          Submit
+        </Button>
+        <Button
+          mode="contained"
+          style={styles.button}
+          onPress={() => setIsreplaceDialogVisible(false)}
+        >
+          Cancel
+        </Button>
+      </Dialog.Actions>
+    </Dialog>
+    </Portal>
     </View>
+  </View>
   )
 }
 const styles = StyleSheet.create({

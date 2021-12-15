@@ -1,10 +1,10 @@
-// Module: LoginScreen
+// Module: Dashboard.js
 // 
 // Function:
-//      Function to lforgot password module
+//      Function to Forgot password screen
 // 
 // Version:
-//    V2.02  Thu Jul 25 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,8 +20,11 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 25 2021 10:30:00 muthup
+//       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+//
 import React, { useState,useEffect } from 'react'
 import Background from '../components/Background'
 import BackButton from '../components/BackButton'
@@ -43,6 +46,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   const [password, setpassword] = useState('');
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
@@ -50,9 +54,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     getApiversion("https://"+geturl[2]+"/dncserver");
    
   }, [])
-  
+  //To get the api token
   const getApiversion = (apiUrl) => {
-    
     const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
@@ -62,33 +65,27 @@ const ForgotPasswordScreen = ({ navigation }) => {
       },
       
     }
-   
     fetch(url,postMethod)
-      .then(response => {
-        const statusCode = response.status
-      
-       
-        if (statusCode == 502) {
+    .then(response => {
+      const statusCode = response.status
+      if (statusCode == 502) {
           alert('Please turn on server')
+      }
+      response.json().then(responseJson => {
+        if(responseJson!=null){
+          let versionarray=responseJson.split(' ');
+          setversion(versionarray[4])
         }
-        response.json().then(responseJson => {
-        
-         if(responseJson!=null){
-         let versionarray=responseJson.split(' ');
-         setversion(versionarray[4])
-         
-         }
-        
-        })
       })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
     
   }
+  //To reset the password
   const ResetPassword = () => {
     var emaildata={};
-    
     emaildata['email']=email.value;
     emaildata['new_pwd']=password;
     emaildata['otpnum']=otpvalue;
@@ -103,30 +100,28 @@ const ForgotPasswordScreen = ({ navigation }) => {
       },
       body: JSON.stringify(emaildata),
     })
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log(responseJson)
-        
-        setalertmessage(JSON.stringify(responseJson.message));
-        setotpalert(true);
-        if(responseJson.message=="Password updated successfully!")
-        {
-          alert("Password updated successfully!")
-          setotpshow(false);
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'LoginScreen' }],
-          })
-        }
+    .then(response => response.json())
+    .then(responseJson => {
+      setalertmessage(JSON.stringify(responseJson.message));
+      setotpalert(true);
+      if(responseJson.message=="Password updated successfully!")
+      {
+        alert("Password updated successfully!")
+        setotpshow(false);
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'LoginScreen' }],
+        })
+      }
        
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
+  //To send otp
   const ResetPasswordotp = () => {
     var emaildata={};
-    
     emaildata['email']=email.value;
     emaildata['mode']='fpwd';
     emaildata['status']='non-verified';
@@ -139,42 +134,34 @@ const ForgotPasswordScreen = ({ navigation }) => {
       },
       body: JSON.stringify(emaildata),
     })
-      .then(response => response.json())
-      .then(responseJson => {
-        console.log(responseJson)
-        
-        if(responseJson.message!="Email Id not exist. Please sign up")
-        {
-          setotpshow(true);
-        }
-        setalertmessage(JSON.stringify(responseJson.message));
-        setotpalert(true);
-     
-       
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    .then(response => response.json())
+    .then(responseJson => {
+      if(responseJson.message!="Email Id not exist. Please sign up")
+      {
+        setotpshow(true);
+      }
+      setalertmessage(JSON.stringify(responseJson.message));
+      setotpalert(true);
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
+  //This function executed while send bytton pressed
   const sendPressed = () => {
-    
-     
     const emailError = emailValidator(email.value)
     if (emailError) {
-     
       setEmail({ ...email, error: emailError })
-       
       return
     }
-    
-   if(otpshow)
-   {
-    ResetPassword();
-   }
-   else
-   {
-    ResetPasswordotp();
-   }
+    if(otpshow)
+    {
+      ResetPassword();
+    }
+    else
+    {
+      ResetPasswordotp();
+    }
       
   }
   return (
@@ -182,10 +169,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
       <BackButton goBack={navigation.goBack} />
       <Logo />
       <Header>Restore Password</Header>
-  
       <TextInput
-      label="E-mail address"
-        
+        label="E-mail address"
         returnKeyType="done"
         value={email.value}
         onChangeText={text => setEmail({ value: text, error: '' })}
@@ -197,26 +182,18 @@ const ForgotPasswordScreen = ({ navigation }) => {
         keyboardType="email-address"
         description="You will receive email with password reset otp."
       />
-     
-         {otpshow && (  <TextInput
-       
-       label="Type here your otp"
-       returnKeyType="next"
-       value={otpvalue}
-       onChangeText={text => setotpvalue(text)}
-       
-     />
-     
-     )}
-    {otpshow && ( <TextInput
-       
-       label="Enter new password"
-       returnKeyType="next"
-       value={password}
-       onChangeText={text => setpassword(text)}
-       
-     />
-     )}
+      {otpshow && (  <TextInput
+      label="Type here your otp"
+      returnKeyType="next"
+      value={otpvalue}
+      onChangeText={text => setotpvalue(text)}
+      />)}
+      {otpshow && ( <TextInput
+      label="Enter new password"
+      returnKeyType="next"
+      value={password}
+      onChangeText={text => setpassword(text)}
+      />)}
       <Button
         mode="contained"
         onPress={sendPressed}
@@ -225,24 +202,21 @@ const ForgotPasswordScreen = ({ navigation }) => {
         Submit
       </Button>
       <AwesomeAlert
-          show={otpalert}
-          showProgress={false}
-          title="Alert"
-          message={alertmessage}
-          closeOnTouchOutside={false}
-          closeOnHardwareBackPress={false}
-          showCancelButton={true}
-          showConfirmButton={true}
-        
-          confirmText="ok "
-          confirmButtonColor="#DD6B55"
-        
-          onConfirmPressed={() =>setotpalert(false)}
-        />
-      
+        show={otpalert}
+        showProgress={false}
+        title="Alert"
+        message={alertmessage}
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        confirmText="ok "
+        confirmButtonColor="#DD6B55"
+        onConfirmPressed={() =>setotpalert(false)}
+      />
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-      <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC |{uiversion}| Server {version}</Text>
-    </View>
+        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC |{uiversion}| Server {version}</Text>
+      </View>
  
     </Background>
   )

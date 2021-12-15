@@ -4,7 +4,6 @@
     "slug": "DNC",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/logo@2.png",
     "splash": {
       "image": "./assets/splash1.png",
       "resizeMode": "contain",
@@ -17,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smppandi.DNC"
     },
     "android": {
       "adaptiveIcon": {
