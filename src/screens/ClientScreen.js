@@ -1,10 +1,11 @@
-// Module: ClientScreen
+/*###############################################################################
+// Module: ClientScreen.js
 // 
 // Function:
-//      Function to Client management
+//      Function to Client management screen
 // 
 // Version:
-//    V2.02  Thu Jul 16 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -22,6 +23,9 @@
 //  Revision history:
 //       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+###############################################################################*/
 
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, ScrollView,Image,Platform,TouchableOpacity,Modal,Picker} from 'react-native'
@@ -32,7 +36,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import AppBar from '../components/AppBar'
 import AwesomeAlert from 'react-native-awesome-alerts';
 import {Restart} from 'fiction-expo-restart';
-import { set } from 'react-native-reanimated';
 
 const ClientScreen = ({navigation}) => {
   
@@ -68,21 +71,19 @@ const ClientScreen = ({navigation}) => {
   const [apiUrl,setapiUrl]=useState('');
   const anc='';
 
+  //To add Textinput dynamicallay
   const addTextInput = (index) => {
     let textarray = [];
     for (var i=0;i<textInput.length;i++)
     {
       textarray.push(textInput[i]);
     }
- 
     textarray.push(<TextInput key={index}  label="Tag" valu={anc}
       onChangeText={(text) => addValues(text, index)} />);
-     
     settextInput(textarray);
   }
 
-  
-
+  //To get values from TextInput
   const addValues = (text, index) => {
     let dataArray = inputData;
     let checkBool = false;
@@ -102,7 +103,8 @@ const ClientScreen = ({navigation}) => {
       setinputData(dataArray);
     }
   }
-  
+
+  //To get api token and session data
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -118,17 +120,17 @@ const ClientScreen = ({navigation}) => {
       console.log(e)
     }
   }
-
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     getApitoken()
   }, [])
 
+  //To get edit rows data in table
   const editIconclicked=(rowData,index) =>{
     setdevicestatus(false);
     seteditsubmit(true) ;
     settextInput([]);
     setclientid(rowData[0])
-    //checkDeviceStatus(rowData[0]);
     getdatabase();
     dbdropdownenaled(rowData[3])
     setclientname({ value: ''+rowData[1]+'', error: '' })
@@ -137,10 +139,8 @@ const ClientScreen = ({navigation}) => {
     for(var i=0;i<edittableData.length;i++)
     {
       let cid=edittableData[i][0];
-      
       if(cid==rowData[0])
       {
-        
         seturl(edittableData[i][2]);
         setdb(edittableData[i][5]);
         setdbusername(edittableData[i][3]);
@@ -153,13 +153,12 @@ const ClientScreen = ({navigation}) => {
         setclientwisetag(clienttag)
         settag1(edittableData[i][6]);
         setmeas(rowData[4])
-       
       }
-      
     }
     setIsDialogVisible(true);
   }
 
+  //To get client list
   const fetchInventory = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
       method: 'GET',
@@ -203,7 +202,6 @@ const ClientScreen = ({navigation}) => {
           let array=[];
           array.push(cid);
           array.push(cname);
-          
           if(responseJson[i].taglist!=undefined)
           {
             let taglist=responseJson[i].taglist;
@@ -217,17 +215,14 @@ const ClientScreen = ({navigation}) => {
                 editarray.push(taglist[j]);
               }
             }
-            
           }
           array.push(tagstring);
           array.push(dbdata.dbname);
           array.push(dbdata.mmtname);
           array.push(cid);
-          
           edittablearray.push(editarray)
           tablearray.push(array);
           setedittableData(edittablearray); 
-        
       }
     }
     settableData(tablearray);
@@ -235,36 +230,7 @@ const ClientScreen = ({navigation}) => {
     })
   }
 
-  const checkDeviceStatus = (clientid) => {
-    var url =apiUrl+'/client-device-status/' + '' + clientid + ''
-    const DELETEMethod = {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Accept: 'application/json',
-        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-      },
-    }
-   
-    fetch(url, DELETEMethod)
-    .then(response => {
-      const statusCode = response.status
-      if (statusCode == 403) {
-        alert('Session expired')
-        Restart();
-      }
-      response.json().then(responseJson => {
-       if (responseJson['message'] != null) {
-        alert(JSON.stringify(responseJson['message']))
-      }
-      setdevicestatus(responseJson["devices_registered"])
-      })
-      })
-    .catch(error => {
-        console.error(error)
-      })
-      
-  }
+  //To delete the client 
   const Deleteclient = (clientname) => {
     var url =apiUrl+'/client/' + '' + clientname + ''
     const DELETEMethod = {
@@ -295,11 +261,10 @@ const ClientScreen = ({navigation}) => {
     setshowAlert(false);
   }
 
+  //To update the client 
   const updateclient = () => {
     setIsDialogVisible(false)
     let jsondata={};
-    
-    
     jsondata["cname"]=clientname.value;
     jsondata["url"]=dburl;
     jsondata["user"]=dbusername;
@@ -317,7 +282,6 @@ const ClientScreen = ({navigation}) => {
         },
         body: JSON.stringify(jsondata),
     }
-
     fetch(url, putMethod).then(response => {
       const statusCode = response.status;
       if (statusCode == 403) {
@@ -333,6 +297,8 @@ const ClientScreen = ({navigation}) => {
       })
       })
   }
+
+  //To get DB list
   const getdatabase = () => {
     var url =apiUrl+'/fetch-db-info' 
     const posetMethod = {
@@ -356,10 +322,9 @@ const ClientScreen = ({navigation}) => {
       Restart();
     }
     response.json().then(responseJson => {
-   if (responseJson['message'] != null) {
-      alert(JSON.stringify(responseJson['message']))
+      if (responseJson['message'] != null) {
+        alert(JSON.stringify(responseJson['message']))
     }
-    
     var dblist=[];
     dblist.push("select database");
     if(responseJson["db_list"]!=undefined)
@@ -367,17 +332,17 @@ const ClientScreen = ({navigation}) => {
       for(var i=0;i<responseJson["db_list"].length;i++)
       {
         dblist.push(responseJson["db_list"][i]);
-        
       }
     }
     setData(dblist);
-        
     })
     })
     .catch(error => {
       console.error(error)
     })
   }
+
+  //To showing delete and edit icon in table
   const element = (cellData, index) => (
     <View style={{flexDirection:'row' }}>
       <TouchableOpacity onPress={()=>editIconclicked(cellData,index)}>
@@ -392,14 +357,16 @@ const ClientScreen = ({navigation}) => {
       </TouchableOpacity>
     </View>
   );
+
+  //To shows alert
   const createButtonAlert = (cellData) =>
   {
-    
     setclientname({ value: ''+cellData[1]+'', error: '' })
     setclientid(cellData[0])
     setshowAlert(true);
-    
   };
+
+  //To get dilog submit option
   const clientsubmitmange=()=>
   {
     if(editsubmit)
@@ -411,6 +378,7 @@ const ClientScreen = ({navigation}) => {
     }
   }
 
+  //To dilog box hide/show purpose 
   const Adduserdilogvisible=() =>
   {
     seteditsubmit(false);
@@ -421,9 +389,9 @@ const ClientScreen = ({navigation}) => {
     setIsDialogVisible(true);
   }
 
+  // Add client data to server
   const Addclient = () => {
     setIsDialogVisible(false);
-    
     let jsondata={};
     let taglist=[];
     taglist.push(tag1);
@@ -453,7 +421,6 @@ const ClientScreen = ({navigation}) => {
       },
       body: JSON.stringify(jsondata),
     }
-
     fetch(url, putMethod).then(response => {
       const statusCode = response.status;
       if (statusCode == 403) {
@@ -484,65 +451,63 @@ const ClientScreen = ({navigation}) => {
       settextboxshow(true);
     }
   }
- const dbdropdownenaled=(itemValue)=>
- {
-   setdb(itemValue);
-  var url =apiUrl+'/fetch-mmt-info' 
-  const posetMethod = {
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json',
-      Accept: 'application/json',
-      Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
-    },
-    body: JSON.stringify({
-      url: dburl,
-      pwd:dbpassword,
-      user:dbusername,
-      dbn:itemValue
-    }),
-  }
-  fetch(url, posetMethod)
-  .then(response => {
-  const statusCode = response.status;
-  if (statusCode == 403) {
-    alert('Session expired')
-    Restart();
-  }
-  response.json().then(responseJson => {
-   if (responseJson['message'] != null) {
-    alert(JSON.stringify(responseJson['message']))
-  }
- 
-  
-  var mesasurementdata=[];
-  mesasurementdata.push("select mesurement");
-  if(responseJson["mmt_list"]!=undefined)
+
+  //For dropdown option purpose
+  const dbdropdownenaled=(itemValue)=>
   {
-    for(var i=0;i<responseJson["mmt_list"].length;i++)
-    {
-      mesasurementdata.push(responseJson["mmt_list"][i]);
-      
+    setdb(itemValue);
+    var url =apiUrl+'/fetch-mmt-info' 
+    const posetMethod = {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      body: JSON.stringify({
+        url: dburl,
+        pwd:dbpassword,
+        user:dbusername,
+        dbn:itemValue
+      }),
     }
-  }
-  setmeasdata(mesasurementdata);
-  
+    fetch(url, posetMethod)
+    .then(response => {
+    const statusCode = response.status;
+    if (statusCode == 403) {
+      alert('Session expired')
+      Restart();
+    }
+    response.json().then(responseJson => {
+    if (responseJson['message'] != null) {
+      alert(JSON.stringify(responseJson['message']))
+    }
+    var mesasurementdata=[];
+    mesasurementdata.push("select mesurement");
+    if(responseJson["mmt_list"]!=undefined)
+    {
+      for(var i=0;i<responseJson["mmt_list"].length;i++)
+      {
+        mesasurementdata.push(responseJson["mmt_list"][i]);
+      }
+    }
+    setmeasdata(mesasurementdata);
   })
   })
   .catch(error => {
     console.error(error)
   })
- }
+  }
   return (
     <View>
       <AppBar navigation={navigation} title={"Client Mangement"}></AppBar>
-      
-        <Button mode="contained"  style={styles.button} onPress={Adduserdilogvisible}>Add Client</Button>
-        <ScrollView  >
-        <View style={{ marginTop:'5%', marginHorizontal: 20,width: '60%', marginLeft:'20%', }}> 
-         
+      <Button mode="contained"  style={styles.button} onPress={Adduserdilogvisible}>Add Client</Button>
+      <ScrollView  >
+        <View style={{ marginHorizontal: 'auto' }}>  
+          <ScrollView horizontal={true} > 
             <Table borderStyle={{borderColor: 'transparent'}}>
               <Row data={tableHead} style={styles.head}  widthArr={widthArr} textStyle={{margin: 6, color:'white', fontWeight: 'bold', textTransform: 'uppercase'}}/>
+              <ScrollView>
               {
                 tableData.map((rowData, index) => (
                   <TableWrapper key={index}  style={[styles.row, index%2 && {backgroundColor: '#F8F7FA'}]}>
@@ -554,29 +519,26 @@ const ClientScreen = ({navigation}) => {
                   </TableWrapper>
                 ))
               }
-              
+              </ScrollView>
             </Table>
-          
+          </ScrollView>
         </View>
-        </ScrollView>
-        <AwesomeAlert
-        show={showAlert}
-        howProgress={false}
-        title="Delete Client"
-        message={"Are you sure want to delete "+clientname.value+"?"}
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={true}
-        showConfirmButton={true}
-        cancelText="cancel"
-        confirmText="delete "
-        confirmButtonColor="#DD6B55"
-        onCancelPressed={() => setshowAlert(false)}
-        onConfirmPressed={() =>Deleteclient (clientname.value)}
-        />
-      
-      
-     
+      </ScrollView>
+      <AwesomeAlert
+      show={showAlert}
+      howProgress={false}
+      title="Delete Client"
+      message={"Are you sure want to delete "+clientname.value+"?"}
+      closeOnTouchOutside={false}
+      closeOnHardwareBackPress={false}
+      showCancelButton={true}
+      showConfirmButton={true}
+      cancelText="cancel"
+      confirmText="delete "
+      confirmButtonColor="#DD6B55"
+      onCancelPressed={() => setshowAlert(false)}
+      onConfirmPressed={() =>Deleteclient (clientname.value)}
+      />
       <Modal presentationStyle="overFullScreen" transparent={true} visible={isDialogVisible} >
         <ScrollView>
           <View style={{flex: 1,marginTop:'5%',justifyContent: 'center',alignItems: 'center',width: Platform.OS === 'web' ? '50%' : '80%', 
@@ -709,7 +671,7 @@ const styles = StyleSheet.create({
     margin: 20
   },
   button: {
-    width: '20%',
+    width: Platform.OS === 'web' ? '20%' : '40%',
     marginVertical: 10,
     paddingVertical: 2,
     marginLeft: 'auto',

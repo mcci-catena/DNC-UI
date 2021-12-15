@@ -1,10 +1,11 @@
-// Module: Dashboard
+/*###############################################################################
+// Module: Dashboard.js
 // 
 // Function:
-//      Function to home screen
+//      Function to dashboard screen
 // 
 // Version:
-//    V2.02  Thu Jul 15 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,23 +21,29 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 15 2021 10:30:00 muthup
+//       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import { View, Text } from 'react-native';
 import AppBar from '../components/AppBar'
 import getEnvVars from './environment';
 const { uiversion } = getEnvVars();
-import AsyncStorage from '@react-native-async-storage/async-storage'
+
 const Dashboard=({navigation})=> {
   const [version,setversion]=useState('');
+
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     getApiversion("https://"+geturl[2]+"/dncserver");
   }, [])
- 
+
+  //To fetch the api token values 
   const getApiversion = (apiUrl) => {
     const url = apiUrl+'/version'
     const postMethod= {
@@ -45,10 +52,7 @@ const Dashboard=({navigation})=> {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      
     }
-    
-   
     fetch(url,postMethod)
     .then(response => {
       const statusCode = response.status
@@ -59,14 +63,13 @@ const Dashboard=({navigation})=> {
       if(responseJson!=null){
          let versionarray=responseJson.split(' ');
          setversion(versionarray[4])
-         
       }
         
-      })
     })
-    .catch(error => {
-      console.error(error)
-    })
+  })
+  .catch(error => {
+    console.error(error)
+  })
     
   }
 

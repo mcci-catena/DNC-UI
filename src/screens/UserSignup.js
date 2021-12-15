@@ -1,3 +1,4 @@
+/*###############################################################################
 // Module: UserSignup
 // 
 // Function:
@@ -22,6 +23,7 @@
 //  Revision history:
 //       1.01 Wed July 14 2021 10:30:00 muthup
 //       Module created.
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import {
@@ -58,8 +60,8 @@ const UserScreen = ({ navigation }) => {
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
   
+  //To get api token
   const getApiversion = (apiUrl) => {
-    
     const url = apiUrl+'/version'
     const postMethod= {
       method: 'GET',
@@ -67,34 +69,26 @@ const UserScreen = ({ navigation }) => {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      
     }
-   
     fetch(url,postMethod)
-      .then(response => {
-        const statusCode = response.status
-      
-       
-        if (statusCode == 502) {
-          alert('Please turn on server')
+    .then(response => {
+      const statusCode = response.status
+      if (statusCode == 502) {
+        alert('Please turn on server')
+      }
+      response.json().then(responseJson => {
+        if(responseJson!=null){
+          let versionarray=responseJson.split(' ');
+          setversion(versionarray[4])
         }
-        response.json().then(responseJson => {
-        
-         if(responseJson!=null){
-         let versionarray=responseJson.split(' ');
-         setversion(versionarray[4])
-         
-         }
-        
-        })
       })
-      .catch(error => {
-        console.error(error)
-      })
-    
+    })
+    .catch(error => {
+      console.error(error)
+    })
   }
 
-
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
@@ -105,6 +99,7 @@ const UserScreen = ({ navigation }) => {
     }, 500);
   }, []);
 
+  //This part for showing load spinner
   if(isLoading){
     return(
       <View style={{flex: 1,justifyContent: 'center',alignItems: 'center'}}>
@@ -115,7 +110,7 @@ const UserScreen = ({ navigation }) => {
     );
   }
 
-
+  //To Send otp
   const onverifyPressed = () => {
     const emailError = emailValidator(email.value)
     if (emailError) {
@@ -150,7 +145,8 @@ const UserScreen = ({ navigation }) => {
     })
     setTimeout(() => {setspinner(false)}, 500);
   }
-
+  
+  //To send the signup request
   const onSignUpPressed = () => {
     if(shouldShow!=true)
     {
@@ -163,7 +159,6 @@ const UserScreen = ({ navigation }) => {
     const passwordError = passwordValidator(password.value)
     const ClientnameError = nameValidator(Clientname.value)
     let passlen = password.value
-    
     if (passlen.length < 8) {
       setPassword({ ...email, error: 'Password should be 8 characters' })
       return
@@ -175,7 +170,6 @@ const UserScreen = ({ navigation }) => {
       setClientname({ ...Clientname, error: ClientnameError })
       return
     }
-
     var data = {
       cname: Clientname.value,
       uname: Username.value,

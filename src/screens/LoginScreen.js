@@ -1,10 +1,11 @@
-// Module: LoginScreen
+/*###############################################################################
+// Module: LoginScreen.js
 // 
 // Function:
-//      Function to login module
+//      Function to export login screen
 // 
 // Version:
-//    V2.02  Thu Jul 12 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,8 +21,11 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 12 2021 10:30:00 muthup
+//       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
 import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'
@@ -36,26 +40,26 @@ import { nameValidator } from '../helpers/nameValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
 import getEnvVars from './environment';
 const { uiversion } = getEnvVars();
+import { AuthContext } from "./context";
 const LoginScreen = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
   const [version,setversion]=useState('');
   const [apiUrl,setapiUrl]=useState('');
+  const { checkusertype,initializeusertype } = React.useContext(AuthContext);
   
-
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     let sampleurl=JSON.stringify(window.location.href)
     let geturl=sampleurl.split('/')
     setapiUrl("https://"+geturl[2]+"/dncserver")
     getApiversion("https://"+geturl[2]+"/dncserver");
-   
+    initializeusertype();
   }, [])
-
+  
+  //To get the api token
   const getApiversion = (apiUrl) => {
-    
-    
     const url = apiUrl+"/version"
-    
     const postMethod= {
       method: 'GET',
       headers: {
@@ -64,12 +68,9 @@ const LoginScreen = ({ navigation }) => {
       },
       
     }
-   
-  fetch(url,postMethod)
-  .then(response => {
-      
+    fetch(url,postMethod)
+    .then(response => {
       const statusCode = response.status
-      
       if (statusCode == 502) {
         alert('Please turn on server')
       }
@@ -84,12 +85,10 @@ const LoginScreen = ({ navigation }) => {
     .catch(error => {
         console.error(error)
     })
-    
-   
   }
-
-  const onLoginPressed = () => {
   
+  //To verify the login authentication
+  const onLoginPressed = () => {
     const emailError = nameValidator(email.value)
     const passwordError = passwordValidator(password.value)
     if (emailError || passwordError) {
@@ -97,18 +96,14 @@ const LoginScreen = ({ navigation }) => {
       setPassword({ ...password, error: passwordError })
       return
     }
-    
     var data = {
       uname: email.value,
       pwd: password.value,
     }
-
-   
     const storeData = async (taken, uname, usertype) => {
       try {
         const tokenValue = JSON.stringify(taken)
         const unameValue = JSON.stringify(uname)
-   
         
         await AsyncStorage.setItem('token', tokenValue)
         await AsyncStorage.setItem('uname', unameValue)
@@ -118,8 +113,6 @@ const LoginScreen = ({ navigation }) => {
         console.log(e)
       }
     }
-
-   
     const url = apiUrl+"/login";
     const postMethod= {
       method: 'POST',
@@ -131,9 +124,8 @@ const LoginScreen = ({ navigation }) => {
     }
    
     fetch(url,postMethod)
-      .then(response => {
+    .then(response => {
         const statusCode = response.status
-      
         if (statusCode == 403) {
           alert('inavalid token/token expired')
         }
@@ -141,11 +133,9 @@ const LoginScreen = ({ navigation }) => {
           alert('Please turn on server')
         }
         response.json().then(responseJson => {
-         
-        let usertype = ''
-        const result = 'Invalid username/password'
-        if (responseJson.message == result ||responseJson.message=='User not exists') {
-           
+          let usertype = ''
+          const result = 'Invalid username/password'
+          if (responseJson.message == result ||responseJson.message=='User not exists') {
             navigation.reset({
               index: 0,
               routes: [{ name: 'LoginScreen' }],
@@ -162,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
                 index: 0,
                 routes: [{ name: 'Dashboard' }],
               })
-             
+              checkusertype()
             } else {
              
               usertype = 'Admin'
@@ -180,10 +170,9 @@ const LoginScreen = ({ navigation }) => {
       .catch(error => {
         console.error(error)
       })
-      
   }
-
-
+  
+  //To get type user need to signup
   const onSignupPressed = () => {
    
     const url = apiUrl+"/signup";
@@ -279,7 +268,6 @@ const styles = StyleSheet.create({
     width:'100%',
     alignItems: 'flex-end',
     marginBottom: 24,
-    
   },
   row: {
     flexDirection: 'row',
@@ -289,7 +277,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: theme.colors.third,
   },
-
   link: {
     fontWeight: 'bold',
     color: theme.colors.third,

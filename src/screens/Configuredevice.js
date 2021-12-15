@@ -1,10 +1,11 @@
-// Module: Configuredevice
+/*###############################################################################
+// Module: Configuredevice.js
 // 
 // Function:
-//      Function to devicr configuration for web
+//      Function to device configuration for web
 // 
 // Version:
-//    V2.02  Thu Jul 17 2021 10:30:00  muthup   Edit level 1
+//    V1.02  Tue Dec 01 2021 10:30:00  muthup   Edit level 2
 // 
 //  Copyright notice:
 //       This file copyright (C) 2021 by
@@ -20,11 +21,14 @@
 //       muthup, MCCI July 2021
 // 
 //  Revision history:
-//       1.01 Wed July 17 2021 10:30:00 muthup
+//       1.01 Wed July 16 2021 10:30:00 muthup
 //       Module created.
+//       1.02 Tue Dec 01 2021 10:30:00 muthup
+//       Fixed issues #2 #3 #4 #5 #6 #7
+###############################################################################*/
+
 import React, { useState, useEffect } from 'react'
 import { View, StyleSheet, Text, Alert, Picker ,ScrollView,Platform,Image,TextInput} from 'react-native'
-// import TextInput from '../components/TextInput'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import Button from '../components/Button'
 import { Dialog, Portal,Menu ,Appbar} from 'react-native-paper'
@@ -37,6 +41,7 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 import { useIsFocused } from "@react-navigation/native";
 import { theme } from '../core/theme'
 import {Restart} from 'fiction-expo-restart';
+
 const Configuredevice = ({ navigation }) => {
   let [hwid, sethwid] = useState([])
   const[lat,setlat]=useState('');
@@ -80,13 +85,16 @@ const Configuredevice = ({ navigation }) => {
   const [inputData, setinputData] = useState([])
   const[taglength,settaglength]=useState();
   const isFocused = useIsFocused();
-  
+
+  //This function is used to fetch and update the values before execute other function
   useEffect(() => {
     if(isFocused){
       getApitoken();
       setselectedValue('');
     }
   }, [isFocused])
+
+  //To get server api token from Async storage
   const getApitoken = async () => {
     try {
       const token = await AsyncStorage.getItem('token')
@@ -109,6 +117,8 @@ const Configuredevice = ({ navigation }) => {
       console.log(e)
     }
   }
+
+  //To add textinput dynamically
   let textarray = [];
   const addTextInput = (index) => {
     let labelvalue=taglist[index]
@@ -118,6 +128,8 @@ const Configuredevice = ({ navigation }) => {
     onChangeText={(text) => addValues(text,index)} /></View>);
     settextInput(textarray);
   }
+
+  //To get values from synamic textinput 
   const addValues = (text, index) => {
     let dataArray = inputData;
     let checkBool = false;
@@ -136,14 +148,13 @@ const Configuredevice = ({ navigation }) => {
       dataArray.push({'text':text,'index':index});
       setinputData(dataArray);
     }
-    
-    
   }
   
   const dateformatvalue = moment(datevalue).utc().format('MM/DD/YYYY')
   const timevalue = moment(datevalue).utc().format('HH:mm:ss')
   const datestringvalue = dateformatvalue + ',' + timevalue
-  
+
+  //To fetch configure device table data
   const fetchtabledata = (itemValue) => {
     var taglist=[];
     let tableHead=[];
@@ -218,6 +229,8 @@ const Configuredevice = ({ navigation }) => {
       })
       })
   }
+
+  //To fetch clientlist
   const fetchClientlist = (token,apiUrl) => {
     fetch(apiUrl+'/clients', {
       method: 'GET',
@@ -251,6 +264,8 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
+  //To replace device 
   const ReplaceDevice=()=>
   {
     setIsreplaceDialogVisible(false);
@@ -290,43 +305,34 @@ const Configuredevice = ({ navigation }) => {
   .catch(error => {
     console.error(error)
   })
-  
- }
-  
+  }
+
+  //To add device for configure
   const AddDevice = () => {
-    
       if(editdevice)
       {
         let requestdata={};
         let newd={};
         let otherd={};
         requestdata['hwid']=deviceValue;
-
         for(var i=0;i<taglength;i++)
-      {  
-        let textdata=inputData[i];
-        
-        let oldtags=olddata[0]['tags'];
-        
-        if(textdata !=undefined)
-        {
-          for(var j=0;j<taglength;j++)
+        {  
+          let textdata=inputData[i];
+          let oldtags=olddata[0]['tags'];
+          if(textdata !=undefined)
           {
-            
+            for(var j=0;j<taglength;j++)
+            {
             if(textdata.index==oldtags[j].index)
             {
               newd[""+taglist[j]+""]=textdata["text"];
             }
           }
-        
         }
-       
-        otherd[""+taglist[i]+""]=oldtags[i].text;
-      
+       otherd[""+taglist[i]+""]=oldtags[i].text;
       }
       requestdata['newd']=newd;
       requestdata['otherd']=otherd;
-      
       setIsDialogVisible(false)
       var url = apiUrl+'/device/'+selectedValue
       const postMethod = {
@@ -338,7 +344,6 @@ const Configuredevice = ({ navigation }) => {
         },
         body: JSON.stringify(requestdata),
       }
-
       fetch(url, postMethod)
       .then(response => {
       const statusCode = response.status;
@@ -415,6 +420,8 @@ const Configuredevice = ({ navigation }) => {
         })
     }
   }
+
+  //To fetch device list
   const fetchDevicelist = selectedValue => {
     var url =apiUrl+'/listfrdev/' +'' +selectedValue +''
     const Getmethod = {
@@ -457,8 +464,9 @@ const Configuredevice = ({ navigation }) => {
       console.error(error)
     })
   }
+
+  //To action column in table
   const element = (cellData, index) => (
-  
     <View style={{flexDirection:'row'}}>
       <TouchableOpacity onPress={()=>createRemoveButtonAlert({hwid:""+cellData[taglength+1]+"",removedate:cellData[taglength+3]})}>
         <View style={{ paddingRight: 10 }} >
@@ -487,6 +495,8 @@ const Configuredevice = ({ navigation }) => {
     setshowAlert(true);
     setHardwareid(hwid);
   };
+
+  //To set values while edit icon clicked
   const editclicked=(cellData)=>
   {
     setdilogtitle("EDIT DEVICE INFORMATION");
@@ -513,26 +523,25 @@ const Configuredevice = ({ navigation }) => {
       settextInput(textarray);
     }
     olddataset['tags']=tags;
-    
     olddata.push(olddataset);
     setolddata(olddata)
     setIsDialogVisible(true)
-    
   }
+  
+  //To shows alert while remove button clicked
   const createRemoveButtonAlert = ({hwid,removedate}) =>
   {
-    
     if(removedate===null)
     {
       setshowRemoveAlert(true);
       setHardwareid(hwid);
-      
     }
     else{
       alert("This device was already removed");
     }  
-    
   };
+
+  //To remove the device
   const removeDevice = () => {
     setshowRemoveAlert(false);
     const dateformatvalue = moment(new Date()).utc().format('MM/DD/YYYY')
@@ -572,7 +581,14 @@ const Configuredevice = ({ navigation }) => {
     })
     
   }
+
+  //To add the device
   const addDevicebutton = () => {
+    if(selectedValue=='')
+    {
+      alert("Please Select Client")
+    }
+    else{
     setdatevalue(new Date());
     textarray=[];
     seteditdevice(false);
@@ -583,9 +599,10 @@ const Configuredevice = ({ navigation }) => {
     }
     setIsDialogVisible(true)
   }
+  }
+
+  //To replace the device
   const replaceDevice = ({hwid,removedate}) => {
-    
-    
     if(removedate===null)
     {
       setdeviceValue(hwid);
@@ -596,6 +613,8 @@ const Configuredevice = ({ navigation }) => {
       alert("This device was already removed");
     } 
   }
+
+  //To delete the device
   const deleteDevice = () => {
     setshowAlert(false);
     var url =apiUrl+'/device/' +'' +selectedValue +''
@@ -631,16 +650,19 @@ const Configuredevice = ({ navigation }) => {
     fetchDevicelist(selectedValue);
   }
 
+  //To client dropdown option purpose
   const pickerenabled=(itemValue) =>
   {
     setselectedValue(itemValue);
-    if(itemValue!="Select the Clients")
+    if(itemValue!=="Select Client")
     {
-      fetchtabledata(itemValue);
-      settablehide(true);
-      fetchDevicelist(itemValue)
+     fetchtabledata(itemValue);
+     settablehide(true);
+     fetchDevicelist(itemValue)
     }
   }
+  
+  //To device dropdoen option purpose
   const devicepickerenable=(itemValue)=>
   {
     setdeviceValue(itemValue);
@@ -802,32 +824,14 @@ const Configuredevice = ({ navigation }) => {
             <View style={{borderRadius: 5, borderWidth: 1, borderColor: '#560CCE',marginTop: 15,marginBottom: 10,}}>
               <DateTimePicker
               value={datevalue}
+              disabled={true}
               minDate={new Date(2018, 0, 4)}
               maxDate={new Date(3020, 0, 4)}
               onChange={value =>setdatevalue(value)}
               style={{ width: '100%', height: '100%' }}
               />
             </View>
-            {/* <TextInput
-              label="Enter lattitude"
-              returnKeyType="next"
-              value={lat}
-              onChangeText={text => setlat(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            />
-            <TextInput
-              label="Enter longtitude"
-              returnKeyType="next"
-              value={long}
-              onChangeText={text => setlong(text)}
-              autoCapitalize="none"
-              autoCompleteType="street-address"
-              textContentType="fullStreetAddress"
-              keyboardType="web-search"
-            /> */}
+
             {textInput.map((value,key) => {
               return value
             })}
@@ -1008,9 +1012,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 40,
-    //borderColor: '#560CCE',
     borderColor: theme.colors.primary,
-    
     borderWidth: 2,
     padding: 10,
     backgroundColor: theme.colors.surface,
