@@ -321,7 +321,7 @@ const HomeScreen = ({ navigation }) => {
   //To add user
   const Adduser = () => {
     setIsDialogVisible(false)
-    var url = apiUrl+'/usignup';
+    var url = apiUrl+'/invite';
     const putMethod = {
       method: 'POST',
       headers: {
@@ -331,11 +331,8 @@ const HomeScreen = ({ navigation }) => {
     },
     body: JSON.stringify({
       cname: selectedValue,
-      uname: username.value,
-      pwd: password.value,
       email: email.value,
-      otpnum:otp,
-      mode: "usignup"
+      mode: "invite"
     }),
     }
     fetch(url, putMethod).then(response => {
@@ -400,23 +397,16 @@ const HomeScreen = ({ navigation }) => {
           onDismiss={() => setIsDialogVisible(false)}
         >
           <Dialog.Title
-           style={{
-            fontSize: 15,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            marginTop:'5%',
-            marginBottom:'10%',
-            backgroundColor: '#560CCE',
-            color: '#FFFFFF',
-            padding: 10,
-            borderRadius: 40,
-          }}
+            style={{
+              marginLeft: 'auto',
+              marginRight: 'auto',
+            }}
           >
             Add User
           </Dialog.Title>
             <Dialog.Content
               style={{
-              marginLeft: 'auto',
+              marginLeft: 'auto',     
               marginRight: 'auto',
               width:"80%"
             }}
@@ -431,25 +421,7 @@ const HomeScreen = ({ navigation }) => {
                   <Picker.Item label={value} value={value} key={key} />
                 ))}
                 </Picker>
-                <TextInput
-                label="User name"
-                returnKeyType="next"
-                value={username.value}
-                onChangeText={text => setUsername({ value: text, error: '' })}
-                error={!!email.error}
-                errorText={email.error}
-                autoCapitalize="none"
-                autoCompleteType="name"
-                textContentType="name"
-                keyboardType="default"
-                />
-                <TextInput
-                label="Password"
-                returnKeyType="done"
-                value={password.value}
-                onChangeText={text => setPassword({ value: text, error: '' })}
-                secureTextEntry
-                />
+                
                 <TextInput
                 label="E-mail address"
                 returnKeyType="done"
@@ -462,9 +434,7 @@ const HomeScreen = ({ navigation }) => {
                 textContentType="emailAddress"
                 keyboardType="email-address"
                 />
-                <TouchableOpacity style={{backgroundColor:'#ff0000',width: Platform.OS === 'web' ? '25%' : '50%',marginLeft:'37.5%', padding: 10,borderRadius:25,alignItems:'center'}} onPress={onverifyPressed}>
-                  <Text style={{color:'#FFFFFF'}}>Verify Email</Text>
-                </TouchableOpacity>
+                
                 {otpshow && (  <TextInput
                 label="Type here your otp"
                 returnKeyType="next"
@@ -488,7 +458,7 @@ const HomeScreen = ({ navigation }) => {
               </Dialog.Content>
             <Dialog.Actions>
               <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}  onPress={Adduser}>
-                Submit
+                SendLink
               </Button>
               <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}} onPress={() => setIsDialogVisible(false)}>
                 Cancel
@@ -555,7 +525,7 @@ const HomeScreen = ({ navigation }) => {
         </Dialog.Content>
         <Dialog.Actions>
           <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}  onPress={updateUser}>
-            Submit
+            Send Link
           </Button>
           <Button mode="contained"  style={{width: '30%',marginVertical: 10,paddingVertical: 2,marginLeft: 'auto',marginRight: 'auto',}}onPress={() => setaddUserdilog(false)}>
             Cancel

@@ -148,12 +148,7 @@ const UserScreen = ({ navigation }) => {
   
   //To send the signup request
   const onSignUpPressed = () => {
-    if(shouldShow!=true)
-    {
-      setalertmessage("Please verify your email");
-      setshowAlert(true);
-      stop;
-    }
+    
     const UsernameError = nameValidator(Username.value)
     const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
@@ -175,10 +170,9 @@ const UserScreen = ({ navigation }) => {
       uname: Username.value,
       pwd: password.value,
       email: email.value,
-      otpnum:otp,
       mode: "usignup"
     }
-    const url = apiUrl+'/usignup';
+    const url = apiUrl+'/signup';
     fetch(url, {
       method: 'POST',
       headers: {
@@ -249,7 +243,7 @@ const UserScreen = ({ navigation }) => {
         label="Email"
         returnKeyType="next"
         value={email.value}
-        onChangeText={text => setEmail({ value: text, error: '' })}
+        onChangeText={text => setEmail({ value: text, error: '' })} 
         error={!!email.error}
         errorText={email.error}
         autoCapitalize="none"
@@ -257,11 +251,6 @@ const UserScreen = ({ navigation }) => {
         textContentType="emailAddress"
         keyboardType="email-address"
       />
-     
-     
-      <TouchableOpacity style={{backgroundColor:'#0000FF',alignItems: "center", padding: 10,borderRadius:25}} onPress={onverifyPressed}>
-          <Text style={styles.link}>Verify Email</Text>
-      </TouchableOpacity>
 
       {shouldShow && (  <TextInput
        label="Type here your otp"

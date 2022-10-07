@@ -52,7 +52,7 @@ const Homestackscreen=({navigation}) =>(
   <Homestack.Navigator initialRouteName="LoginScreen" screenOptions={{headerShown: false}}>
     <Homestack.Screen name="LoginScreen" component={LoginScreen} />
     <Homestack.Screen name="Dashboard" component={Dashboard} />
-    <Homestack.Screen name="AdminSignup" component={AdminSignup} />
+    <Homestack.Screen name="AdminSignup" component={UserSignup} />
     <Homestack.Screen name="UserSignup" component={UserSignup} />
     <Homestack.Screen name="ForgotPasswordScreen" component={ForgotPasswordScreen} />
   </Homestack.Navigator>

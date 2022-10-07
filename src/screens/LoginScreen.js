@@ -175,42 +175,18 @@ const LoginScreen = ({ navigation }) => {
   //To get type user need to signup
   const onSignupPressed = () => {
    
-    const url = apiUrl+"/signup";
-    fetch(url, {
-      method: 'GET',
-      headers: {
-       
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(responseJson => {
-      const result = "Welcome Admin"
-      if (responseJson["message"] == result) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'AdminSignup' }],
-          })
-      } else if(responseJson["message"]="Welcome User") {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'UserSignup' }],
-          })
-        }
-      else{
-          alert(JSON.stringify(responseJson["message"]));
-        }
+      navigation.reset({
+          index: 0,
+          routes: [{ name: 'UserSignup' }],
       })
-    .catch(error => {
-        console.error(error)
-    })
+    
   }
+
   const handleKeyDown=(e) =>  {
-    if(e.nativeEvent.key == "Enter"){
-      onLoginPressed();
-    }
-}
+      if(e.nativeEvent.key == "Enter"){
+          onLoginPressed();
+      }
+  }
 
   return (
   

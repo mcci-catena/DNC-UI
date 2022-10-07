@@ -140,9 +140,7 @@ const RegisterScreen = ({ navigation }) => {
         console.log(responseJson)
         setShouldShow(true);
         setalertmessage(JSON.stringify(responseJson.message));
-      setshowAlert(true);
-     
-       
+      setshowAlert(true);  
       })
       .catch(error => {
         console.error(error)
