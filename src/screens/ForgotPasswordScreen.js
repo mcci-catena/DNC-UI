@@ -172,12 +172,13 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
   return (
     <Background>
-      <BackButton goBack={navigation.goBack} />
-      <Logo />
-      <Header>Restore Password</Header>
+      <headers style={{fontFamily:'Helvetica', color:'grey'}}> RESTORE PASSWORD</headers>
+      
+      
       <TextInput
         label="E-mail address"
         returnKeyType="done"
+        fontFamily="Helvetica"
         value={email.value}
         onChangeText={text => setEmail({ value: text, error: '' })}
         error={!!email.error}
@@ -186,7 +187,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-        description="You will receive email with password reset otp."
+       
       />
       {otpshow && (  <TextInput
       label="Type here your otp"
@@ -202,7 +203,10 @@ const ForgotPasswordScreen = ({ navigation }) => {
       />)}
       <Button
         mode="contained"
+        color = "#53A0FE"
+
         onPress={sendPressed}
+
         style={{ marginTop: 16 }}
       >
         Submit
@@ -221,9 +225,11 @@ const ForgotPasswordScreen = ({ navigation }) => {
         onConfirmPressed={() =>setotpalert(false)}
       />
       <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC |{uiversion}| Server {version}</Text>
+      <Text style={{ color: 'black', fontSize: 11, fontWeight: 'bold',fontFamily:'Helvetica' }}>DNC {uiversion} | Server{version} </Text>
       </View>
  
+      <Button mode="contained"color = "#53A0FE"  onPress={() => navigation.navigate('LoginScreen')}
+       style={{ marginTop: 15}}> Back </Button>
     </Background>
   )
 }

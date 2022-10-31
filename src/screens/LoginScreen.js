@@ -28,10 +28,10 @@
 ###############################################################################*/
 
 import React, { useState,useEffect } from 'react'
+import { Header } from 'react-native-elements';
 import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
-import Logo from '../components/Logo'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -215,11 +215,28 @@ const LoginScreen = ({ navigation }) => {
   return (
   
     <Background>
-      <Logo />
+       <Header
+            barStyle="default"
+            centerComponent={{
+              text: 'DATA NORMALIZATION CONSOLE',
+              style: {color: 'black', fontSize: 20,marginTop:-100,fontFamily:'Helvetica'},
+            }}
+            containerStyle={{
+              width: '200%',
+              height: 100,
+              margintop :-500,
+              backgroundColor: 'WHITE',
+            }}
+            placement="center"
+                      />
+      
+      
+      <headers style={{fontFamily:'Helvetica', color:'grey'}}> USER LOGIN</headers> 
       
         <TextInput
         label="User name"
         returnKeyType="next"
+        fontFamily="Helvetica"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
         error={!!email.error}
@@ -232,6 +249,7 @@ const LoginScreen = ({ navigation }) => {
         <TextInput
         label="Password"
         returnKeyType="done"
+        fontFamily="Helvetica"
         value={password.value}
         onChangeText={text => setPassword({ value: text, error: '' })}
         error={!!password.error}
@@ -243,18 +261,15 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity
             onPress={() => navigation.navigate('ForgotPasswordScreen')}
           >
-            <Text style={styles.forgot}>Forgot your password?</Text>
+            <Text style={{color:'blue',fontFamily:'Helvetica ',fontSize:15}}>Forgot your password?</Text>
           </TouchableOpacity>
         </View>
-        <Button mode="contained" onPress={onLoginPressed}>Login</Button>
+        <Button mode="contained"color = "#53A0FE"  onPress={onLoginPressed}>Login</Button>
         <View style={styles.row}>
-          <Text style={{color:'white'}}>Don’t have an account? </Text>
-          <TouchableOpacity onPress={onSignupPressed}>
-            <Text style={styles.link}>Sign up</Text>
-          </TouchableOpacity>
+        
         </View>
         <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-          <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>DNC | {uiversion}| Server {version}</Text>
+        <Text style={{ color: 'black', fontSize: 11, fontWeight: 'bold',fontFamily:'Helvetica' }}>DNC {uiversion} | Server{version} </Text>
         </View>
      
     </Background>
