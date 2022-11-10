@@ -4,7 +4,7 @@ Generic DNC UI is an user interface for managing devices and clients.
 ## Release History
 
 - v1.2.0 has the following changes:
-  - Removal background images
+  - Removal of background images
 - v1.1.0 has the following changes:
   - Fix [#2](https://gitlab-x.mcci.com/client/milkweed/mcgraw/dnc/dnc-ui/-/issues/2): Disable the Date edit option in "Edit Device Information" form in Configure Device issue fixed.
   - Fix [#3](https://gitlab-x.mcci.com/client/milkweed/mcgraw/dnc/dnc-ui/-/issues/3): In Register Device, UI should always fetch the device list from backend while loading the "Add Device" form issue fixed.
