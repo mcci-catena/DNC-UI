@@ -215,20 +215,9 @@ const LoginScreen = ({ navigation }) => {
   return (
   
     <Background>
-       <Header
-            barStyle="default"
-            centerComponent={{
-              text: 'DATA NORMALIZATION CONSOLE',
-              style: {color: 'black', fontSize: 20,marginTop:-100,fontFamily:'Helvetica'},
-            }}
-            containerStyle={{
-              width: '200%',
-              height: 100,
-              margintop :-500,
-              backgroundColor: 'WHITE',
-            }}
-            placement="center"
-                      />
+       <View style = {styles}>
+        <Text style = {styles.header}>DATA NORMALIZATION CONSOLE </Text>
+       </View>
       
       
       <headers style={{fontFamily:'Helvetica', color:'grey'}}> USER LOGIN</headers> 
@@ -296,6 +285,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.third,
   },
+  header: {
+    fontSize :22,
+    marginLeft : -160,
+    marginTop : -150,
+    width : 500,
+    position :'absolute',
+    textAlign :'Top',
+    fontFamily:'Helvetica',
+    color:'Black'
+  }
 })
 
 export default LoginScreen
