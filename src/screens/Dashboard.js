@@ -35,6 +35,7 @@ const { uiversion } = getEnvVars()
 
 const Dashboard = ({ navigation }) => {
   const [version, setversion] = useState('')
+  const [apiUrl, setapiUrl] = useState('')
 
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
