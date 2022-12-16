@@ -64,8 +64,7 @@ const LoginScreen = ({ navigation }) => {
     // setapiUrl('https://' + geturl[2] + '/dncserver')
     // getApiversion('https://' + geturl[2] + '/dncserver')
 
-    const dncurl = 'http://localhost:8891'
-
+    const dncurl = "https://"+geturl[2]+"/dncserver"
     setapiUrl(dncurl)
     getApiversion(dncurl)
     initializeusertype()

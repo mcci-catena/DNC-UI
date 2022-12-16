@@ -40,7 +40,7 @@ const Dashboard = ({ navigation }) => {
   useEffect(() => {
     let sampleurl = JSON.stringify(window.location.href)
     let geturl = sampleurl.split('/')
-    const dncurl = 'http://localhost:8891'
+    const dncurl = "https://"+geturl[2]+"/dncserver"
     setapiUrl(dncurl)
     getApiversion(dncurl)
   }, [])
