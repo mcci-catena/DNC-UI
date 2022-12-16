@@ -27,7 +27,7 @@
 //       Fixed issues #2 #3 #4 #5 #6 #7
 ###############################################################################*/
 
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Background from '../components/Background'
 import BackButton from '../components/BackButton'
 import Logo from '../components/Logo'
@@ -35,67 +35,66 @@ import Header from '../components/Header'
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { emailValidator } from '../helpers/emailValidator'
-import {  View,Text } from 'react-native'
-import AwesomeAlert from 'react-native-awesome-alerts';
-import getEnvVars from './environment';
-const { uiversion } = getEnvVars();
+import { View, Text } from 'react-native'
+import AwesomeAlert from 'react-native-awesome-alerts'
+import getEnvVars from './environment'
+const { uiversion } = getEnvVars()
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState({ value: '', error: '' })
-  const [otpshow, setotpshow] = useState(false);
-  const [otpalert, setotpalert] = useState(false);
-  const [alertmessage, setalertmessage] = useState('');
-  const [otpvalue, setotpvalue] = useState('');
-  const [password, setpassword] = useState('');
-  const [version,setversion]=useState('');
-  const [apiUrl,setapiUrl]=useState('');
+  const [otpshow, setotpshow] = useState(false)
+  const [otpalert, setotpalert] = useState(false)
+  const [alertmessage, setalertmessage] = useState('')
+  const [otpvalue, setotpvalue] = useState('')
+  const [password, setpassword] = useState('')
+  const [version, setversion] = useState('')
+  const [apiUrl, setapiUrl] = useState('')
 
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl=JSON.stringify(window.location.href)
-    let geturl=sampleurl.split('/')
-    setapiUrl("https://"+geturl[2]+"/dncserver");
-    getApiversion("https://"+geturl[2]+"/dncserver");
-   
+    let sampleurl = JSON.stringify(window.location.href)
+    let geturl = sampleurl.split('/')
+    const dncurl = 'http://localhost:8891'
+    setapiUrl(dncurl)
+    getApiversion(dncurl)
   }, [])
 
   //To get the api token
   const getApiversion = (apiUrl) => {
-    const url = apiUrl+'/version'
-    const postMethod= {
+    const url = apiUrl + '/version'
+    const postMethod = {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      
     }
-    fetch(url,postMethod)
-    .then(response => {
-      const statusCode = response.status
-      if (statusCode == 502) {
+    fetch(url, postMethod)
+      .then((response) => {
+        const statusCode = response.status
+        if (statusCode == 502) {
           alert('Please turn on server')
-      }
-      response.json().then(responseJson => {
-        if(responseJson!=null){
-          let versionarray=responseJson.split(' ');
-          setversion(versionarray[4])
         }
+        response.json().then((responseJson) => {
+          if (responseJson != null) {
+            let versionarray = responseJson.split(' ')
+            setversion(versionarray[4])
+          }
+        })
       })
-    })
-    .catch(error => {
-      console.error(error)
-    })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   //To reset the password
   const ResetPassword = () => {
-    var emaildata={};
-    emaildata['email']=email.value;
-    emaildata['new_pwd']=password;
-    emaildata['otpnum']=otpvalue;
-    emaildata['mode']='fpwd';
-    emaildata['status']='non-verified';
-    const url = apiUrl+'/update-pwd'
+    var emaildata = {}
+    emaildata['email'] = email.value
+    emaildata['new_pwd'] = password
+    emaildata['otpnum'] = otpvalue
+    emaildata['mode'] = 'fpwd'
+    emaildata['status'] = 'non-verified'
+    const url = apiUrl + '/update-pwd'
     fetch(url, {
       method: 'PUT',
       headers: {
@@ -104,33 +103,31 @@ const ForgotPasswordScreen = ({ navigation }) => {
       },
       body: JSON.stringify(emaildata),
     })
-    .then(response => response.json())
-    .then(responseJson => {
-      setalertmessage(JSON.stringify(responseJson.message));
-      setotpalert(true);
-      if(responseJson.message=="Password updated successfully!")
-      {
-        alert("Password updated successfully!")
-        setotpshow(false);
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'LoginScreen' }],
-        })
-      }
-       
-    })
-    .catch(error => {
-      console.error(error)
-    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        setalertmessage(JSON.stringify(responseJson.message))
+        setotpalert(true)
+        if (responseJson.message == 'Password updated successfully!') {
+          alert('Password updated successfully!')
+          setotpshow(false)
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'LoginScreen' }],
+          })
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   //To send otp
   const ResetPasswordotp = () => {
-    var emaildata={};
-    emaildata['email']=email.value;
-    emaildata['mode']='fpwd';
-    emaildata['status']='non-verified';
-    const url = apiUrl+'/fp-send-otp'
+    var emaildata = {}
+    emaildata['email'] = email.value
+    emaildata['mode'] = 'fpwd'
+    emaildata['status'] = 'non-verified'
+    const url = apiUrl + '/fp-send-otp'
     fetch(url, {
       method: 'POST',
       headers: {
@@ -139,18 +136,17 @@ const ForgotPasswordScreen = ({ navigation }) => {
       },
       body: JSON.stringify(emaildata),
     })
-    .then(response => response.json())
-    .then(responseJson => {
-      if(responseJson.message!="Email Id not exist. Please sign up")
-      {
-        setotpshow(true);
-      }
-      setalertmessage(JSON.stringify(responseJson.message));
-      setotpalert(true);
-    })
-    .catch(error => {
-      console.error(error)
-    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if (responseJson.message != 'Email Id not exist. Please sign up') {
+          setotpshow(true)
+        }
+        setalertmessage(JSON.stringify(responseJson.message))
+        setotpalert(true)
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 
   //This function executed while send bytton pressed
@@ -160,53 +156,53 @@ const ForgotPasswordScreen = ({ navigation }) => {
       setEmail({ ...email, error: emailError })
       return
     }
-    if(otpshow)
-    {
-      ResetPassword();
-    }
-    else
-    {
-      ResetPasswordotp();
+    if (otpshow) {
+      ResetPassword()
+    } else {
+      ResetPasswordotp()
     }
   }
 
   return (
     <Background>
-      <headers style={{fontFamily:'Helvetica', color:'grey'}}> RESTORE PASSWORD</headers>
-      
-      
+      <headers style={{ fontFamily: 'Helvetica', color: 'grey' }}>
+        {' '}
+        RESTORE PASSWORD
+      </headers>
+
       <TextInput
         label="E-mail address"
         returnKeyType="done"
         fontFamily="Helvetica"
         value={email.value}
-        onChangeText={text => setEmail({ value: text, error: '' })}
+        onChangeText={(text) => setEmail({ value: text, error: '' })}
         error={!!email.error}
         errorText={email.error}
         autoCapitalize="none"
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-       
       />
-      {otpshow && (  <TextInput
-      label="Type here your otp"
-      returnKeyType="next"
-      value={otpvalue}
-      onChangeText={text => setotpvalue(text)}
-      />)}
-      {otpshow && ( <TextInput
-      label="Enter new password"
-      returnKeyType="next"
-      value={password}
-      onChangeText={text => setpassword(text)}
-      />)}
+      {otpshow && (
+        <TextInput
+          label="Type here your otp"
+          returnKeyType="next"
+          value={otpvalue}
+          onChangeText={(text) => setotpvalue(text)}
+        />
+      )}
+      {otpshow && (
+        <TextInput
+          label="Enter new password"
+          returnKeyType="next"
+          value={password}
+          onChangeText={(text) => setpassword(text)}
+        />
+      )}
       <Button
         mode="contained"
-        color = "#53A0FE"
-
+        color="#53A0FE"
         onPress={sendPressed}
-
         style={{ marginTop: 16 }}
       >
         Submit
@@ -222,14 +218,32 @@ const ForgotPasswordScreen = ({ navigation }) => {
         showConfirmButton={true}
         confirmText="ok "
         confirmButtonColor="#DD6B55"
-        onConfirmPressed={() =>setotpalert(false)}
+        onConfirmPressed={() => setotpalert(false)}
       />
-      <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-      <Text style={{ color: 'black', fontSize: 11, fontWeight: 'bold',fontFamily:'Helvetica' }}>DNC {uiversion} | Server{version} </Text>
+      <View
+        style={{ position: 'absolute', bottom: 10, marginHorizontal: 'auto' }}
+      >
+        <Text
+          style={{
+            color: 'black',
+            fontSize: 11,
+            fontWeight: 'bold',
+            fontFamily: 'Helvetica',
+          }}
+        >
+          DNC {uiversion} | Server{version}{' '}
+        </Text>
       </View>
- 
-      <Button mode="contained"color = "#53A0FE"  onPress={() => navigation.navigate('LoginScreen')}
-       style={{ marginTop: 15}}> Back </Button>
+
+      <Button
+        mode="contained"
+        color="#53A0FE"
+        onPress={() => navigation.navigate('LoginScreen')}
+        style={{ marginTop: 15 }}
+      >
+        {' '}
+        Back{' '}
+      </Button>
     </Background>
   )
 }

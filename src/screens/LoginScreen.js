@@ -27,9 +27,16 @@
 //       Fixed issues #2 #3 #4 #5 #6 #7
 ###############################################################################*/
 
-import React, { useState,useEffect } from 'react'
-import { Header } from 'react-native-elements';
-import { TouchableOpacity, StyleSheet, View, Alert ,Modal, ActivityIndicator} from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { Header } from 'react-native-elements'
+import {
+  TouchableOpacity,
+  StyleSheet,
+  View,
+  Alert,
+  Modal,
+  ActivityIndicator,
+} from 'react-native'
 import { Text } from 'react-native-paper'
 import Background from '../components/Background'
 import Button from '../components/Button'
@@ -38,55 +45,62 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { theme } from '../core/theme'
 import { nameValidator } from '../helpers/nameValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
-import getEnvVars from './environment';
-const { uiversion } = getEnvVars();
-import { AuthContext } from "./context";
+import getEnvVars from './environment'
+const { uiversion } = getEnvVars()
+import { AuthContext } from './context'
+import { Constants } from 'expo-constants'
 const LoginScreen = ({ navigation }) => {
   let [email, setEmail] = useState({ value: '', error: '' })
   let [password, setPassword] = useState({ value: '', error: '' })
-  const [version,setversion]=useState('');
-  const [apiUrl,setapiUrl]=useState('');
-  const { checkusertype,initializeusertype } = React.useContext(AuthContext);
-  
+  const [version, setversion] = useState('')
+  const [apiUrl, setapiUrl] = useState('')
+  const { checkusertype, initializeusertype } = React.useContext(AuthContext)
+
   //This function is used to fetch and update the values before execute other function
   useEffect(() => {
-    let sampleurl=JSON.stringify(window.location.href)
-    let geturl=sampleurl.split('/')
-    setapiUrl("https://"+geturl[2]+"/dncserver")
-    getApiversion("https://"+geturl[2]+"/dncserver");
-    initializeusertype();
+    console.log('Logscreen  Use Effect')
+    let sampleurl = JSON.stringify(window.location.href)
+    let geturl = sampleurl.split('/')
+    // setapiUrl('https://' + geturl[2] + '/dncserver')
+    // getApiversion('https://' + geturl[2] + '/dncserver')
+
+    const dncurl = 'http://localhost:8891'
+
+    setapiUrl(dncurl)
+    getApiversion(dncurl)
+    initializeusertype()
   }, [])
-  
+
   //To get the api token
   const getApiversion = (apiUrl) => {
-    const url = apiUrl+"/version"
-    const postMethod= {
+    console.log('Get Token')
+    console.log(apiUrl)
+    const url = apiUrl + '/version'
+    const postMethod = {
       method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      
     }
-    fetch(url,postMethod)
-    .then(response => {
-      const statusCode = response.status
-      if (statusCode == 502) {
-        alert('Please turn on server')
-      }
-      response.json().then(responseJson => {
-        if(responseJson!=null){
-        let versionarray=responseJson.split(' ');
-        setversion(versionarray[4])
+    fetch(url, postMethod)
+      .then((response) => {
+        const statusCode = response.status
+        if (statusCode == 502) {
+          alert('Please turn on server')
         }
-        
+        response.json().then((responseJson) => {
+          if (responseJson != null) {
+            let versionarray = responseJson.split(' ')
+            setversion(versionarray[4])
+          }
+        })
       })
-    })
-    .catch(error => {
+      .catch((error) => {
         console.error(error)
-    })
+      })
   }
-  
+
   //To verify the login authentication
   const onLoginPressed = () => {
     const emailError = nameValidator(email.value)
@@ -104,7 +118,7 @@ const LoginScreen = ({ navigation }) => {
       try {
         const tokenValue = JSON.stringify(taken)
         const unameValue = JSON.stringify(uname)
-        
+
         await AsyncStorage.setItem('token', tokenValue)
         await AsyncStorage.setItem('uname', unameValue)
         await AsyncStorage.setItem('usertype', usertype)
@@ -113,8 +127,8 @@ const LoginScreen = ({ navigation }) => {
         console.log(e)
       }
     }
-    const url = apiUrl+"/login";
-    const postMethod= {
+    const url = apiUrl + '/login'
+    const postMethod = {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -122,9 +136,9 @@ const LoginScreen = ({ navigation }) => {
       },
       body: JSON.stringify(data),
     }
-   
-    fetch(url,postMethod)
-    .then(response => {
+
+    fetch(url, postMethod)
+      .then((response) => {
         const statusCode = response.status
         if (statusCode == 403) {
           alert('inavalid token/token expired')
@@ -132,21 +146,23 @@ const LoginScreen = ({ navigation }) => {
         if (statusCode == 502) {
           alert('Please turn on server')
         }
-        response.json().then(responseJson => {
+        response.json().then((responseJson) => {
           let usertype = ''
           const result = 'Invalid username/password'
-          if (responseJson.message == result ||responseJson.message=='User not exists') {
+          if (
+            responseJson.message == result ||
+            responseJson.message == 'User not exists'
+          ) {
             navigation.reset({
               index: 0,
               routes: [{ name: 'LoginScreen' }],
             })
             alert(result)
-          } 
-          else {
+          } else {
             const token = responseJson['token']
             const uname = email.value
             const level = responseJson['level']
-            if (level == "1") {
+            if (level == '1') {
               usertype = 'Client'
               navigation.reset({
                 index: 0,
@@ -154,9 +170,8 @@ const LoginScreen = ({ navigation }) => {
               })
               checkusertype()
             } else {
-             
               usertype = 'Admin'
-          
+
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'Dashboard' }],
@@ -167,134 +182,154 @@ const LoginScreen = ({ navigation }) => {
           }
         })
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error)
       })
   }
-  
+
   //To get type user need to signup
   const onSignupPressed = () => {
-   
-    const url = apiUrl+"/signup";
-    fetch(url, {
-      method: 'GET',
-      headers: {
-       
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(responseJson => {
-      const result = "Welcome Admin"
-      if (responseJson["message"] == result) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'AdminSignup' }],
-          })
-      } else if(responseJson["message"]="Welcome User") {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'UserSignup' }],
-          })
-        }
-      else{
-          alert(JSON.stringify(responseJson["message"]));
-        }
-      })
-    .catch(error => {
-        console.error(error)
+    console.log('Entering into Signup page')
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'UserSignup' }],
     })
   }
-  const handleKeyDown=(e) =>  {
-    if(e.nativeEvent.key == "Enter"){
-      onLoginPressed();
+  const handleKeyDown = (e) => {
+    if (e.nativeEvent.key == 'Enter') {
+      onLoginPressed()
     }
-}
+  }
 
   return (
-  
     <Background>
-       <View style = {styles}>
-        <Text style = {styles.header}>DATA NORMALIZATION CONSOLE </Text>
-       </View>
-      
-      
-      <headers style={{fontFamily:'Helvetica', color:'grey'}}> USER LOGIN</headers> 
-      
-        <TextInput
+      <view style={styles}>
+        <Text style={styles.header}>DATA NORMALIZATION CONSOLE</Text>
+      </view>
+
+      {/* <View style={styles}>
+      <TouchableOpacity onPress={() => navigation.navigate('DataDownload')}>
+        <Text style={styles.DataDownload}>Data Download</Text>
+      </TouchableOpacity>
+    </View> */}
+
+      <headers style={{ fontFamily: 'Helvetica', color: 'grey' }}>
+        {' '}
+        USER LOGIN{' '}
+      </headers>
+
+      <TextInput
         label="User name"
         returnKeyType="next"
-        fontFamily="Helvetica"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
         error={!!email.error}
         errorText={email.error}
         autoCapitalize="none"
+        s
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-        />
-        <TextInput
+      />
+
+      <TextInput
         label="Password"
         returnKeyType="done"
-        fontFamily="Helvetica"
         value={password.value}
-        onChangeText={text => setPassword({ value: text, error: '' })}
+        onChangeText={(text) => setPassword({ value: text, error: '' })}
         error={!!password.error}
         errorText={password.error}
         secureTextEntry={true}
-        onKeyPress={e=>handleKeyDown(e)}
-        />
-        <View style={styles.forgotPassword}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ForgotPasswordScreen')}
+        onKeyPress={(e) => handleKeyDown(e)}
+      />
+
+      <View style={styles.forgotPassword}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ForgotPasswordScreen')}
+        >
+          <Text
+            style={{ color: 'blue', fontFamily: 'Helvetica ', fontSize: 15 }}
           >
-            <Text style={{color:'blue',fontFamily:'Helvetica ',fontSize:15}}>Forgot your password?</Text>
-          </TouchableOpacity>
-        </View>
-        <Button mode="contained"color = "#53A0FE"  onPress={onLoginPressed}>Login</Button>
-        <View style={styles.row}>
-        
-        </View>
-        <View style={{position: 'absolute', bottom: 10, marginHorizontal: 'auto'}}>
-        <Text style={{ color: 'black', fontSize: 11, fontWeight: 'bold',fontFamily:'Helvetica' }}>DNC {uiversion} | Server{version} </Text>
-        </View>
-     
+            Forgot your password?
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <Button mode="contained" color="#53A0FE" onPress={onLoginPressed}>
+        Login
+      </Button>
+
+      <View style={styles.row}>
+        <Text style={{ color: 'black' }}>Don’t have an account? </Text>
+        <TouchableOpacity onPress={onSignupPressed}>
+          <Text style={styles.link}>Sign up</Text>
+        </TouchableOpacity>
+      </View>
+      <View
+        style={{ position: 'absolute', bottom: 10, marginHorizontal: 'auto' }}
+      >
+        <Text
+          style={{
+            color: 'black',
+            fontSize: 11,
+            fontWeight: 'bold',
+            fontFamily: 'Helvetica',
+          }}
+        >
+          DNC {uiversion} | Server{version}{' '}
+        </Text>
+      </View>
+
+      {}
     </Background>
-   
-    
   )
 }
 
+// http://192.168.1.169:8891/download/Arnot_03-01-2022_to_04-30-2022_16-3-22.csv
+
 const styles = StyleSheet.create({
   forgotPassword: {
-    width:'100%',
+    width: '100%',
     alignItems: 'flex-end',
     marginBottom: 24,
   },
+  // DataDownload: {
+  // paddingR :1,
+  // textAlign :'right',
+  // color: 'blue',
+  // width:250,
+  // fontSize: 5,
+  // fontFamily:'Helvetica',
+  // marginTop:-200,
+  // marginLeft:950,
+  // fontWeight: 'bold',
+  // fontSize:15,
+  // textDecorationLine: 'underline'
+  // },
   row: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     marginTop: 4,
   },
   forgot: {
     fontSize: 13,
+    fontWeight: 'bold',
+
     color: theme.colors.third,
   },
   link: {
-    fontWeight: 'bold',
-    color: theme.colors.third,
+    color: 'blue',
+    marginLeft: 180,
+    marginTop: -20,
   },
   header: {
-    fontSize :22,
-    marginLeft : -160,
-    marginTop : -150,
-    width : 500,
-    position :'absolute',
-    textAlign :'Top',
-    fontFamily:'Helvetica',
-    color:'Black'
-  }
+    fontSize: 22,
+    marginLeft: -160,
+    marginTop: -150,
+    width: 500,
+    position: 'Absolute',
+    textAlign: 'Top',
+    fontFamily: 'Helvetica',
+    color: 'Black',
+  },
 })
-
 export default LoginScreen

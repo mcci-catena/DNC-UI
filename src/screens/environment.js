@@ -25,15 +25,15 @@
 //       Module created.
 ###############################################################################*/
 
-import Constants from "expo-constants";
-import { Platform } from "react-native";
+import Constants from 'expo-constants'
+import { Platform } from 'react-native'
 
 const ENV = {
   url: {
-    uiversion: "UI V1.2.2",
-  }
-};
+    uiversion: 'UI V1.2.2',
+  },
+}
 const getEnvVars = () => {
-    return ENV.url;
-};
-export default getEnvVars;
+  return ENV.url
+}
+export default getEnvVars
