@@ -50,6 +50,7 @@ import AppBar from '../components/AppBar'
 import { emailValidator } from '../helpers/emailValidator'
 import { useIsFocused } from '@react-navigation/native'
 import { Restart } from 'fiction-expo-restart'
+import RadioForm from 'react-native-simple-radio-button';
 const HomeScreen = ({ navigation }) => {
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
@@ -68,12 +69,17 @@ const HomeScreen = ({ navigation }) => {
   const [otpalert, setotpalert] = useState(false)
   const tablearray = []
   const clients = []
-  const [tableHead, settableHead] = useState(['User', 'Email', 'Action'])
+  const [tableHead, settableHead] = useState(['User', 'Email', 'Action','Role'])
   const [tableData, settableData] = useState([])
   const [alertmessage, setalertmessage] = useState('')
   const isFocused = useIsFocused()
   const [otp, setotp] = useState('')
   const [apiUrl, setapiUrl] = useState('')
+  const [selectedRole , setselectedRole] = useState('user')
+  const roles = [
+    {label: 'Admin', value:'admin'},
+    {label: 'User', value: 'user'},
+  ]
 
   //To get api token
   const getApitoken = async () => {
@@ -215,11 +221,52 @@ const HomeScreen = ({ navigation }) => {
       })
   }
 
+  //To update the Role
+  const updateRole = () => {
+    var url = apiUrl + '/chrole/'
+    let rv = "1"
+      if(selectedRole == "admin"){
+        rv = "2"
+      }
+    const putMethod = {
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json',
+        Accept: 'application/json',
+        Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
+      },
+      
+      body: JSON.stringify({
+        uname: username.value,
+        level: rv,
+      }),
+    }
+    fetch(url, putMethod)
+      .then((response) => {
+        const statusCode = response.status
+        if (statusCode == 403) {
+          alert('Session expired')
+          Restart()
+        }
+        response.json().then((responseJson) => {
+          if (responseJson['message'] != null) {
+            alert(JSON.stringify(responseJson['message']))
+          }
+          setaddUserdilog(false)
+          fetchInventory(Api, apiUrl)
+        })
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+  }
+
   //To set value while edit icon clicked
   const editIconclicked = (rowData, index) => {
     setPassword({ value: '', error: '' })
     setUsername({ value: '' + rowData[0] + '', error: '' })
     setEmail({ value: '' + rowData[1] + '', error: '' })
+    setselectedRole('')
     setoldEmail(rowData[1])
     setaddUserdilog(true)
   }
@@ -280,10 +327,16 @@ const HomeScreen = ({ navigation }) => {
           let user = responseJson[i].uname
           let email = responseJson[i].email
           let cid = responseJson[i].cid
+          let role="user"
+          if (responseJson[i].level == "2")
+          {
+            role = "admin"
+          }
           let array = []
           array.push(user)
           array.push(email)
           array.push(cid)
+          array.push(role)
           tablearray.push(array)
         }
         settableData(tablearray)
@@ -343,7 +396,7 @@ const HomeScreen = ({ navigation }) => {
         Authorization: 'Bearer ' + Api.replace(/['"]+/g, '') + '',
       },
       body: JSON.stringify({
-        cname: selectedValue,
+        cname: selectedValue, 
         email: email.value,
         mode: 'invite',
       }),
@@ -571,7 +624,7 @@ const HomeScreen = ({ navigation }) => {
             }}
           >
             <View>
-              <TextInput
+              <TextInput style={styles.input1}
                 label="User name"
                 returnKeyType="next"
                 value={username.value}
@@ -581,7 +634,7 @@ const HomeScreen = ({ navigation }) => {
                 textContentType="name"
                 keyboardType="default"
               />
-              <TextInput
+              <TextInput style={styles.input2}
                 label="E-mail address"
                 returnKeyType="done"
                 value={email.value}
@@ -593,7 +646,8 @@ const HomeScreen = ({ navigation }) => {
                 textContentType="emailAddress"
                 keyboardType="email-address"
               />
-              <TextInput
+              <View  >
+              <TextInput  style={styles.input}
                 label="Password"
                 returnKeyType="next"
                 value={password.value}
@@ -603,22 +657,55 @@ const HomeScreen = ({ navigation }) => {
                 textContentType="name"
                 keyboardType="default"
               />
-            </View>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
+
+              <Button
               mode="contained"
               style={{
-                width: '30%',
-                marginVertical: 10,
-                paddingVertical: 2,
-                marginLeft: 'auto',
-                marginRight: 'auto',
+                width: '20%',
+                flex: 1,
+                height:"100%",
+                justifyContent: 'center',
+                marginHorizontal: 500,
+                marginTop:-60,
+                marginLeft:350
               }}
               onPress={updateUser}
             >
-              Submit
+            Update 
             </Button>
+            <View>
+              
+            <Text style={styles.title}>Role : </Text>
+            {/* <Text> {selectedRole}</Text> */}
+
+              <RadioForm
+                 radio_props = {roles}
+                 initial = {selectedRole}
+                 onPress = {(value) => {
+                    setselectedRole(value);
+                 }}
+            layout='Row'
+        />
+            </View>
+              </View>
+            </View>
+          </Dialog.Content>  
+          <Button
+              mode="contained"
+              style={{
+                width: '15%',
+                flex: 1,
+                justifyContent: 'center',
+                marginHorizontal: 500,
+                marginTop:-68,
+                marginLeft:450
+              }}
+              onPress={updateRole}
+            >
+             Update
+            </Button>
+
+          <Dialog.Actions>
             <Button
               mode="contained"
               style={{
@@ -644,6 +731,33 @@ const styles = StyleSheet.create({
     height: 45,
     backgroundColor: '#606070',
     flexDirection: 'row',
+  },
+  input: {
+    height: '10',
+    marginTop: 12,
+    padding: 10,
+    width:'60%'
+  },
+  input1: {
+    height: '10',
+    marginTop: 12,
+    padding: 10,
+    width:'60%'
+  },
+  input2: {
+    height: '10',
+    marginTop: 12,
+    padding: 10,
+    width:'60%'
+  },
+  title: {
+    marginTop: 16,
+    paddingVertical: 8, 
+    color: '#20232a',
+    textAlign: 'center',
+    fontSize: 20,
+    width:'10%',
+    
   },
   button: {
     width: '20%',

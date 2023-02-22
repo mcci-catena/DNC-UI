@@ -30,7 +30,7 @@ import { Platform } from 'react-native'
 
 const ENV = {
   url: {
-    uiversion: 'UI V1.2.2',
+    uiversion: 'UI V1.2.3-1',
   },
 }
 const getEnvVars = () => {
