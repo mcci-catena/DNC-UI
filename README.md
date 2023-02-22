@@ -2,6 +2,8 @@
 Generic DNC UI is an user interface for managing devices and clients.
 
 ## Release History
+- v1.2.3 has the following changes:
+  - Adding of update user role option
 - v1.2.2 has the following changes:
   - Adding of user invite option
 - v1.2.1 has the following changes:
