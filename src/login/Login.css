@@ -1,0 +1,40 @@
+.login,
+.image {
+    min-height: 100vh;
+}
+.bg-image {
+    background-image: url('./fun.png');
+    background-size: cover;
+    background-position: center center;
+}
+.loginsignup {
+    margin-top: -10px;
+    margin-left: 130px;
+    font-size: 14px;
+}
+.loginforgot {
+    font-size: 14px;
+    margin-left: 280px;
+}
+.loginvr {
+    font-size: 10px;
+    margin-left: 250px;
+    margin-top: -27px;
+    position: absolute;
+}
+.loginvr1 {
+    font-size: 10px;
+    margin-left: 110px;
+    margin-top: -20px;
+    position: fixed;
+}
+.footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    width: 50%;
+    background-color: #f8f9fa;
+    padding: 0px;
+    text-align: center;
+    font-size: 12px;
+}
